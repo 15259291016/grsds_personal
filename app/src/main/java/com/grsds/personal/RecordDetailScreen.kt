@@ -124,13 +124,13 @@ fun RecordDetailScreen(
     if (showConfirm && record != null) {
         AlertDialog(
             onDismissRequest = { showConfirm = false },
-            title = { Text(stringResource(R.string.record_detail_01), fontSize = 17.sp) },
+            title = { Text(stringResource(R.string.record_detail_01), fontSize = 18.sp) },
             text = {
                 Text(
                     stringResource(R.string.record_detail_02, record.month, record.incomeType, record.amountLabel) +
                         stringResource(R.string.record_detail_03),
-                    fontSize = 14.sp,
-                    lineHeight = 21.sp
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp
                 )
             },
             confirmButton = {
@@ -169,7 +169,7 @@ private fun DetailTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.record_detail_07),
             color = Color(0xFF2787E8),
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -178,7 +178,7 @@ private fun DetailTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.record_detail_08),
             color = DetailPrimaryText,
-            fontSize = 18.sp,
+            fontSize = 17.sp,
             modifier = Modifier.align(Alignment.Center)
         )
         HorizontalDivider(color = DetailDivider, modifier = Modifier.align(Alignment.BottomCenter))
@@ -195,12 +195,12 @@ private fun AmountCard(record: IncomeRecord) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(record.incomeType, color = DetailPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(record.incomeType, color = DetailPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.width(8.dp))
                 StatusTag(record.disputed)
             }
             Spacer(Modifier.height(10.dp))
-            Text(stringResource(R.string.record_detail_09), color = DetailSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.record_detail_09), color = DetailSecondaryText, fontSize = 13.sp)
             Text(
                 formatYuan(record.amountInCents),
                 color = DetailPrimaryText,
@@ -212,17 +212,17 @@ private fun AmountCard(record: IncomeRecord) {
             Spacer(Modifier.height(12.dp))
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.record_detail_10), color = DetailSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.record_detail_10), color = DetailSecondaryText, fontSize = 13.sp)
                     Spacer(Modifier.height(3.dp))
-                    Text(stringResource(R.string.record_detail_11, record.year, record.month), color = DetailPrimaryText, fontSize = 15.sp)
+                    Text(stringResource(R.string.record_detail_11, record.year, record.month), color = DetailPrimaryText, fontSize = 16.sp)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.record_detail_12), color = DetailSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.record_detail_12), color = DetailSecondaryText, fontSize = 13.sp)
                     Spacer(Modifier.height(3.dp))
                     Text(
                         if (record.disputed) stringResource(R.string.record_detail_13) else stringResource(R.string.record_detail_14),
                         color = if (record.disputed) DetailWarn else Color(0xFF1D9E75),
-                        fontSize = 15.sp
+                        fontSize = 16.sp
                     )
                 }
             }
@@ -259,11 +259,11 @@ private fun InfoRow(label: String, value: String) {
             .padding(vertical = 13.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = DetailSecondaryText, fontSize = 14.sp, modifier = Modifier.width(96.dp))
+        Text(label, color = DetailSecondaryText, fontSize = 15.sp, modifier = Modifier.width(96.dp))
         Text(
             value,
             color = DetailPrimaryText,
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(1f)
         )
@@ -279,7 +279,7 @@ private fun AppealCard(disputed: Boolean, submitting: Boolean, onAppeal: () -> U
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.record_detail_20), color = DetailPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.record_detail_20), color = DetailPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 if (disputed) {
@@ -288,8 +288,8 @@ private fun AppealCard(disputed: Boolean, submitting: Boolean, onAppeal: () -> U
                     stringResource(R.string.record_detail_22)
                 },
                 color = DetailSecondaryText,
-                fontSize = 12.sp,
-                lineHeight = 19.sp
+                fontSize = 13.sp,
+                lineHeight = 21.sp
             )
             Spacer(Modifier.height(14.dp))
             Button(
@@ -311,7 +311,7 @@ private fun AppealCard(disputed: Boolean, submitting: Boolean, onAppeal: () -> U
                         disputed -> stringResource(R.string.record_detail_24)
                         else -> stringResource(R.string.record_detail_01)
                     },
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -328,7 +328,7 @@ private fun StatusTag(disputed: Boolean) {
         Text(
             if (disputed) stringResource(R.string.record_detail_25) else stringResource(R.string.record_detail_26),
             color = if (disputed) DetailWarn else Color(0xFF1D9E75),
-            fontSize = 10.sp,
+            fontSize = 12.sp,
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
         )
     }
@@ -343,9 +343,9 @@ private fun MissingRecordHint() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(120.dp))
-        Text(stringResource(R.string.record_detail_27), color = DetailPrimaryText, fontSize = 16.sp)
+        Text(stringResource(R.string.record_detail_27), color = DetailPrimaryText, fontSize = 17.sp)
         Spacer(Modifier.height(8.dp))
-        Text(stringResource(R.string.record_detail_28), color = DetailSecondaryText, fontSize = 13.sp)
+        Text(stringResource(R.string.record_detail_28), color = DetailSecondaryText, fontSize = 14.sp)
     }
 }
 

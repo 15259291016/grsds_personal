@@ -105,7 +105,7 @@ private fun RecTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.declarations_01),
             color = RecBlue,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -114,7 +114,7 @@ private fun RecTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.declarations_02),
             color = RecPrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -132,7 +132,7 @@ private fun SummaryCard(count: Int, refundTotal: Long, payableTotal: Long) {
             .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.declarations_03), color = RecSecondaryText, fontSize = 13.sp)
+            Text(stringResource(R.string.declarations_03), color = RecSecondaryText, fontSize = 14.sp)
             Spacer(Modifier.height(4.dp))
             Text(
                 stringResource(R.string.declarations_04, count),
@@ -145,22 +145,22 @@ private fun SummaryCard(count: Int, refundTotal: Long, payableTotal: Long) {
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.declarations_05), color = RecSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.declarations_05), color = RecSecondaryText, fontSize = 13.sp)
                     Spacer(Modifier.height(3.dp))
                     Text(
                         "¥${formatYuan(refundTotal)}",
                         color = RecGreen,
-                        fontSize = 16.sp,
+                        fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.declarations_06), color = RecSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.declarations_06), color = RecSecondaryText, fontSize = 13.sp)
                     Spacer(Modifier.height(3.dp))
                     Text(
                         "¥${formatYuan(payableTotal)}",
                         color = RecWarn,
-                        fontSize = 16.sp,
+                        fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -183,7 +183,7 @@ private fun DeclarationCard(record: DeclarationRecord) {
                 Text(
                     stringResource(R.string.declarations_07, record.year),
                     color = RecPrimaryText,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
@@ -192,13 +192,13 @@ private fun DeclarationCard(record: DeclarationRecord) {
                         .background(RecGreen.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Text(record.status, color = RecGreen, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(record.status, color = RecGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(Modifier.height(6.dp))
-            Text(stringResource(R.string.declarations_08, record.declarationNo), color = RecSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.declarations_08, record.declarationNo), color = RecSecondaryText, fontSize = 13.sp)
             Spacer(Modifier.height(2.dp))
-            Text(stringResource(R.string.declarations_09, record.submittedAtLabel), color = RecSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.declarations_09, record.submittedAtLabel), color = RecSecondaryText, fontSize = 13.sp)
             Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = RecDivider)
             Spacer(Modifier.height(12.dp))
@@ -218,14 +218,14 @@ private fun DeclarationCard(record: DeclarationRecord) {
                 Text(
                     if (record.isRefund) stringResource(R.string.declarations_13) else stringResource(R.string.declarations_14),
                     color = if (record.isRefund) RecGreen else RecWarn,
-                    fontSize = 13.sp
+                    fontSize = 14.sp
                 )
                 Spacer(Modifier.width(8.dp))
                 Spacer(Modifier.weight(1f))
                 Text(
                     "¥${formatYuan(abs(record.balanceCents))}",
                     color = if (record.isRefund) RecGreen else RecWarn,
-                    fontSize = 18.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Black
                 )
             }
@@ -236,9 +236,9 @@ private fun DeclarationCard(record: DeclarationRecord) {
 @Composable
 private fun Metric(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, color = RecSecondaryText, fontSize = 11.sp)
+        Text(label, color = RecSecondaryText, fontSize = 12.sp)
         Spacer(Modifier.height(3.dp))
-        Text(value, color = RecPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Text(value, color = RecPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -264,19 +264,19 @@ private fun EmptyState(onOpenReconciliation: () -> Unit) {
                 Text(stringResource(R.string.declarations_15), color = RecBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
             }
             Spacer(Modifier.height(16.dp))
-            Text(stringResource(R.string.declarations_16), color = RecPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.declarations_16), color = RecPrimaryText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 stringResource(R.string.declarations_17),
                 color = RecSecondaryText,
-                fontSize = 13.sp,
-                lineHeight = 19.sp
+                fontSize = 14.sp,
+                lineHeight = 20.sp
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 stringResource(R.string.declarations_18),
                 color = Color.White,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .background(RecBlue, RoundedCornerShape(20.dp))

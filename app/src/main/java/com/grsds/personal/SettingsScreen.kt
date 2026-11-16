@@ -102,8 +102,8 @@ fun SettingsScreen(
                             Text(
                                 stringResource(R.string.settings_02),
                                 color = SetSecondaryText,
-                                fontSize = 12.sp,
-                                lineHeight = 18.sp,
+                                fontSize = 13.sp,
+                                lineHeight = 20.sp,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                             )
                             HorizontalDivider(color = SetDivider, modifier = Modifier.padding(horizontal = 16.dp))
@@ -154,12 +154,12 @@ fun SettingsScreen(
     if (confirmClear) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
-            title = { Text(stringResource(R.string.settings_13), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.settings_13), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
                     stringResource(R.string.settings_14),
-                    fontSize = 14.sp,
-                    lineHeight = 21.sp
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp
                 )
             },
             confirmButton = {
@@ -195,7 +195,7 @@ private fun SetTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.settings_18),
             color = SetBlue,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -204,7 +204,7 @@ private fun SetTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.settings_19),
             color = SetPrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -217,7 +217,7 @@ private fun GroupTitle(title: String) {
     Text(
         title,
         color = SetSecondaryText,
-        fontSize = 13.sp,
+        fontSize = 14.sp,
         modifier = Modifier.padding(start = 26.dp, bottom = 8.dp)
     )
 }
@@ -240,11 +240,11 @@ private fun SettingRow(
             Text(
                 title,
                 color = if (danger) SetDanger else SetPrimaryText,
-                fontSize = 15.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
             Spacer(Modifier.height(3.dp))
-            Text(subtitle, color = SetSecondaryText, fontSize = 12.sp)
+            Text(subtitle, color = SetSecondaryText, fontSize = 13.sp)
         }
         if (onClick != null) {
             Spacer(Modifier.width(8.dp))

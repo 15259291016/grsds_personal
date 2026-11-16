@@ -99,7 +99,7 @@ fun DeductionsScreen(
                     .padding(horizontal = 12.dp, vertical = 12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.deductions_01), color = DeducSecondaryText, fontSize = 13.sp)
+                    Text(stringResource(R.string.deductions_01), color = DeducSecondaryText, fontSize = 14.sp)
                     Spacer(Modifier.height(9.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(2025, 2026).forEach { option ->
@@ -116,7 +116,7 @@ fun DeductionsScreen(
                                 Text(
                                     stringResource(R.string.deductions_02, option),
                                     color = if (selected) Color.White else Color(0xFF3C4654),
-                                    fontSize = 13.sp,
+                                    fontSize = 14.sp,
                                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                                 )
                             }
@@ -127,7 +127,7 @@ fun DeductionsScreen(
                     Spacer(Modifier.height(14.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.deductions_03), color = DeducSecondaryText, fontSize = 12.sp)
+                            Text(stringResource(R.string.deductions_03), color = DeducSecondaryText, fontSize = 13.sp)
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 "¥${formatYuan(totalCents)}",
@@ -139,7 +139,7 @@ fun DeductionsScreen(
                         Text(
                             stringResource(R.string.deductions_04, yearRecords.size, DEDUCTION_OPTIONS.size),
                             color = DeducBlue,
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -171,8 +171,8 @@ fun DeductionsScreen(
             Text(
                 stringResource(R.string.deductions_05),
                 color = DeducSecondaryText,
-                fontSize = 12.sp,
-                lineHeight = 18.sp,
+                fontSize = 13.sp,
+                lineHeight = 20.sp,
                 modifier = Modifier.padding(horizontal = 18.dp)
             )
             Spacer(Modifier.height(20.dp))
@@ -211,12 +211,12 @@ fun DeductionsScreen(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(R.string.deductions_06), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.deductions_06), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
                     stringResource(R.string.deductions_07, target.type, year),
-                    fontSize = 14.sp,
-                    lineHeight = 21.sp
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp
                 )
             },
             confirmButton = {
@@ -247,7 +247,7 @@ private fun DeducTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.deductions_10),
             color = DeducBlue,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -256,7 +256,7 @@ private fun DeducTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.deductions_11),
             color = DeducPrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -284,11 +284,11 @@ private fun DeductionRow(
                 .background(color.copy(alpha = 0.13f), RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Text(option.symbol, color = color, fontWeight = FontWeight.Black, fontSize = 14.sp)
+            Text(option.symbol, color = color, fontWeight = FontWeight.Black, fontSize = 15.sp)
         }
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(option.type, color = DeducPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(option.type, color = DeducPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
             Text(
                 if (record != null) {
@@ -297,13 +297,13 @@ private fun DeductionRow(
                     stringResource(R.string.deductions_13, formatYuan(option.yearlyStandardInCents))
                 },
                 color = if (record != null) DeducGreen else DeducSecondaryText,
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
         }
         Text(
             if (record != null) stringResource(R.string.deductions_14) else stringResource(R.string.deductions_15),
             color = DeducBlue,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .background(Color(0xFFEAF4FF), RoundedCornerShape(14.dp))
@@ -327,11 +327,11 @@ private fun DeductionSheet(
         Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
             Text(option.type, color = DeducPrimaryText, fontSize = 20.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(5.dp))
-            Text(stringResource(R.string.deductions_16, year, formatYuan(option.yearlyStandardInCents)), color = DeducSecondaryText, fontSize = 13.sp)
+            Text(stringResource(R.string.deductions_16, year, formatYuan(option.yearlyStandardInCents)), color = DeducSecondaryText, fontSize = 14.sp)
             Spacer(Modifier.height(18.dp))
 
             if (option.supportsHalf) {
-                Text(stringResource(R.string.deductions_17), color = DeducPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.deductions_17), color = DeducPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(9.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     listOf(100, 50).forEach { value ->
@@ -348,7 +348,7 @@ private fun DeductionSheet(
                             Text(
                                 if (value == 100) stringResource(R.string.deductions_18) else stringResource(R.string.deductions_19),
                                 color = if (selected) Color.White else Color(0xFF3C4654),
-                                fontSize = 13.sp,
+                                fontSize = 14.sp,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                             )
                         }
@@ -357,7 +357,7 @@ private fun DeductionSheet(
                 Spacer(Modifier.height(18.dp))
             }
 
-            Text(stringResource(R.string.deductions_20), color = DeducPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.deductions_20), color = DeducPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 "¥${formatYuan(option.yearlyStandardInCents * ratio / 100)}",
@@ -376,14 +376,14 @@ private fun DeductionSheet(
                     .fillMaxWidth()
                     .height(46.dp)
             ) {
-                Text(if (existing != null) stringResource(R.string.deductions_21) else stringResource(R.string.deductions_22), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(if (existing != null) stringResource(R.string.deductions_21) else stringResource(R.string.deductions_22), fontWeight = FontWeight.Bold, fontSize = 17.sp)
             }
             if (existing != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(
                     stringResource(R.string.deductions_23),
                     color = Color(0xFFE5484D),
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(onClick = onDelete)

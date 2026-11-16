@@ -172,7 +172,7 @@ fun IncomeTaxDetailsScreen(
                     Text(
                         text = if (otherTypesExpanded) stringResource(R.string.details_24) else stringResource(R.string.details_25),
                         color = Color(0xFF2488E8),
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -206,7 +206,7 @@ fun IncomeTaxDetailsScreen(
                                 .fillMaxWidth()
                                 .height(48.dp)
                         ) {
-                            Text(stringResource(R.string.details_27), color = Color.White, fontSize = 17.sp)
+                            Text(stringResource(R.string.details_27), color = Color.White, fontSize = 18.sp)
                         }
                     }
                     Spacer(Modifier.height(16.dp))
@@ -251,7 +251,7 @@ fun IncomeTaxDetailsScreen(
             Text(
                 context.getString(R.string.details_29, deleted.month, deleted.incomeType, deleted.amountLabel),
                 color = Color.White,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -259,7 +259,7 @@ fun IncomeTaxDetailsScreen(
             Text(
                 stringResource(R.string.details_30),
                 color = Color(0xFF6FB6FF),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .clickable {
@@ -275,7 +275,7 @@ fun IncomeTaxDetailsScreen(
             Text(
                 "✕",
                 color = Color.White.copy(alpha = 0.65f),
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 modifier = Modifier
                     .clickable { recentlyDeleted = null }
                     .padding(horizontal = 10.dp, vertical = 8.dp)
@@ -300,7 +300,7 @@ fun IncomeTaxDetailsScreen(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(R.string.details_32), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.details_32), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
                     stringResource(
@@ -309,8 +309,8 @@ fun IncomeTaxDetailsScreen(
                         target.incomeType,
                         target.amountLabel
                     ),
-                    fontSize = 14.sp,
-                    lineHeight = 21.sp
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp
                 )
             },
             confirmButton = {
@@ -358,7 +358,7 @@ private fun DetailsTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.details_01),
             color = Color(0xFF2787E8),
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -367,7 +367,7 @@ private fun DetailsTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.details_02),
             color = DetailsText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             modifier = Modifier.align(Alignment.Center)
         )
         HorizontalDivider(
@@ -395,7 +395,7 @@ private fun SectionTitle(title: String) {
         Text(
             title,
             color = DetailsText,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 9.dp)
         )
@@ -413,11 +413,11 @@ private fun YearRow(year: Int, onClick: () -> Unit) {
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(stringResource(R.string.details_03), color = Color(0xFF50545B), fontSize = 17.sp)
+        Text(stringResource(R.string.details_03), color = Color(0xFF50545B), fontSize = 18.sp)
         Text(
             year.toString(),
             color = DetailsText,
-            fontSize = 18.sp,
+            fontSize = 17.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
         )
@@ -453,14 +453,14 @@ private fun IncomeTypeRow(label: String, checked: Boolean, onClick: () -> Unit) 
                     contentAlignment = Alignment.Center
                 ) {
                     if (checked) {
-                        Text("✓", color = Color.White, fontSize = 14.sp)
+                        Text("✓", color = Color.White, fontSize = 15.sp)
                     }
                 }
             }
             Text(
                 label,
                 color = DetailsText,
-                fontSize = 17.sp,
+                fontSize = 18.sp,
                 modifier = Modifier.padding(start = 17.dp)
             )
         }
@@ -515,13 +515,13 @@ private fun YearPickerSheet(
                 Text(
                     stringResource(R.string.details_37),
                     color = Color(0xFF4E535B),
-                    fontSize = 17.sp,
+                    fontSize = 18.sp,
                     modifier = Modifier.clickable(onClick = onCancel)
                 )
                 Text(
                     stringResource(R.string.details_38),
                     color = Color(0xFF318BE8),
-                    fontSize = 17.sp,
+                    fontSize = 18.sp,
                     modifier = Modifier.clickable(onClick = onConfirm)
                 )
             }
@@ -542,7 +542,7 @@ private fun YearPickerSheet(
                         Text(
                             year.toString(),
                             color = if (year == pendingYear) DetailsText else Color(0xFFD5D7DA),
-                            fontSize = 18.sp
+                            fontSize = 17.sp
                         )
                     }
                     if (year == pendingYear) {
@@ -576,13 +576,13 @@ private fun CreatedRecordRow(
                 Text(
                     stringResource(R.string.details_04, record.month, record.incomeType),
                     color = DetailsText,
-                    fontSize = 16.sp
+                    fontSize = 17.sp
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
                     record.withholdingAgent,
                     color = Color(0xFF8A9099),
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -590,7 +590,7 @@ private fun CreatedRecordRow(
             Text(
                 "¥${record.amountLabel}",
                 color = DetailsText,
-                fontSize = 16.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.width(8.dp))
@@ -598,7 +598,7 @@ private fun CreatedRecordRow(
             Text(
                 stringResource(R.string.details_05),
                 color = DetailsBlue,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 modifier = Modifier
                     .clickable(onClick = onEdit)
                     .padding(horizontal = 6.dp, vertical = 12.dp)
@@ -606,7 +606,7 @@ private fun CreatedRecordRow(
             Text(
                 stringResource(R.string.details_06),
                 color = Color(0xFFE24B4A),
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 modifier = Modifier
                     .clickable(onClick = onDelete)
                     .padding(horizontal = 6.dp, vertical = 12.dp)
@@ -630,14 +630,14 @@ private fun EmptyRecordsHint(onOpenBatchCreate: () -> Unit) {
             .padding(vertical = 26.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.details_07), color = Color(0xFF8A9099), fontSize = 15.sp)
+        Text(stringResource(R.string.details_07), color = Color(0xFF8A9099), fontSize = 16.sp)
         Spacer(Modifier.height(6.dp))
-        Text(stringResource(R.string.details_08), color = Color(0xFFB4B8BF), fontSize = 13.sp)
+        Text(stringResource(R.string.details_08), color = Color(0xFFB4B8BF), fontSize = 14.sp)
         Spacer(Modifier.height(10.dp))
         Text(
             stringResource(R.string.details_09),
             color = DetailsBlue,
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .clickable(onClick = onOpenBatchCreate)
@@ -655,12 +655,12 @@ private fun RecordsTotalRow(count: Int, totalCents: Long) {
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(stringResource(R.string.details_10, count), color = Color(0xFF50545B), fontSize = 14.sp)
+        Text(stringResource(R.string.details_10, count), color = Color(0xFF50545B), fontSize = 15.sp)
         Spacer(Modifier.weight(1f))
         Text(
             stringResource(R.string.details_11, formatYuan(totalCents)),
             color = DetailsBlue,
-            fontSize = 16.sp,
+            fontSize = 17.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -685,10 +685,10 @@ private fun EditRecordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.details_12), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.details_12), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                Text(stringResource(R.string.details_13, record.incomeType), color = Color(0xFF7D8490), fontSize = 13.sp)
+                Text(stringResource(R.string.details_13, record.incomeType), color = Color(0xFF7D8490), fontSize = 14.sp)
                 Spacer(Modifier.height(12.dp))
                 OutlinedTextField(
                     value = amountText,
@@ -696,14 +696,14 @@ private fun EditRecordDialog(
                     label = { Text(stringResource(R.string.details_14)) },
                     isError = invalid,
                     supportingText = if (invalid) {
-                        { Text(stringResource(R.string.details_15), fontSize = 11.sp) }
+                        { Text(stringResource(R.string.details_15), fontSize = 12.sp) }
                     } else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(10.dp))
-                Text(stringResource(R.string.details_16), color = Color(0xFF7D8490), fontSize = 13.sp)
+                Text(stringResource(R.string.details_16), color = Color(0xFF7D8490), fontSize = 14.sp)
                 Spacer(Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -723,7 +723,7 @@ private fun EditRecordDialog(
                             Text(
                                 stringResource(R.string.details_17, m),
                                 color = if (selected) Color.White else Color(0xFF50545B),
-                                fontSize = 13.sp
+                                fontSize = 14.sp
                             )
                         }
                     }

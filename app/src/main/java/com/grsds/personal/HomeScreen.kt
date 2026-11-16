@@ -254,8 +254,8 @@ private fun HomeFeed(
                 Text(
                     text = stringResource(R.string.home_04),
                     color = PrimaryText,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Black,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 12.dp, top = 24.dp, bottom = 12.dp)
                 )
             }
@@ -300,7 +300,7 @@ private fun HomeFeed(
                 Text(
                     stringResource(R.string.home_07),
                     color = SecondaryText,
-                    fontSize = 17.sp,
+                    fontSize = 18.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -330,7 +330,7 @@ private fun PersistentSearchBar(
             value = query,
             onValueChange = onQueryChange,
             singleLine = true,
-            textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+            textStyle = TextStyle(color = Color.White, fontSize = 15.sp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { onSearch() }),
             decorationBox = { innerTextField ->
@@ -350,7 +350,7 @@ private fun PersistentSearchBar(
                             Text(
                                 stringResource(R.string.home_09),
                                 color = Color.White.copy(alpha = 0.9f),
-                                fontSize = 14.sp
+                                fontSize = 15.sp
                             )
                         }
                         innerTextField()
@@ -452,7 +452,7 @@ private fun HomeHeader(
                 Text(
                     stringResource(R.string.home_11),
                     color = Color(0xFFAD6700),
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -493,16 +493,16 @@ private fun AnnualSettlementCard(onEnter: () -> Unit, modifier: Modifier = Modif
                 Text(
                     stringResource(R.string.home_13),
                     color = PrimaryText,
-                    fontWeight = FontWeight.Black,
-                    fontSize = 18.sp
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 )
                 Spacer(Modifier.height(7.dp))
                 Text(
                     stringResource(R.string.home_14),
                     color = Color(0xFF3C4654),
-                    fontSize = 14.sp,
-                    lineHeight = 21.sp,
-                    modifier = Modifier.fillMaxWidth(0.82f)
+                    fontSize = 18.sp,
+                    lineHeight = 24.sp,
+                    modifier = Modifier.fillMaxWidth(0.74f)
                 )
                 Spacer(Modifier.height(15.dp))
                 Button(
@@ -513,7 +513,7 @@ private fun AnnualSettlementCard(onEnter: () -> Unit, modifier: Modifier = Modif
                         .width(170.dp)
                         .height(44.dp)
                 ) {
-                    Text(stringResource(R.string.home_15), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.home_15), fontWeight = FontWeight.Bold, fontSize = 17.sp)
                 }
             }
         }
@@ -547,16 +547,16 @@ private fun DeductionCard(
                         .background(Color(0xFFFF4A45), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.home_16), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.home_16), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.width(7.dp))
-                Text(stringResource(R.string.home_17), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.home_17), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp)
                 Spacer(Modifier.weight(1f))
                 Text(
                     stringResource(R.string.home_18),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     modifier = Modifier.clickable(onClick = onPolicyClick)
                 )
             }
@@ -564,7 +564,7 @@ private fun DeductionCard(
                 stringResource(R.string.home_19),
                 color = Color.White,
                 fontWeight = FontWeight.Black,
-                fontSize = 18.sp,
+                fontSize = 17.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -581,11 +581,11 @@ private fun DeductionCard(
                     modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("👨‍👩‍👧", fontSize = 18.sp)
+                    Text("👨‍👩‍👧", fontSize = 17.sp)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.home_20), color = Color(0xFF4B5360), fontSize = 13.sp)
+                    Text(stringResource(R.string.home_20), color = Color(0xFF4B5360), fontSize = 14.sp)
                     Spacer(Modifier.weight(1f))
-                    Text(stringResource(R.string.home_21), color = PrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                    Text(stringResource(R.string.home_21), color = PrimaryText, fontWeight = FontWeight.Black, fontSize = 17.sp)
                 }
             }
         }
@@ -610,10 +610,10 @@ private fun ServiceCards(
         serviceItems.forEach { item ->
             Surface(
                 color = Color.White,
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
-                    .width(100.dp)
-                    .height(142.dp)
+                    .width(112.dp)
+                    .height(156.dp)
                     .clickable {
                         when (item.id) {
                             "income" -> onOpenIncomeTaxDetails()
@@ -623,26 +623,44 @@ private fun ServiceCards(
                         }
                     }
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+                Column(modifier = Modifier.padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 8.dp)) {
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(26.dp)
                             .background(item.color, RoundedCornerShape(9.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(item.symbol), color = Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                        Text(stringResource(item.symbol), color = Color.White, fontWeight = FontWeight.Black, fontSize = 15.sp)
                     }
-                    Spacer(Modifier.height(9.dp))
-                    Text(stringResource(item.title), color = PrimaryText, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    Spacer(Modifier.height(5.dp))
-                    Text(stringResource(item.description), color = SecondaryText, fontSize = 10.sp, lineHeight = 15.sp)
+                    Spacer(Modifier.height(7.dp))
+                    Text(
+                        stringResource(item.title),
+                        color = PrimaryText,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        lineHeight = 19.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        stringResource(item.description),
+                        color = SecondaryText,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     Spacer(Modifier.weight(1f))
                     Text(
                         stringResource(item.action),
                         color = item.color,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.align(Alignment.End)
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .background(item.color.copy(alpha = 0.12f), RoundedCornerShape(9.dp))
+                            .padding(horizontal = 9.dp, vertical = 3.dp)
                     )
                 }
             }
@@ -693,7 +711,7 @@ private fun PromoBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
                 Text(
                     if (page == 0) stringResource(R.string.home_27) else stringResource(R.string.home_28),
                     color = if (page == 0) Color(0xFF075F9D) else Color(0xFF984418),
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -748,7 +766,7 @@ private fun ArticleCategories(selected: Int, onSelected: (Int) -> Unit) {
                 Text(
                     title,
                     color = if (selected == index) HomeBlue else Color(0xFF515761),
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = if (selected == index) FontWeight.Black else FontWeight.Normal
                 )
                 Spacer(Modifier.height(2.dp))
@@ -790,14 +808,14 @@ private fun ArticleCard(
                 Text(
                     stringResource(article.title),
                     color = PrimaryText,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    lineHeight = 21.sp,
+                    lineHeight = 22.sp,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.weight(1f))
-                Text("◷  ${article.date}", color = Color(0xFFB4B8BF), fontSize = 12.sp)
+                Text("◷  ${article.date}", color = Color(0xFFB4B8BF), fontSize = 13.sp)
             }
             if (!article.imageFirst) {
                 Spacer(Modifier.width(12.dp))
@@ -872,13 +890,13 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                             item.first,
                             color = if (selected) HomeBlue else Color(0xFF343B45),
                             fontWeight = FontWeight.Black,
-                            fontSize = 18.sp
+                            fontSize = 17.sp
                         )
                         Text(
                             stringResource(item.second),
                             color = if (selected) HomeBlue else Color(0xFF343B45),
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 12.sp
+                            fontSize = 13.sp
                         )
                     }
                 }

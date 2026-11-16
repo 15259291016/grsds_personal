@@ -202,7 +202,7 @@ fun BatchCreateScreen(
                         Text(
                             stringResource(R.string.batch_04),
                             color = BatchSecondaryText,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -242,7 +242,7 @@ private fun BatchTopBar(onBack: () -> Unit, onClear: () -> Unit) {
         Text(
             stringResource(R.string.batch_05),
             color = Color(0xFF2787E8),
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -251,13 +251,13 @@ private fun BatchTopBar(onBack: () -> Unit, onClear: () -> Unit) {
         Text(
             stringResource(R.string.batch_06),
             color = BatchPrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             modifier = Modifier.align(Alignment.Center)
         )
         Text(
             stringResource(R.string.batch_07),
             color = Color(0xFF2787E8),
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .clickable(onClick = onClear)
@@ -290,9 +290,9 @@ private fun BatchSummaryCard(
         Column(modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.batch_08), color = BatchSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.batch_08), color = BatchSecondaryText, fontSize = 13.sp)
                     Spacer(Modifier.height(2.dp))
-                    Text(stringResource(R.string.batch_09, year), color = BatchPrimaryText, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                    Text(stringResource(R.string.batch_09, year), color = BatchPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Black)
                 }
                 Box {
                     Surface(
@@ -303,7 +303,7 @@ private fun BatchSummaryCard(
                         Text(
                             stringResource(R.string.batch_10),
                             color = BatchBlue,
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
                         )
@@ -329,15 +329,15 @@ private fun BatchSummaryCard(
             Spacer(Modifier.height(12.dp))
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.batch_12), color = BatchSecondaryText, fontSize = 12.sp)
-                    Text(stringResource(R.string.batch_13, savedCount), color = BatchPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.batch_12), color = BatchSecondaryText, fontSize = 13.sp)
+                    Text(stringResource(R.string.batch_13, savedCount), color = BatchPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(stringResource(R.string.batch_14), color = BatchSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.batch_14), color = BatchSecondaryText, fontSize = 13.sp)
                     Text(
                         formatYuan(savedTotalCents),
                         color = BatchBlue,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -373,15 +373,15 @@ private fun DraftRowEditor(
                         .background(BatchBlue.copy(alpha = 0.12f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("${index + 1}", color = BatchBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("${index + 1}", color = BatchBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.batch_15, index + 1), color = BatchSecondaryText, fontSize = 12.sp)
+                Text(stringResource(R.string.batch_15, index + 1), color = BatchSecondaryText, fontSize = 13.sp)
                 Spacer(Modifier.weight(1f))
                 Text(
                     stringResource(R.string.batch_16),
                     color = BatchBlue,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
                         .clickable(onClick = onDuplicate)
                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -389,7 +389,7 @@ private fun DraftRowEditor(
                 Text(
                     if (canDelete) stringResource(R.string.batch_17) else stringResource(R.string.batch_07),
                     color = if (canDelete) BatchDanger else BatchSecondaryText,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
                         .clickable(onClick = onDelete)
                         .padding(start = 8.dp, top = 4.dp, bottom = 4.dp)
@@ -435,7 +435,7 @@ private fun DraftRowEditor(
 
             if (errorText != null) {
                 Spacer(Modifier.height(8.dp))
-                Text(errorText, color = BatchDanger, fontSize = 12.sp)
+                Text(errorText, color = BatchDanger, fontSize = 13.sp)
             }
         }
     }
@@ -454,7 +454,7 @@ private fun MonthField(
         Spacer(Modifier.height(4.dp))
         Box {
             FieldSurface(onClick = { expanded = true }) {
-                Text(stringResource(R.string.batch_22, month), color = BatchPrimaryText, fontSize = 15.sp)
+                Text(stringResource(R.string.batch_22, month), color = BatchPrimaryText, fontSize = 16.sp)
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 (1..12).forEach { option ->
@@ -487,7 +487,7 @@ private fun IncomeTypeField(
                 Text(
                     incomeType,
                     color = BatchPrimaryText,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -530,18 +530,18 @@ private fun TextInputField(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (prefix != null) {
-                Text(prefix, color = BatchSecondaryText, fontSize = 15.sp)
+                Text(prefix, color = BatchSecondaryText, fontSize = 16.sp)
                 Spacer(Modifier.width(3.dp))
             }
             Box(modifier = Modifier.weight(1f)) {
                 if (value.isEmpty()) {
-                    Text(placeholder, color = Color(0xFFB4B8BF), fontSize = 15.sp)
+                    Text(placeholder, color = Color(0xFFB4B8BF), fontSize = 16.sp)
                 }
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
                     singleLine = true,
-                    textStyle = TextStyle(color = BatchPrimaryText, fontSize = 15.sp),
+                    textStyle = TextStyle(color = BatchPrimaryText, fontSize = 16.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -552,7 +552,7 @@ private fun TextInputField(
 
 @Composable
 private fun FieldLabel(text: String) {
-    Text(text, color = BatchSecondaryText, fontSize = 12.sp)
+    Text(text, color = BatchSecondaryText, fontSize = 13.sp)
 }
 
 @Composable
@@ -597,7 +597,7 @@ private fun BatchActionBar(
                     .weight(0.42f)
                     .height(46.dp)
             ) {
-                Text(stringResource(R.string.batch_25), fontSize = 15.sp, color = BatchBlue)
+                Text(stringResource(R.string.batch_25), fontSize = 16.sp, color = BatchBlue)
             }
             Button(
                 onClick = onSubmit,
@@ -610,7 +610,7 @@ private fun BatchActionBar(
             ) {
                 Text(
                     if (saving) stringResource(R.string.batch_26) else stringResource(R.string.batch_27, rowCount),
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )

@@ -145,7 +145,7 @@ fun QueryResultScreen(
                             Text(
                                 stringResource(R.string.query_20),
                                 color = ResultSecondaryText,
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -170,7 +170,7 @@ private fun ResultTopBar(title: String, onBack: () -> Unit) {
         Text(
             stringResource(R.string.query_01),
             color = Color(0xFF2787E8),
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -179,7 +179,7 @@ private fun ResultTopBar(title: String, onBack: () -> Unit) {
         Text(
             title,
             color = ResultPrimaryText,
-            fontSize = 18.sp,
+            fontSize = 17.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -212,7 +212,7 @@ private fun SummaryCard(
             Text(
                 stringResource(R.string.query_02, year),
                 color = ResultSecondaryText,
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -225,7 +225,7 @@ private fun SummaryCard(
             Text(
                 stringResource(R.string.query_03) + selectedTypes.joinToString("、"),
                 color = ResultSecondaryText,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -244,8 +244,8 @@ private fun SummaryCard(
 @Composable
 private fun SummaryMetric(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(value, color = ResultPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = ResultSecondaryText, fontSize = 12.sp)
+        Text(value, color = ResultPrimaryText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = ResultSecondaryText, fontSize = 13.sp)
     }
 }
 
@@ -261,7 +261,7 @@ private fun TypeBreakdownCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.query_07), color = ResultPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.query_07), color = ResultPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(12.dp))
             typeGroups.forEach { (type, cents) ->
                 val ratio = if (totalCents > 0) cents.toFloat() / totalCents else 0f
@@ -274,7 +274,7 @@ private fun TypeBreakdownCard(
                     Text(
                         type,
                         color = ResultSecondaryText,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.width(104.dp)
@@ -296,7 +296,7 @@ private fun TypeBreakdownCard(
                     Text(
                         formatYuan(cents),
                         color = ResultPrimaryText,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -323,12 +323,12 @@ private fun MonthHeader(year: Int, month: Int, subtotalCents: Long, count: Int) 
         Text(
             stringResource(R.string.query_08, year, month),
             color = ResultPrimaryText,
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(stringResource(R.string.query_09, count), color = ResultSecondaryText, fontSize = 12.sp)
+        Text(stringResource(R.string.query_09, count), color = ResultSecondaryText, fontSize = 13.sp)
         Spacer(Modifier.weight(1f))
-        Text(stringResource(R.string.query_10, formatYuan(subtotalCents)), color = ResultBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.query_10, formatYuan(subtotalCents)), color = ResultBlue, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -352,7 +352,7 @@ private fun ResultRecordRow(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(record.incomeType, color = ResultPrimaryText, fontSize = 15.sp)
+                    Text(record.incomeType, color = ResultPrimaryText, fontSize = 16.sp)
                     if (record.disputed) {
                         Spacer(Modifier.width(6.dp))
                         Surface(
@@ -362,7 +362,7 @@ private fun ResultRecordRow(
                             Text(
                                 stringResource(R.string.query_11),
                                 color = ResultWarn,
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
                             )
                         }
@@ -372,7 +372,7 @@ private fun ResultRecordRow(
                 Text(
                     record.withholdingAgent,
                     color = ResultSecondaryText,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -380,7 +380,7 @@ private fun ResultRecordRow(
             Text(
                 "¥${record.amountLabel}",
                 color = ResultPrimaryText,
-                fontSize = 16.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.width(6.dp))
@@ -411,12 +411,12 @@ private fun EmptyResultCard(onOpenBatchCreate: () -> Unit) {
                 .padding(vertical = 30.dp, horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(R.string.query_12), color = ResultPrimaryText, fontSize = 15.sp)
+            Text(stringResource(R.string.query_12), color = ResultPrimaryText, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.query_13),
                 color = ResultSecondaryText,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(18.dp))
@@ -426,7 +426,7 @@ private fun EmptyResultCard(onOpenBatchCreate: () -> Unit) {
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.height(42.dp)
             ) {
-                Text(stringResource(R.string.query_14), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.query_14), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

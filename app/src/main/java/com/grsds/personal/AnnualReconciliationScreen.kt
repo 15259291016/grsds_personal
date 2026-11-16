@@ -146,7 +146,7 @@ fun AnnualReconciliationScreen(
                     Text(
                         stringResource(R.string.reconcile_02),
                         color = ReconSecondaryText,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         modifier = Modifier
                             .clickable { step -= 1 }
                             .padding(end = 20.dp, top = 10.dp, bottom = 10.dp)
@@ -178,7 +178,7 @@ fun AnnualReconciliationScreen(
                             else -> stringResource(R.string.reconcile_05)
                         },
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        fontSize = 17.sp
                     )
                 }
             }
@@ -197,7 +197,7 @@ private fun ReconTopBar(title: String, onBack: () -> Unit) {
         Text(
             stringResource(R.string.reconcile_06),
             color = ReconBlue,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -206,7 +206,7 @@ private fun ReconTopBar(title: String, onBack: () -> Unit) {
         Text(
             title,
             color = ReconPrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -227,14 +227,14 @@ private fun ReconHeader(year: Int, submitted: Boolean) {
                 Text(
                     stringResource(R.string.reconcile_07, year),
                     color = Color.White,
-                    fontSize = 19.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     if (submitted) stringResource(R.string.reconcile_08) else stringResource(R.string.reconcile_09),
                     color = Color.White,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .background(
@@ -248,13 +248,13 @@ private fun ReconHeader(year: Int, submitted: Boolean) {
             Text(
                 stringResource(R.string.reconcile_10, year + 1, year + 1),
                 color = Color.White.copy(alpha = 0.88f),
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 stringResource(R.string.reconcile_11),
                 color = Color.White.copy(alpha = 0.88f),
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
         }
     }
@@ -288,7 +288,7 @@ private fun StepIndicator(current: Int) {
                         Text(
                             if (index < current) "✓" else "${index + 1}",
                             color = if (active) Color.White else ReconSecondaryText,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -296,7 +296,7 @@ private fun StepIndicator(current: Int) {
                     Text(
                         stringResource(title),
                         color = if (active) ReconBlue else ReconSecondaryText,
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = if (index == current) FontWeight.Bold else FontWeight.Normal,
                         textAlign = TextAlign.Center
                     )
@@ -322,7 +322,7 @@ private fun IncomeStep(
                 .padding(horizontal = 12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(stringResource(R.string.reconcile_12), color = ReconSecondaryText, fontSize = 13.sp)
+                Text(stringResource(R.string.reconcile_12), color = ReconSecondaryText, fontSize = 14.sp)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     "¥${formatYuan(settlement.incomeCents)}",
@@ -334,7 +334,7 @@ private fun IncomeStep(
                 Text(
                     stringResource(R.string.reconcile_13, records.size),
                     color = ReconSecondaryText,
-                    fontSize = 12.sp
+                    fontSize = 13.sp
                 )
                 if (records.isNotEmpty()) {
                     Spacer(Modifier.height(14.dp))
@@ -344,11 +344,11 @@ private fun IncomeStep(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 11.dp)
                         ) {
-                            Text(type, color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                            Text(type, color = Color(0xFF3C4654), fontSize = 15.sp, modifier = Modifier.weight(1f))
                             Text(
                                 "¥${formatYuan(list.sumOf { it.amountInCents })}",
                                 color = ReconPrimaryText,
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -358,8 +358,8 @@ private fun IncomeStep(
                     Text(
                         stringResource(R.string.reconcile_14),
                         color = ReconWarn,
-                        fontSize = 13.sp,
-                        lineHeight = 19.sp
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
                     )
                 }
             }
@@ -384,7 +384,7 @@ private fun IncomeStep(
                     Text(
                         stringResource(R.string.reconcile_15, option),
                         color = if (selected) Color.White else Color(0xFF3C4654),
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                     )
                 }
@@ -407,36 +407,36 @@ private fun DeductionStep(
             .padding(horizontal = 12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.reconcile_16), color = ReconPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            Text(stringResource(R.string.reconcile_16), color = ReconPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(14.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.reconcile_17), color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.reconcile_17), color = Color(0xFF3C4654), fontSize = 15.sp, modifier = Modifier.weight(1f))
                 Text(
                     "¥${formatYuan(settlement.basicDeductionCents)}",
                     color = ReconPrimaryText,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Spacer(Modifier.height(6.dp))
-            Text(stringResource(R.string.reconcile_18), color = ReconSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.reconcile_18), color = ReconSecondaryText, fontSize = 13.sp)
 
             Spacer(Modifier.height(14.dp))
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(14.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.reconcile_19), color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.reconcile_19), color = Color(0xFF3C4654), fontSize = 15.sp, modifier = Modifier.weight(1f))
                 Text(
                     "¥${formatYuan(settlement.specialDeductionCents)}",
                     color = ReconPrimaryText,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Spacer(Modifier.height(6.dp))
             if (yearDeductions.isEmpty()) {
-                Text(stringResource(R.string.reconcile_20), color = ReconSecondaryText, fontSize = 12.sp)
+                Text(stringResource(R.string.reconcile_20), color = ReconSecondaryText, fontSize = 13.sp)
             } else {
                 yearDeductions.forEach { record ->
                     Row(
@@ -446,13 +446,13 @@ private fun DeductionStep(
                         Text(
                             "· ${record.type}（${record.ratioPercent}%）",
                             color = ReconSecondaryText,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
                             "¥${formatYuan(record.amountInCents)}",
                             color = ReconSecondaryText,
-                            fontSize = 12.sp
+                            fontSize = 13.sp
                         )
                     }
                 }
@@ -461,7 +461,7 @@ private fun DeductionStep(
             Text(
                 stringResource(R.string.reconcile_21),
                 color = ReconBlue,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -484,7 +484,7 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
             .padding(horizontal = 12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.reconcile_22), color = ReconPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            Text(stringResource(R.string.reconcile_22), color = ReconPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(14.dp))
             ReconRow(stringResource(R.string.reconcile_23), settlement.incomeCents)
             ReconRow(stringResource(R.string.reconcile_24), -settlement.basicDeductionCents)
@@ -511,7 +511,7 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
                 Text(
                     if (settlement.isRefund) stringResource(R.string.reconcile_29) else stringResource(R.string.reconcile_30),
                     color = ReconSecondaryText,
-                    fontSize = 13.sp
+                    fontSize = 14.sp
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -524,7 +524,7 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
                 Text(
                     if (settlement.isRefund) stringResource(R.string.reconcile_31) else stringResource(R.string.reconcile_32),
                     color = ReconSecondaryText,
-                    fontSize = 11.sp
+                    fontSize = 12.sp
                 )
             }
         }
@@ -542,11 +542,11 @@ private fun ReconRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(vertical = 5.dp)
     ) {
-        Text(label, color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
+        Text(label, color = Color(0xFF3C4654), fontSize = 15.sp, modifier = Modifier.weight(1f))
         Text(
             text ?: "¥${formatYuan(cents ?: 0L)}",
             color = ReconPrimaryText,
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal
         )
     }
@@ -580,21 +580,21 @@ private fun SubmitResultCard(declaration: DeclarationRecord) {
             Text(
                 stringResource(R.string.reconcile_34, e.declarationNo),
                 color = ReconSecondaryText,
-                fontSize = 12.sp
+                fontSize = 13.sp
             )
             if (e.submittedAt > 0L) {
                 Spacer(Modifier.height(3.dp))
                 Text(
                     stringResource(R.string.reconcile_35, e.submittedAtLabel),
                     color = ReconSecondaryText,
-                    fontSize = 12.sp
+                    fontSize = 13.sp
                 )
             }
             Spacer(Modifier.height(18.dp))
             Text(
                 if (e.isRefund) stringResource(R.string.reconcile_29) else stringResource(R.string.reconcile_30),
                 color = ReconSecondaryText,
-                fontSize = 13.sp
+                fontSize = 14.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -607,28 +607,28 @@ private fun SubmitResultCard(declaration: DeclarationRecord) {
             Text(
                 if (e.isRefund) stringResource(R.string.reconcile_36) else stringResource(R.string.reconcile_37),
                 color = ReconSecondaryText,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 textAlign = TextAlign.Center,
-                lineHeight = 18.sp
+                lineHeight = 20.sp
             )
             Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.reconcile_23), color = ReconSecondaryText, fontSize = 11.sp)
+                    Text(stringResource(R.string.reconcile_23), color = ReconSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
-                    Text("¥${formatYuan(e.incomeCents)}", color = ReconPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("¥${formatYuan(e.incomeCents)}", color = ReconPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.reconcile_27), color = ReconSecondaryText, fontSize = 11.sp)
+                    Text(stringResource(R.string.reconcile_27), color = ReconSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
-                    Text("¥${formatYuan(e.taxPayableCents)}", color = ReconPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("¥${formatYuan(e.taxPayableCents)}", color = ReconPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.reconcile_38), color = ReconSecondaryText, fontSize = 11.sp)
+                    Text(stringResource(R.string.reconcile_38), color = ReconSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
-                    Text("¥${formatYuan(e.taxPrepaidCents)}", color = ReconPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("¥${formatYuan(e.taxPrepaidCents)}", color = ReconPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

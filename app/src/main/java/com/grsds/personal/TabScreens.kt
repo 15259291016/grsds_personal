@@ -104,7 +104,7 @@ fun TodoTab(
         Text(
             stringResource(R.string.tab_02),
             color = TabSecondaryText,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
         todoItems.forEach { item ->
@@ -143,21 +143,21 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                         .background(item.color.copy(alpha = 0.12f), RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                    Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 16.sp)
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
                     stringResource(item.title),
                     color = TabPrimaryText,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     modifier = Modifier.weight(1f)
                 )
                 if (item.done) {
                     Text(
                         stringResource(R.string.tab_05),
                         color = TabBlue,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         modifier = Modifier
                             .clickable(onClick = onHandle)
                             .padding(horizontal = 4.dp, vertical = 8.dp)
@@ -170,7 +170,7 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                         modifier = Modifier.height(30.dp)
                     ) {
-                        Text(stringResource(R.string.tab_06), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.tab_06), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -179,13 +179,13 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                 Text(
                     stringResource(item.description),
                     color = Color(0xFF3C4654),
-                    fontSize = 13.sp,
-                    lineHeight = 19.sp
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
             }
             if (item.time != 0) {
                 Spacer(Modifier.height(8.dp))
-                Text(stringResource(item.time), color = TabSecondaryText, fontSize = 12.sp)
+                Text(stringResource(item.time), color = TabSecondaryText, fontSize = 13.sp)
             }
         }
     }
@@ -273,7 +273,7 @@ private fun ServiceSection(
                         .background(TabBlue, RoundedCornerShape(2.dp))
                 )
                 Spacer(Modifier.width(7.dp))
-                Text(title, color = TabPrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text(title, color = TabPrimaryText, fontWeight = FontWeight.Black, fontSize = 17.sp)
             }
             Spacer(Modifier.height(16.dp))
             entries.chunked(4).forEach { rowEntries ->
@@ -295,14 +295,14 @@ private fun ServiceSection(
                                     .background(entry.color.copy(alpha = 0.14f), RoundedCornerShape(13.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 18.sp)
+                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 17.sp)
                             }
                             Spacer(Modifier.height(7.dp))
                             Text(
                                 stringResource(entry.title),
                                 color = Color(0xFF3C4654),
-                                fontSize = 11.sp,
-                                lineHeight = 14.sp,
+                                fontSize = 12.sp,
+                                lineHeight = 15.sp,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
@@ -385,7 +385,7 @@ fun MessagesTab(
             Text(
                 stringResource(R.string.tab_17),
                 color = TabBlue,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 modifier = Modifier.clickable {
                     readIndexes.addAll(messageItems.indices.filterNot { it in readIndexes })
                 }
@@ -409,7 +409,7 @@ fun MessagesTab(
                     Text(
                         stringResource(name),
                         color = if (selected) Color.White else Color(0xFF3C4654),
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                     )
                 }
@@ -434,7 +434,7 @@ fun MessagesTab(
                 Text(
                     stringResource(R.string.tab_19),
                     color = TabSecondaryText,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 60.dp)
@@ -467,7 +467,7 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                     .background(item.color.copy(alpha = 0.14f), RoundedCornerShape(11.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 17.sp)
             }
             Spacer(Modifier.width(11.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -476,7 +476,7 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                         stringResource(item.title),
                         color = TabPrimaryText,
                         fontWeight = if (unread) FontWeight.Bold else FontWeight.Normal,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -494,8 +494,8 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                 Text(
                     stringResource(item.summary),
                     color = Color(0xFF3C4654),
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 19.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -503,7 +503,7 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                 Text(
                     stringResource(item.time),
                     color = TabSecondaryText,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -587,14 +587,14 @@ fun ProfileTab(
                     Text(
                         session?.nickname ?: stringResource(R.string.tab_22),
                         color = Color.White,
-                        fontSize = 19.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
                         session?.maskedPhone ?: stringResource(R.string.tab_23),
                         color = Color.White.copy(alpha = 0.85f),
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                 }
                 Text("›", color = Color.White.copy(alpha = 0.85f), fontSize = 22.sp, fontWeight = FontWeight.Bold)
@@ -633,16 +633,16 @@ fun ProfileTab(
                                     .background(entry.color.copy(alpha = 0.13f), RoundedCornerShape(9.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 13.sp)
+                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 14.sp)
                             }
                             Spacer(Modifier.width(12.dp))
                             Text(
                                 stringResource(entry.title),
                                 color = TabPrimaryText,
-                                fontSize = 15.sp,
+                                fontSize = 16.sp,
                                 modifier = Modifier.weight(1f)
                             )
-                            Text("›", color = Color(0xFFC0C6CF), fontSize = 18.sp)
+                            Text("›", color = Color(0xFFC0C6CF), fontSize = 17.sp)
                         }
                         if (index < group.entries.lastIndex) {
                             HorizontalDivider(
@@ -666,7 +666,7 @@ fun ProfileTab(
                 Text(
                     stringResource(R.string.tab_27),
                     color = Color(0xFFE5484D),
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -680,7 +680,7 @@ fun ProfileTab(
         Text(
             stringResource(R.string.tab_28),
             color = TabSecondaryText,
-            fontSize = 12.sp,
+            fontSize = 13.sp,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),

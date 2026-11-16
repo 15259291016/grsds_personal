@@ -114,8 +114,8 @@ fun LoginScreen(
             Text(
                 stringResource(R.string.login_03),
                 color = LoginSecondaryText,
-                fontSize = 13.sp,
-                lineHeight = 19.sp
+                fontSize = 14.sp,
+                lineHeight = 20.sp
             )
             Spacer(Modifier.height(26.dp))
 
@@ -174,7 +174,7 @@ fun LoginScreen(
                 ) {
                     Text(
                         if (countdown > 0) stringResource(R.string.login_09, countdown) else stringResource(R.string.login_10),
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -185,12 +185,12 @@ fun LoginScreen(
                 Text(
                     stringResource(R.string.login_11, phone.take(3), phone.takeLast(4), DEMO_CODE),
                     color = Color(0xFF12A66C),
-                    fontSize = 12.sp
+                    fontSize = 13.sp
                 )
             }
             if (error != null) {
                 Spacer(Modifier.height(8.dp))
-                Text(error!!, color = LoginError, fontSize = 12.sp)
+                Text(error!!, color = LoginError, fontSize = 13.sp)
             }
 
             Spacer(Modifier.height(18.dp))
@@ -205,8 +205,8 @@ fun LoginScreen(
                 Text(
                     stringResource(R.string.login_12),
                     color = LoginSecondaryText,
-                    fontSize = 12.sp,
-                    lineHeight = 17.sp
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
                 )
             }
 
@@ -236,14 +236,14 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text(stringResource(R.string.login_16), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.login_16), fontWeight = FontWeight.Bold, fontSize = 17.sp)
             }
 
             Spacer(Modifier.height(18.dp))
             Text(
                 stringResource(R.string.login_17),
                 color = LoginSecondaryText,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
@@ -271,7 +271,7 @@ private fun LoginTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.login_18),
             color = LoginBlue,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -280,7 +280,7 @@ private fun LoginTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.login_16),
             color = LoginPrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )

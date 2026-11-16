@@ -107,17 +107,17 @@ fun TaxRecordIssueScreen(
                                 .background(Color(0xFF15CDB1).copy(alpha = 0.14f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(stringResource(R.string.issue_01), color = Color(0xFF15CDB1), fontWeight = FontWeight.Black, fontSize = 13.sp)
+                            Text(stringResource(R.string.issue_01), color = Color(0xFF15CDB1), fontWeight = FontWeight.Black, fontSize = 14.sp)
                         }
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.issue_02), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                        Text(stringResource(R.string.issue_02), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
                         stringResource(R.string.issue_03),
                         color = Color(0xFF3C4654),
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp
                     )
                 }
             }
@@ -131,7 +131,7 @@ fun TaxRecordIssueScreen(
                     .padding(horizontal = 12.dp)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
-                    Text(stringResource(R.string.issue_04), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                    Text(stringResource(R.string.issue_04), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
                     Spacer(Modifier.height(12.dp))
                     issuedYears.chunked(4).forEach { years ->
                         Row(
@@ -152,7 +152,7 @@ fun TaxRecordIssueScreen(
                                     Text(
                                         stringResource(R.string.issue_05, year),
                                         color = if (selected) Color.White else Color(0xFF3C4654),
-                                        fontSize = 13.sp,
+                                        fontSize = 14.sp,
                                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                                     )
                                 }
@@ -172,7 +172,7 @@ fun TaxRecordIssueScreen(
                             .fillMaxWidth()
                             .height(46.dp)
                     ) {
-                        Text(stringResource(R.string.issue_06), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.issue_06), fontWeight = FontWeight.Bold, fontSize = 17.sp)
                     }
                 }
             }
@@ -186,12 +186,12 @@ fun TaxRecordIssueScreen(
                         .background(IssueBlue, RoundedCornerShape(2.dp))
                 )
                 Spacer(Modifier.width(7.dp))
-                Text(stringResource(R.string.issue_07), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text(stringResource(R.string.issue_07), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 17.sp)
                 Spacer(Modifier.weight(1f))
                 Text(
                     stringResource(R.string.issue_08, issuedRecords.size),
                     color = IssueSecondaryText,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     modifier = Modifier.padding(end = 14.dp)
                 )
             }
@@ -217,7 +217,7 @@ private fun IssueTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.issue_09),
             color = IssueBlue,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
@@ -226,7 +226,7 @@ private fun IssueTopBar(onBack: () -> Unit) {
         Text(
             stringResource(R.string.issue_10),
             color = IssuePrimaryText,
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -253,19 +253,19 @@ private fun IssuedRecordCard(record: IssuedRecord) {
                         stringResource(R.string.issue_11, record.year),
                         color = IssuePrimaryText,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        fontSize = 16.sp
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
                         stringResource(R.string.issue_12, record.issuedAt),
                         color = IssueSecondaryText,
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                 }
                 Text(
                     stringResource(R.string.issue_13),
                     color = Color(0xFF12A66C),
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .background(Color(0xFF12A66C).copy(alpha = 0.1f), RoundedCornerShape(6.dp))
@@ -277,13 +277,13 @@ private fun IssuedRecordCard(record: IssuedRecord) {
                 Text(
                     stringResource(R.string.issue_14, record.verifyCode),
                     color = IssueSecondaryText,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     stringResource(R.string.issue_15),
                     color = IssueBlue,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
             }

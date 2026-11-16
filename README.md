@@ -59,6 +59,27 @@ app/sampledata/                     # 官方 App 真机截图，UI 还原参考
 
 要支持多语言时，应先把这两个字段改成稳定 id，再按 id 取文案。
 
+## 字号与排版
+
+字号基准是从官方 APP 截图里量出来的像素高度（1080px 宽画布，本机 420dpi 下 1sp ≈ 2.625px，汉字墨迹高约为字号的 0.9 倍），写死在 `ui/theme/Type.kt`：
+
+| 层级 | 字号 | 用途 |
+| --- | --- | --- |
+| 展示数字 | 28–32sp Bold | 申报金额、合计金额 |
+| 页面标题 | 20sp Bold | 顶部导航标题 |
+| 区块标题 | 17sp Bold | 「重点服务推荐」「我要办税」 |
+| 正文 / 列表项 | 17–18sp | 明细行、待办标题 |
+| 卡片标题 | 15sp Bold | 首页小卡、消息标题 |
+| 辅助说明 | 14sp | 卡片描述、时间戳 |
+| 最小字号 | 12–13sp | 分类标签、角标 |
+
+两条硬性约定，改字号前先看一眼：
+
+1. `Typography` 里**不要给 `bodyLarge` 写死 `lineHeight`**。MaterialTheme 会把它作为 `LocalTextStyle` 提供给所有没写 `style` 的 `Text`，一旦写死，13sp 的小标题也会被撑成 24sp 行距，整页字小行空。
+2. `letterSpacing` 保持 0。中文加 0.5sp 字距后整行会明显变散，和官方那种紧凑排版差别很大。
+
+多行文本（卡片标题、描述）请显式写 `lineHeight ≈ 1.3 × fontSize`，并配 `maxLines` + `TextOverflow.Ellipsis`，避免字号调整后把卡片撑破。
+
 ## 图标与启动封面
 
 `tools/gen_assets.ps1` 用 GDI+ 画出蓝色盾牌 + 「税」字，输出 5 档密度的 `ic_launcher*`（含自适应与单色层）以及 `drawable-nodpi/cover.png`（1080×2400 启动页）。改样式后重跑脚本即可：

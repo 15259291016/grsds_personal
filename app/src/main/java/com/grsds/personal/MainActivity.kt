@@ -80,7 +80,19 @@ fun CoverImage(modifier: Modifier = Modifier) {
     }
 
     if (showHome) {
-        when (val current = backStack.last()) {
+        val currentScreen = backStack.last()
+
+        // 首页和「我的」顶部是蓝色渐变，状态栏用白色图标；其余页面都是白底，
+        // 必须换成深色图标，否则时间、电量白字白底，几乎看不见。
+        val lightStatusIcons = currentScreen == AppScreen.Home && (selectedTab == 0 || selectedTab == 4)
+        LaunchedEffect(currentScreen, lightStatusIcons) {
+            if (isInPreview) return@LaunchedEffect
+            val activity = view.context as? Activity ?: return@LaunchedEffect
+            WindowCompat.getInsetsController(activity.window, view)
+                .isAppearanceLightStatusBars = !lightStatusIcons
+        }
+
+        when (val current = currentScreen) {
             AppScreen.Home -> HomeScreen(
                 modifier = modifier,
                 selectedTab = selectedTab,
