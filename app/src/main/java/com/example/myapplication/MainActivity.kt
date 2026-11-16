@@ -13,8 +13,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,7 +56,16 @@ fun CoverImage(modifier: Modifier = Modifier) {
     var statusBarHeightPx by remember { mutableIntStateOf(0) }
     var statusBarHidden by remember { mutableStateOf(false) }
     var showHome by remember { mutableStateOf(false) }
-    var showIncomeTaxDetails by remember { mutableStateOf(false) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    val backStack = remember { mutableStateListOf<AppScreen>(AppScreen.Home) }
+
+    fun navigate(screen: AppScreen) {
+        backStack.add(screen)
+    }
+
+    fun goBack() {
+        if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+    }
 
     LaunchedEffect(view, isInPreview) {
         if (isInPreview) return@LaunchedEffect
@@ -86,15 +97,79 @@ fun CoverImage(modifier: Modifier = Modifier) {
     }
 
     if (showHome) {
-        if (showIncomeTaxDetails) {
-            IncomeTaxDetailsScreen(
-                onBack = { showIncomeTaxDetails = false },
+        when (val current = backStack.last()) {
+            AppScreen.Home -> HomeScreen(
+                modifier = modifier,
+                selectedTab = selectedTab,
+                onSelectTab = { selectedTab = it },
+                onOpenIncomeTaxDetails = { navigate(AppScreen.TaxDetails) },
+                onOpenTaxRecordIssue = { navigate(AppScreen.TaxRecordIssue) },
+                onOpenAnnualReconciliation = { navigate(AppScreen.AnnualReconciliation) },
+                onOpenDeductions = { navigate(AppScreen.Deductions) },
+                onOpenDeclarationRecords = { navigate(AppScreen.DeclarationRecords) },
+                onOpenSettings = { navigate(AppScreen.Settings) },
+                onOpenLogin = { navigate(AppScreen.Login) }
+            )
+
+            AppScreen.DeclarationRecords -> DeclarationRecordsScreen(
+                onBack = { goBack() },
+                onOpenReconciliation = { navigate(AppScreen.AnnualReconciliation) },
                 modifier = modifier
             )
-        } else {
-            HomeScreen(
-                modifier = modifier,
-                onOpenIncomeTaxDetails = { showIncomeTaxDetails = true }
+
+            AppScreen.Settings -> SettingsScreen(
+                onBack = { goBack() },
+                onOpenBatchCreate = { navigate(AppScreen.BatchCreate) },
+                modifier = modifier
+            )
+
+            AppScreen.TaxRecordIssue -> TaxRecordIssueScreen(
+                onBack = { goBack() },
+                modifier = modifier
+            )
+
+            AppScreen.AnnualReconciliation -> AnnualReconciliationScreen(
+                onBack = { goBack() },
+                onOpenDeductions = { navigate(AppScreen.Deductions) },
+                modifier = modifier
+            )
+
+            AppScreen.Deductions -> DeductionsScreen(
+                onBack = { goBack() },
+                modifier = modifier
+            )
+
+            AppScreen.Login -> LoginScreen(
+                onBack = { goBack() },
+                onLoginSuccess = { goBack() },
+                modifier = modifier
+            )
+
+            AppScreen.TaxDetails -> IncomeTaxDetailsScreen(
+                onBack = { goBack() },
+                onOpenBatchCreate = { navigate(AppScreen.BatchCreate) },
+                onQuery = { year, types -> navigate(AppScreen.QueryResult(year, types)) },
+                modifier = modifier
+            )
+
+            AppScreen.BatchCreate -> BatchCreateScreen(
+                onBack = { goBack() },
+                modifier = modifier
+            )
+
+            is AppScreen.QueryResult -> QueryResultScreen(
+                year = current.year,
+                incomeTypes = current.incomeTypes,
+                onBack = { goBack() },
+                onOpenRecord = { recordId -> navigate(AppScreen.RecordDetail(recordId)) },
+                onOpenBatchCreate = { navigate(AppScreen.BatchCreate) },
+                modifier = modifier
+            )
+
+            is AppScreen.RecordDetail -> RecordDetailScreen(
+                recordId = current.recordId,
+                onBack = { goBack() },
+                modifier = modifier
             )
         }
     } else {
@@ -117,4 +192,19 @@ fun CoverImagePreview() {
     MyApplicationTheme {
         CoverImage()
     }
+}
+
+/** 应用内页面，配合 [backStack] 形成简单的返回栈，替代多个布尔量拼出来的导航。 */
+private sealed interface AppScreen {
+    data object Home : AppScreen
+    data object TaxDetails : AppScreen
+    data object BatchCreate : AppScreen
+    data object TaxRecordIssue : AppScreen
+    data object AnnualReconciliation : AppScreen
+    data object Deductions : AppScreen
+    data object DeclarationRecords : AppScreen
+    data object Settings : AppScreen
+    data object Login : AppScreen
+    data class QueryResult(val year: Int, val incomeTypes: List<String>) : AppScreen
+    data class RecordDetail(val recordId: String) : AppScreen
 }

@@ -123,9 +123,16 @@ private val articleGroups = listOf(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onOpenIncomeTaxDetails: () -> Unit = {}
+    selectedTab: Int = 0,
+    onSelectTab: (Int) -> Unit = {},
+    onOpenIncomeTaxDetails: () -> Unit = {},
+    onOpenTaxRecordIssue: () -> Unit = {},
+    onOpenAnnualReconciliation: () -> Unit = {},
+    onOpenDeductions: () -> Unit = {},
+    onOpenDeclarationRecords: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    onOpenLogin: () -> Unit = {}
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val showMessage: (String) -> Unit = { message ->
@@ -148,19 +155,44 @@ fun HomeScreen(
             bottomBar = {
                 HomeBottomNavigation(
                     selectedTab = selectedTab,
-                    onSelected = { selectedTab = it }
+                    onSelected = onSelectTab
                 )
             }
         ) { innerPadding ->
-            if (selectedTab == 0) {
-                HomeFeed(
+            when (selectedTab) {
+                0 -> HomeFeed(
                     modifier = Modifier.padding(innerPadding),
                     onAction = showMessage,
-                    onOpenIncomeTaxDetails = onOpenIncomeTaxDetails
+                    onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
+                    onOpenTaxRecordIssue = onOpenTaxRecordIssue,
+                    onOpenAnnualReconciliation = onOpenAnnualReconciliation,
+                    onOpenDeductions = onOpenDeductions
                 )
-            } else {
-                TabPlaceholder(
-                    title = bottomTabs[selectedTab].second,
+                1 -> TodoTab(
+                    onAction = showMessage,
+                    onOpenAnnualReconciliation = onOpenAnnualReconciliation,
+                    onOpenDeductions = onOpenDeductions,
+                    onOpenDeclarationRecords = onOpenDeclarationRecords,
+                    modifier = Modifier.padding(innerPadding)
+                )
+                2 -> ServicesTab(
+                    onAction = showMessage,
+                    onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
+                    onOpenTaxRecordIssue = onOpenTaxRecordIssue,
+                    onOpenAnnualReconciliation = onOpenAnnualReconciliation,
+                    onOpenDeductions = onOpenDeductions,
+                    onOpenDeclarationRecords = onOpenDeclarationRecords,
+                    modifier = Modifier.padding(innerPadding)
+                )
+                3 -> MessagesTab(
+                    onAction = showMessage,
+                    modifier = Modifier.padding(innerPadding)
+                )
+                else -> ProfileTab(
+                    onAction = showMessage,
+                    onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
+                    onOpenLogin = onOpenLogin,
+                    onOpenSettings = onOpenSettings,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -172,6 +204,9 @@ fun HomeScreen(
 private fun HomeFeed(
     onAction: (String) -> Unit,
     onOpenIncomeTaxDetails: () -> Unit,
+    onOpenTaxRecordIssue: () -> Unit,
+    onOpenAnnualReconciliation: () -> Unit,
+    onOpenDeductions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var query by remember { mutableStateOf("") }
@@ -186,9 +221,9 @@ private fun HomeFeed(
             query = query,
             onQueryChange = { query = it },
             onSearch = {
-                onAction(if (query.isBlank()) "请输入要搜索的功能或服务" else "正在搜索：$query")
+                onAction(if (query.isBlank()) "请输入要搜索的功能或服务" else "搜索功能尚未接入，当前为演示版本")
             },
-            onScan = { onAction("扫一扫已启动") }
+            onScan = { onAction("扫一扫尚未接入，当前为演示版本") }
         )
 
         LazyColumn(
@@ -198,7 +233,10 @@ private fun HomeFeed(
             contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 20.dp)
         ) {
             item {
-                HomeHeader(onAction = onAction)
+                HomeHeader(
+                    onAction = onAction,
+                    onOpenAnnualReconciliation = onOpenAnnualReconciliation
+                )
             }
             item {
                 Text(
@@ -211,20 +249,22 @@ private fun HomeFeed(
             }
             item {
                 DeductionCard(
-                    onPolicyClick = { onAction("正在打开专项附加扣除相关政策") },
-                    onFillClick = { onAction("正在进入专项附加扣除填报") },
+                    onPolicyClick = { onAction(unavailableHint("专项附加扣除政策")) },
+                    onFillClick = onOpenDeductions,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
             }
             item {
                 ServiceCards(
                     onAction = onAction,
-                    onOpenIncomeTaxDetails = onOpenIncomeTaxDetails
+                    onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
+                    onOpenTaxRecordIssue = onOpenTaxRecordIssue,
+                    onOpenAnnualReconciliation = onOpenAnnualReconciliation
                 )
             }
             item {
                 PromoBanner(
-                    onClick = { onAction("正在打开专项附加扣除宣传内容") },
+                    onClick = { onAction(unavailableHint("专项附加扣除宣传")) },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 18.dp)
                 )
             }
@@ -237,7 +277,7 @@ private fun HomeFeed(
             items(articleGroups[selectedCategory].size) { index ->
                 ArticleCard(
                     article = articleGroups[selectedCategory][index],
-                    onClick = { onAction("正在打开：${articleGroups[selectedCategory][index].title}") },
+                    onClick = { onAction(unavailableHint(articleGroups[selectedCategory][index].title)) },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 7.dp)
                 )
             }
@@ -249,7 +289,7 @@ private fun HomeFeed(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onAction("正在加载更多内容") }
+                        .clickable { onAction("已展示全部内容") }
                         .padding(vertical = 22.dp)
                 )
             }
@@ -358,7 +398,10 @@ private fun ScanGlyph() {
 }
 
 @Composable
-private fun HomeHeader(onAction: (String) -> Unit) {
+private fun HomeHeader(
+    onAction: (String) -> Unit,
+    onOpenAnnualReconciliation: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -375,7 +418,7 @@ private fun HomeHeader(onAction: (String) -> Unit) {
             modifier = Modifier
                 .padding(top = 12.dp)
                 .fillMaxWidth()
-                .clickable { onAction("正在查看2025年度汇算清缴预约公告") }
+                .clickable { onAction(unavailableHint("汇算清缴预约")) }
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 11.dp, vertical = 9.dp),
@@ -403,7 +446,7 @@ private fun HomeHeader(onAction: (String) -> Unit) {
         }
 
         AnnualSettlementCard(
-            onEnter = { onAction("正在进入2025综合所得年度汇算专题页") },
+            onEnter = onOpenAnnualReconciliation,
             modifier = Modifier.padding(top = 10.dp, bottom = 5.dp)
         )
     }
@@ -536,7 +579,9 @@ private fun DeductionCard(
 @Composable
 private fun ServiceCards(
     onAction: (String) -> Unit,
-    onOpenIncomeTaxDetails: () -> Unit
+    onOpenIncomeTaxDetails: () -> Unit,
+    onOpenTaxRecordIssue: () -> Unit,
+    onOpenAnnualReconciliation: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -553,10 +598,11 @@ private fun ServiceCards(
                     .width(100.dp)
                     .height(142.dp)
                     .clickable {
-                        if (item.title == "收入纳税明细") {
-                            onOpenIncomeTaxDetails()
-                        } else {
-                            onAction("正在打开${item.title}")
+                        when (item.title) {
+                            "收入纳税明细" -> onOpenIncomeTaxDetails()
+                            "纳税记录开具" -> onOpenTaxRecordIssue()
+                            "综合所得年度汇算" -> onOpenAnnualReconciliation()
+                            else -> onAction(unavailableHint(item.title))
                         }
                     }
             ) {
@@ -820,30 +866,6 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun TabPlaceholder(title: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(PageBackground),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .background(Color(0xFFE1F0FF), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("税", color = HomeBlue, fontSize = 28.sp, fontWeight = FontWeight.Black)
-        }
-        Spacer(Modifier.height(18.dp))
-        Text(title, color = PrimaryText, fontSize = 23.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(8.dp))
-        Text("该功能页面正在建设中", color = SecondaryText, fontSize = 15.sp)
     }
 }
 
