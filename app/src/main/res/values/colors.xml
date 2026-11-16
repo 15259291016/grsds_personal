@@ -7,4 +7,9 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 品牌色：与启动页 / 图标统一的税务蓝 -->
+    <color name="brand_blue">#FF2C7BF2</color>
+    <color name="brand_blue_deep">#FF1B63D6</color>
+    <color name="ic_launcher_background">#FFFFFFFF</color>
 </resources>

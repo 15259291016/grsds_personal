@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,12 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -51,10 +48,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CoverImage(modifier: Modifier = Modifier) {
     val view = LocalView.current
-    val density = LocalDensity.current
     val isInPreview = LocalInspectionMode.current
-    var statusBarHeightPx by remember { mutableIntStateOf(0) }
-    var statusBarHidden by remember { mutableStateOf(false) }
     var showHome by remember { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val backStack = remember { mutableStateListOf<AppScreen>(AppScreen.Home) }
@@ -70,16 +64,9 @@ fun CoverImage(modifier: Modifier = Modifier) {
     LaunchedEffect(view, isInPreview) {
         if (isInPreview) return@LaunchedEffect
 
-        // Wait until the first window insets have arrived, then keep the original
-        // status-bar height as a black area after its icons are hidden.
-        delay(100)
-        statusBarHeightPx = ViewCompat.getRootWindowInsets(view)
-            ?.getInsets(WindowInsetsCompat.Type.statusBars())
-            ?.top
-            ?: 0
-
-        delay(900)
-        statusBarHidden = true
+        // The splash is a full-bleed white page, so the status bar is simply hidden
+        // while it is on screen and brought back together with the home page.
+        delay(1_000)
         val activity = view.context as? Activity ?: return@LaunchedEffect
         WindowCompat.getInsetsController(activity.window, view)
             .hide(WindowInsetsCompat.Type.statusBars())
@@ -90,10 +77,6 @@ fun CoverImage(modifier: Modifier = Modifier) {
             show(WindowInsetsCompat.Type.statusBars())
             isAppearanceLightStatusBars = false
         }
-    }
-
-    val hiddenStatusBarPadding = with(density) {
-        if (statusBarHidden && !showHome) statusBarHeightPx.toDp() else 0.toDp()
     }
 
     if (showHome) {
@@ -179,8 +162,6 @@ fun CoverImage(modifier: Modifier = Modifier) {
             contentScale = ContentScale.Fit,
             modifier = modifier
                 .fillMaxSize()
-                .background(Color.Black)
-                .padding(top = hiddenStatusBarPadding)
                 .background(Color.White)
         )
     }
