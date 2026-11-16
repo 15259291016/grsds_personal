@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -105,13 +106,13 @@ fun LoginScreen(
                     .background(Color(0xFFE7F2FF), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text("税", color = LoginBlue, fontSize = 26.sp, fontWeight = FontWeight.Black)
+                Text(stringResource(R.string.login_01), color = LoginBlue, fontSize = 26.sp, fontWeight = FontWeight.Black)
             }
             Spacer(Modifier.height(16.dp))
-            Text("登录个人所得税", color = LoginPrimaryText, fontSize = 24.sp, fontWeight = FontWeight.Black)
+            Text(stringResource(R.string.login_02), color = LoginPrimaryText, fontSize = 24.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(6.dp))
             Text(
-                "使用手机号验证码登录，未注册的手机号将自动创建账号",
+                stringResource(R.string.login_03),
                 color = LoginSecondaryText,
                 fontSize = 13.sp,
                 lineHeight = 19.sp
@@ -124,8 +125,8 @@ fun LoginScreen(
                     phone = input.filter { it.isDigit() }.take(11)
                     error = null
                 },
-                label = { Text("手机号") },
-                placeholder = { Text("请输入 11 位手机号") },
+                label = { Text(stringResource(R.string.login_04)) },
+                placeholder = { Text(stringResource(R.string.login_05)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 shape = RoundedCornerShape(12.dp),
@@ -141,8 +142,8 @@ fun LoginScreen(
                         code = input.filter { it.isDigit() }.take(6)
                         error = null
                     },
-                    label = { Text("验证码") },
-                    placeholder = { Text("6 位验证码") },
+                    label = { Text(stringResource(R.string.login_06)) },
+                    placeholder = { Text(stringResource(R.string.login_07)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     shape = RoundedCornerShape(12.dp),
@@ -153,7 +154,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         if (phone.length != 11) {
-                            error = "请输入正确的 11 位手机号"
+                            error = context.getString(R.string.login_08)
                         } else {
                             codeSent = true
                             countdown = 60
@@ -172,7 +173,7 @@ fun LoginScreen(
                     modifier = Modifier.height(56.dp)
                 ) {
                     Text(
-                        if (countdown > 0) "${countdown}s 后重发" else "获取验证码",
+                        if (countdown > 0) stringResource(R.string.login_09, countdown) else stringResource(R.string.login_10),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -182,7 +183,7 @@ fun LoginScreen(
             if (codeSent) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "验证码已发送至 ${phone.take(3)}****${phone.takeLast(4)}（演示码 $DEMO_CODE）",
+                    stringResource(R.string.login_11, phone.take(3), phone.takeLast(4), DEMO_CODE),
                     color = Color(0xFF12A66C),
                     fontSize = 12.sp
                 )
@@ -202,7 +203,7 @@ fun LoginScreen(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    "我已阅读并同意《个人信息保护政策》和《用户协议》",
+                    stringResource(R.string.login_12),
                     color = LoginSecondaryText,
                     fontSize = 12.sp,
                     lineHeight = 17.sp
@@ -213,14 +214,14 @@ fun LoginScreen(
             Button(
                 onClick = {
                     when {
-                        phone.length != 11 -> error = "请输入正确的 11 位手机号"
-                        code != DEMO_CODE -> error = "验证码不正确，请重新输入"
-                        !agreed -> error = "请先阅读并同意个人信息保护政策"
+                        phone.length != 11 -> error = context.getString(R.string.login_08)
+                        code != DEMO_CODE -> error = context.getString(R.string.login_13)
+                        !agreed -> error = context.getString(R.string.login_14)
                         else -> scope.launch {
                             repository.login(
                                 LoginSession(
                                     phone = phone,
-                                    nickname = "纳税人" + phone.takeLast(4),
+                                    nickname = context.getString(R.string.login_15) + phone.takeLast(4),
                                     loginAt = System.currentTimeMillis()
                                 )
                             )
@@ -235,12 +236,12 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text("登录", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.login_16), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
 
             Spacer(Modifier.height(18.dp))
             Text(
-                "遇到问题？可前往「帮助与反馈」查看常见问题",
+                stringResource(R.string.login_17),
                 color = LoginSecondaryText,
                 fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -268,7 +269,7 @@ private fun LoginTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.login_18),
             color = LoginBlue,
             fontSize = 17.sp,
             modifier = Modifier
@@ -277,7 +278,7 @@ private fun LoginTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "登录",
+            stringResource(R.string.login_16),
             color = LoginPrimaryText,
             fontSize = 19.sp,
             fontWeight = FontWeight.Bold,

@@ -38,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -98,7 +99,7 @@ fun DeductionsScreen(
                     .padding(horizontal = 12.dp, vertical = 12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("扣除年度", color = DeducSecondaryText, fontSize = 13.sp)
+                    Text(stringResource(R.string.deductions_01), color = DeducSecondaryText, fontSize = 13.sp)
                     Spacer(Modifier.height(9.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(2025, 2026).forEach { option ->
@@ -113,7 +114,7 @@ fun DeductionsScreen(
                                     .padding(horizontal = 18.dp, vertical = 7.dp)
                             ) {
                                 Text(
-                                    "${option}年",
+                                    stringResource(R.string.deductions_02, option),
                                     color = if (selected) Color.White else Color(0xFF3C4654),
                                     fontSize = 13.sp,
                                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
@@ -126,7 +127,7 @@ fun DeductionsScreen(
                     Spacer(Modifier.height(14.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("已填报合计", color = DeducSecondaryText, fontSize = 12.sp)
+                            Text(stringResource(R.string.deductions_03), color = DeducSecondaryText, fontSize = 12.sp)
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 "¥${formatYuan(totalCents)}",
@@ -136,7 +137,7 @@ fun DeductionsScreen(
                             )
                         }
                         Text(
-                            "${yearRecords.size} / ${DEDUCTION_OPTIONS.size} 项",
+                            stringResource(R.string.deductions_04, yearRecords.size, DEDUCTION_OPTIONS.size),
                             color = DeducBlue,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
@@ -168,7 +169,7 @@ fun DeductionsScreen(
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                "提示：以上为标准扣除额度，实际可扣除金额以税务机关认定为准。",
+                stringResource(R.string.deductions_05),
                 color = DeducSecondaryText,
                 fontSize = 12.sp,
                 lineHeight = 18.sp,
@@ -210,10 +211,10 @@ fun DeductionsScreen(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text("作废这项扣除填报？", fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.deductions_06), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "${target.type} · $year 年度\n作废后该年度的扣除合计会相应减少，可重新填报。",
+                    stringResource(R.string.deductions_07, target.type, year),
                     fontSize = 14.sp,
                     lineHeight = 21.sp
                 )
@@ -225,11 +226,11 @@ fun DeductionsScreen(
                         scope.launch { repository.removeDeduction(target.type, year) }
                     }
                 ) {
-                    Text("作废", color = Color(0xFFE24B4A), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.deductions_08), color = Color(0xFFE24B4A), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) { Text("取消") }
+                TextButton(onClick = { pendingDelete = null }) { Text(stringResource(R.string.deductions_09)) }
             }
         )
     }
@@ -244,7 +245,7 @@ private fun DeducTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.deductions_10),
             color = DeducBlue,
             fontSize = 17.sp,
             modifier = Modifier
@@ -253,7 +254,7 @@ private fun DeducTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "专项附加扣除",
+            stringResource(R.string.deductions_11),
             color = DeducPrimaryText,
             fontSize = 19.sp,
             fontWeight = FontWeight.Bold,
@@ -291,16 +292,16 @@ private fun DeductionRow(
             Spacer(Modifier.height(4.dp))
             Text(
                 if (record != null) {
-                    "已填报 ${record.ratioPercent}% · 年度扣除 ¥${formatYuan(record.amountInCents)}"
+                    stringResource(R.string.deductions_12, record.ratioPercent, formatYuan(record.amountInCents))
                 } else {
-                    "限额 ¥${formatYuan(option.yearlyStandardInCents)} / 年"
+                    stringResource(R.string.deductions_13, formatYuan(option.yearlyStandardInCents))
                 },
                 color = if (record != null) DeducGreen else DeducSecondaryText,
                 fontSize = 12.sp
             )
         }
         Text(
-            if (record != null) "修改" else "填报",
+            if (record != null) stringResource(R.string.deductions_14) else stringResource(R.string.deductions_15),
             color = DeducBlue,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
@@ -326,11 +327,11 @@ private fun DeductionSheet(
         Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
             Text(option.type, color = DeducPrimaryText, fontSize = 20.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(5.dp))
-            Text("$year 年度 · 标准额度 ¥${formatYuan(option.yearlyStandardInCents)} / 年", color = DeducSecondaryText, fontSize = 13.sp)
+            Text(stringResource(R.string.deductions_16, year, formatYuan(option.yearlyStandardInCents)), color = DeducSecondaryText, fontSize = 13.sp)
             Spacer(Modifier.height(18.dp))
 
             if (option.supportsHalf) {
-                Text("扣除比例", color = DeducPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.deductions_17), color = DeducPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(9.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     listOf(100, 50).forEach { value ->
@@ -345,7 +346,7 @@ private fun DeductionSheet(
                                 .padding(horizontal = 20.dp, vertical = 9.dp)
                         ) {
                             Text(
-                                if (value == 100) "本人扣除 100%" else "与他人分摊 50%",
+                                if (value == 100) stringResource(R.string.deductions_18) else stringResource(R.string.deductions_19),
                                 color = if (selected) Color.White else Color(0xFF3C4654),
                                 fontSize = 13.sp,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
@@ -356,7 +357,7 @@ private fun DeductionSheet(
                 Spacer(Modifier.height(18.dp))
             }
 
-            Text("年度可扣除金额", color = DeducPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.deductions_20), color = DeducPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 "¥${formatYuan(option.yearlyStandardInCents * ratio / 100)}",
@@ -375,12 +376,12 @@ private fun DeductionSheet(
                     .fillMaxWidth()
                     .height(46.dp)
             ) {
-                Text(if (existing != null) "保存修改" else "确认填报", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(if (existing != null) stringResource(R.string.deductions_21) else stringResource(R.string.deductions_22), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
             if (existing != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "删除该填报",
+                    stringResource(R.string.deductions_23),
                     color = Color(0xFFE5484D),
                     fontSize = 14.sp,
                     modifier = Modifier

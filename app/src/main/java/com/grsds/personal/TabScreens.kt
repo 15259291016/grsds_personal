@@ -31,7 +31,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -50,11 +54,13 @@ private val TabSecondaryText = Color(0xFF7D8490)
 private val TabBlue = Color(0xFF168AF4)
 
 private data class TabEntry(
-    val symbol: String,
+    /** 稳定的跳转标识，与展示文案解耦 */
+    val id: String,
+    @StringRes val symbol: Int,
     val color: Color,
-    val title: String,
-    val description: String = "",
-    val time: String = "",
+    @StringRes val title: Int,
+    @StringRes val description: Int = 0,
+    @StringRes val time: Int = 0,
     val done: Boolean = false
 )
 
@@ -63,14 +69,15 @@ private data class TabEntry(
 // ---------------------------------------------------------------------------
 
 private val todoItems = listOf(
-    TabEntry("汇", Color(0xFF1598F4), "2025年度综合所得年度汇算", "办理时间为2026年3月1日至6月30日，可办理申报或补办", "2026-06-30 截止"),
-    TabEntry("扣", Color(0xFF8B5CF6), "2026年度专项附加扣除确认", "一键带入上年度扣除信息，确认后2026年度可继续享受", "2026-01-31 截止"),
-    TabEntry("卡", Color(0xFF15CDB1), "银行卡信息核实", "退税款项将退至您绑定的银行卡，请核实卡片状态", "尽快处理"),
-    TabEntry("汇", Color(0xFF9AB0C4), "2024年度综合所得年度汇算", "已于2025年6月30日办理完成，退税已退至绑定银行卡", "已完成", done = true)
+    TabEntry("annual", R.string.tab_29, Color(0xFF1598F4), R.string.tab_30, R.string.tab_31, R.string.tab_32),
+    TabEntry("deductions", R.string.tab_33, Color(0xFF8B5CF6), R.string.tab_34, R.string.tab_35, R.string.tab_36),
+    TabEntry("bank", R.string.tab_37, Color(0xFF15CDB1), R.string.tab_38, R.string.tab_39, R.string.tab_40),
+    TabEntry("done", R.string.tab_41, Color(0xFF9AB0C4), R.string.tab_42, R.string.tab_43, R.string.tab_44, done = true)
 )
 
 /** 未接入功能的统一提示，避免“正在打开”点完却什么都没发生。 */
-internal fun unavailableHint(title: String) = "「$title」尚未接入，当前为演示版本"
+internal fun unavailableHint(context: Context, title: String) =
+    context.getString(R.string.tab_105, title)
 
 @Composable
 fun TodoTab(
@@ -80,6 +87,7 @@ fun TodoTab(
     onOpenDeclarationRecords: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -87,14 +95,14 @@ fun TodoTab(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            "待办",
+            stringResource(R.string.tab_01),
             color = TabPrimaryText,
             fontSize = 24.sp,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(start = 16.dp, top = 18.dp, bottom = 4.dp)
         )
         Text(
-            "需要您办理或确认的事项",
+            stringResource(R.string.tab_02),
             color = TabSecondaryText,
             fontSize = 13.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
@@ -106,9 +114,9 @@ fun TodoTab(
                     when {
                         // 已办结的那条点进去看申报记录，和真实 APP 一致
                         item.done -> onOpenDeclarationRecords()
-                        item.title.contains("年度汇算") -> onOpenAnnualReconciliation()
-                        item.title.contains("专项附加扣除") -> onOpenDeductions()
-                        else -> onAction(unavailableHint(item.title))
+                        item.id == "annual" -> onOpenAnnualReconciliation()
+                        item.id == "deductions" -> onOpenDeductions()
+                        else -> onAction(unavailableHint(context, context.getString(item.title)))
                     }
                 }
             )
@@ -135,11 +143,11 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                         .background(item.color.copy(alpha = 0.12f), RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(item.symbol, color = item.color, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                    Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 15.sp)
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    item.title,
+                    stringResource(item.title),
                     color = TabPrimaryText,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
@@ -147,7 +155,7 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                 )
                 if (item.done) {
                     Text(
-                        "查看记录 ›",
+                        stringResource(R.string.tab_05),
                         color = TabBlue,
                         fontSize = 13.sp,
                         modifier = Modifier
@@ -162,19 +170,23 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 4.dp),
                         modifier = Modifier.height(30.dp)
                     ) {
-                        Text("去办理", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.tab_06), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
             Spacer(Modifier.height(9.dp))
-            Text(
-                item.description,
-                color = Color(0xFF3C4654),
-                fontSize = 13.sp,
-                lineHeight = 19.sp
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(item.time, color = TabSecondaryText, fontSize = 12.sp)
+            if (item.description != 0) {
+                Text(
+                    stringResource(item.description),
+                    color = Color(0xFF3C4654),
+                    fontSize = 13.sp,
+                    lineHeight = 19.sp
+                )
+            }
+            if (item.time != 0) {
+                Spacer(Modifier.height(8.dp))
+                Text(stringResource(item.time), color = TabSecondaryText, fontSize = 12.sp)
+            }
         }
     }
 }
@@ -184,19 +196,19 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
 // ---------------------------------------------------------------------------
 
 private val taxHandlingServices = listOf(
-    TabEntry("汇", Color(0xFF1598F4), "综合所得年度汇算"),
-    TabEntry("扣", Color(0xFF8B5CF6), "专项附加扣除填报"),
-    TabEntry("税", Color(0xFF3D8BFF), "收入纳税明细"),
-    TabEntry("票", Color(0xFF15CDB1), "纳税记录开具"),
-    TabEntry("改", Color(0xFFFF9F43), "更正申报"),
-    TabEntry("委", Color(0xFF6C7CF0), "委托代理")
+    TabEntry("annual", R.string.tab_45, Color(0xFF1598F4), R.string.tab_46),
+    TabEntry("deductions", R.string.tab_47, Color(0xFF8B5CF6), R.string.tab_48),
+    TabEntry("income", R.string.tab_49, Color(0xFF3D8BFF), R.string.tab_50),
+    TabEntry("issue", R.string.tab_51, Color(0xFF15CDB1), R.string.tab_52),
+    TabEntry("correction", R.string.tab_53, Color(0xFFFF9F43), R.string.tab_54),
+    TabEntry("agent", R.string.tab_55, Color(0xFF6C7CF0), R.string.tab_56)
 )
 
 private val queryServices = listOf(
-    TabEntry("税", Color(0xFF3D8BFF), "收入纳税明细查询"),
-    TabEntry("票", Color(0xFF15CDB1), "纳税记录查询"),
-    TabEntry("报", Color(0xFFFF9F43), "申报信息查询"),
-    TabEntry("证", Color(0xFF26B4A8), "税收完税证明")
+    TabEntry("income", R.string.tab_57, Color(0xFF3D8BFF), R.string.tab_58),
+    TabEntry("issue", R.string.tab_59, Color(0xFF15CDB1), R.string.tab_60),
+    TabEntry("declarations", R.string.tab_61, Color(0xFFFF9F43), R.string.tab_62),
+    TabEntry("proof", R.string.tab_63, Color(0xFF26B4A8), R.string.tab_64)
 )
 
 @Composable
@@ -209,6 +221,7 @@ fun ServicesTab(
     onOpenDeclarationRecords: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -216,22 +229,22 @@ fun ServicesTab(
             .verticalScroll(rememberScrollState())
             .padding(top = 18.dp)
     ) {
-        ServiceSection("我要办税", taxHandlingServices) { entry ->
-            when (entry.title) {
-                "综合所得年度汇算" -> onOpenAnnualReconciliation()
-                "专项附加扣除填报" -> onOpenDeductions()
-                "收入纳税明细" -> onOpenIncomeTaxDetails()
-                "纳税记录开具" -> onOpenTaxRecordIssue()
-                else -> onAction(unavailableHint(entry.title))
+        ServiceSection(stringResource(R.string.tab_07), taxHandlingServices) { entry ->
+            when (entry.id) {
+                "annual" -> onOpenAnnualReconciliation()
+                "deductions" -> onOpenDeductions()
+                "income" -> onOpenIncomeTaxDetails()
+                "issue" -> onOpenTaxRecordIssue()
+                else -> onAction(unavailableHint(context, context.getString(entry.title)))
             }
         }
         Spacer(Modifier.height(14.dp))
-        ServiceSection("我要查询", queryServices) { entry ->
-            when (entry.title) {
-                "收入纳税明细查询" -> onOpenIncomeTaxDetails()
-                "纳税记录查询" -> onOpenTaxRecordIssue()
-                "申报信息查询" -> onOpenDeclarationRecords()
-                else -> onAction(unavailableHint(entry.title))
+        ServiceSection(stringResource(R.string.tab_12), queryServices) { entry ->
+            when (entry.id) {
+                "income" -> onOpenIncomeTaxDetails()
+                "issue" -> onOpenTaxRecordIssue()
+                "declarations" -> onOpenDeclarationRecords()
+                else -> onAction(unavailableHint(context, context.getString(entry.title)))
             }
         }
         Spacer(Modifier.height(20.dp))
@@ -282,11 +295,11 @@ private fun ServiceSection(
                                     .background(entry.color.copy(alpha = 0.14f), RoundedCornerShape(13.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(entry.symbol, color = entry.color, fontWeight = FontWeight.Black, fontSize = 18.sp)
+                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 18.sp)
                             }
                             Spacer(Modifier.height(7.dp))
                             Text(
-                                entry.title,
+                                stringResource(entry.title),
                                 color = Color(0xFF3C4654),
                                 fontSize = 11.sp,
                                 lineHeight = 14.sp,
@@ -310,23 +323,25 @@ private fun ServiceSection(
 // 消息
 // ---------------------------------------------------------------------------
 
-private val messageCategories = listOf("全部", "办税提醒", "互动消息", "系统通知")
+private val messageCategories = listOf(
+    R.string.tab_65, R.string.tab_66, R.string.tab_67, R.string.tab_68
+)
 
 private data class MessageItem(
-    val category: String,
-    val symbol: String,
+    @StringRes val category: Int,
+    @StringRes val symbol: Int,
     val color: Color,
-    val title: String,
-    val summary: String,
-    val time: String
+    @StringRes val title: Int,
+    @StringRes val summary: Int,
+    @StringRes val time: Int
 )
 
 private val messageItems = listOf(
-    MessageItem("办税提醒", "汇", Color(0xFF1598F4), "年度汇算申报提醒", "您的2025年度综合所得汇算已可办理，请及时申报", "昨天 14:20"),
-    MessageItem("办税提醒", "扣", Color(0xFF8B5CF6), "专项附加扣除信息确认", "请及时确认2026年度子女教育、赡养老人等扣除信息", "11-10 09:00"),
-    MessageItem("互动消息", "诉", Color(0xFFFF7043), "申诉进度通知", "您发起的收入纳税明细异议申诉已受理，预计5个工作日内反馈", "11-08 16:35"),
-    MessageItem("系统通知", "安", Color(0xFF26B4A8), "账户安全提示", "检测到您的账号在新设备登录，如非本人操作请及时修改密码", "11-01 10:12"),
-    MessageItem("系统通知", "通", Color(0xFF6C7CF0), "服务时间调整通知", "个人所得税APP将于每周日23:00至次日2:00进行例行维护", "10-28 18:00")
+    MessageItem(R.string.tab_66, R.string.tab_69, Color(0xFF1598F4), R.string.tab_70, R.string.tab_71, R.string.tab_72),
+    MessageItem(R.string.tab_66, R.string.tab_73, Color(0xFF8B5CF6), R.string.tab_74, R.string.tab_75, R.string.tab_76),
+    MessageItem(R.string.tab_67, R.string.tab_77, Color(0xFFFF7043), R.string.tab_78, R.string.tab_79, R.string.tab_80),
+    MessageItem(R.string.tab_68, R.string.tab_81, Color(0xFF26B4A8), R.string.tab_82, R.string.tab_83, R.string.tab_84),
+    MessageItem(R.string.tab_68, R.string.tab_85, Color(0xFF6C7CF0), R.string.tab_86, R.string.tab_87, R.string.tab_88)
 )
 
 @Composable
@@ -334,6 +349,7 @@ fun MessagesTab(
     onAction: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var selectedCategory by remember { mutableIntStateOf(0) }
     val readIndexes = remember { mutableStateListOf<Int>() }
     val visible = if (selectedCategory == 0) {
@@ -360,14 +376,14 @@ fun MessagesTab(
                 .padding(start = 16.dp, end = 12.dp, top = 18.dp, bottom = 8.dp)
         ) {
             Text(
-                "消息",
+                stringResource(R.string.tab_16),
                 color = TabPrimaryText,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "全部已读",
+                stringResource(R.string.tab_17),
                 color = TabBlue,
                 fontSize = 13.sp,
                 modifier = Modifier.clickable {
@@ -391,7 +407,7 @@ fun MessagesTab(
                         .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        name,
+                        stringResource(name),
                         color = if (selected) Color.White else Color(0xFF3C4654),
                         fontSize = 13.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
@@ -410,13 +426,13 @@ fun MessagesTab(
                 val unread = globalIndex !in readIndexes
                 MessageCard(item, unread) {
                     if (globalIndex !in readIndexes) readIndexes.add(globalIndex)
-                    onAction("正在查看：${item.title}")
+                    onAction(context.getString(R.string.tab_18, context.getString(item.title)))
                 }
                 Spacer(Modifier.height(10.dp))
             }
             if (visible.isEmpty()) {
                 Text(
-                    "暂无消息",
+                    stringResource(R.string.tab_19),
                     color = TabSecondaryText,
                     fontSize = 14.sp,
                     modifier = Modifier
@@ -451,13 +467,13 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                     .background(item.color.copy(alpha = 0.14f), RoundedCornerShape(11.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(item.symbol, color = item.color, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 16.sp)
             }
             Spacer(Modifier.width(11.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        item.title,
+                        stringResource(item.title),
                         color = TabPrimaryText,
                         fontWeight = if (unread) FontWeight.Bold else FontWeight.Normal,
                         fontSize = 15.sp,
@@ -476,7 +492,7 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    item.summary,
+                    stringResource(item.summary),
                     color = Color(0xFF3C4654),
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
@@ -485,7 +501,7 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    item.time,
+                    stringResource(item.time),
                     color = TabSecondaryText,
                     fontSize = 12.sp,
                     maxLines = 1,
@@ -505,22 +521,22 @@ private data class ProfileGroup(val entries: List<TabEntry>)
 private val profileGroups = listOf(
     ProfileGroup(
         listOf(
-            TabEntry("证", Color(0xFF1598F4), "个人信息"),
-            TabEntry("家", Color(0xFF8B5CF6), "家庭成员"),
-            TabEntry("职", Color(0xFF3D8BFF), "任职受雇信息")
+            TabEntry("profile", R.string.tab_89, Color(0xFF1598F4), R.string.tab_90),
+            TabEntry("family", R.string.tab_91, Color(0xFF8B5CF6), R.string.tab_92),
+            TabEntry("employment", R.string.tab_93, Color(0xFF3D8BFF), R.string.tab_94)
         )
     ),
     ProfileGroup(
         listOf(
-            TabEntry("卡", Color(0xFF15CDB1), "银行卡管理"),
-            TabEntry("安", Color(0xFFFF7043), "安全中心")
+            TabEntry("bank", R.string.tab_95, Color(0xFF15CDB1), R.string.tab_96),
+            TabEntry("security", R.string.tab_97, Color(0xFFFF7043), R.string.tab_98)
         )
     ),
     ProfileGroup(
         listOf(
-            TabEntry("帮", Color(0xFF6C7CF0), "帮助与反馈"),
-            TabEntry("关", Color(0xFF26B4A8), "关于"),
-            TabEntry("设", Color(0xFF9AB0C4), "设置")
+            TabEntry("help", R.string.tab_99, Color(0xFF6C7CF0), R.string.tab_100),
+            TabEntry("about", R.string.tab_101, Color(0xFF26B4A8), R.string.tab_102),
+            TabEntry("settings", R.string.tab_103, Color(0xFF9AB0C4), R.string.tab_104)
         )
     )
 )
@@ -553,7 +569,7 @@ fun ProfileTab(
                 )
                 .statusBarsPadding()
                 .clickable {
-                    if (session == null) onOpenLogin() else onAction("正在查看个人资料")
+                    if (session == null) onOpenLogin() else onAction(context.getString(R.string.tab_20))
                 }
                 .padding(horizontal = 18.dp, vertical = 26.dp)
         ) {
@@ -564,19 +580,19 @@ fun ProfileTab(
                         .background(Color.White.copy(alpha = 0.9f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("税", color = TabBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                    Text(stringResource(R.string.tab_21), color = TabBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
                 }
                 Spacer(Modifier.width(14.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        session?.nickname ?: "立即登录 / 注册",
+                        session?.nickname ?: stringResource(R.string.tab_22),
                         color = Color.White,
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Black
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
-                        session?.maskedPhone ?: "登录后可查询收入纳税明细、办理年度汇算",
+                        session?.maskedPhone ?: stringResource(R.string.tab_23),
                         color = Color.White.copy(alpha = 0.85f),
                         fontSize = 12.sp
                     )
@@ -600,13 +616,13 @@ fun ProfileTab(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    when (entry.title) {
-                                        "个人信息" -> onAction(
-                                            if (session == null) "登录后可查看个人信息"
-                                            else unavailableHint("个人信息")
+                                    when (entry.id) {
+                                        "profile" -> onAction(
+                                            if (session == null) context.getString(R.string.tab_25)
+                                            else unavailableHint(context, context.getString(R.string.tab_24))
                                         )
-                                        "设置" -> onOpenSettings()
-                                        else -> onAction(unavailableHint(entry.title))
+                                        "settings" -> onOpenSettings()
+                                        else -> onAction(unavailableHint(context, context.getString(entry.title)))
                                     }
                                 }
                                 .padding(horizontal = 15.dp, vertical = 15.dp)
@@ -617,11 +633,11 @@ fun ProfileTab(
                                     .background(entry.color.copy(alpha = 0.13f), RoundedCornerShape(9.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(entry.symbol, color = entry.color, fontWeight = FontWeight.Black, fontSize = 13.sp)
+                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 13.sp)
                             }
                             Spacer(Modifier.width(12.dp))
                             Text(
-                                entry.title,
+                                stringResource(entry.title),
                                 color = TabPrimaryText,
                                 fontSize = 15.sp,
                                 modifier = Modifier.weight(1f)
@@ -648,7 +664,7 @@ fun ProfileTab(
                     .padding(horizontal = 12.dp)
             ) {
                 Text(
-                    "退出登录",
+                    stringResource(R.string.tab_27),
                     color = Color(0xFFE5484D),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
@@ -662,7 +678,7 @@ fun ProfileTab(
             Spacer(Modifier.height(12.dp))
         }
         Text(
-            "个人所得税 APP · 演示版",
+            stringResource(R.string.tab_28),
             color = TabSecondaryText,
             fontSize = 12.sp,
             modifier = Modifier

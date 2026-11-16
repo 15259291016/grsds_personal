@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -88,7 +89,7 @@ fun QueryResultScreen(
                     .fillMaxSize()
             ) {
                 ResultTopBar(
-                    title = "$year 年度收入纳税明细",
+                    title = stringResource(R.string.query_19, year),
                     onBack = onBack
                 )
 
@@ -142,7 +143,7 @@ fun QueryResultScreen(
                         }
                         item {
                             Text(
-                                "数据来自本机已录入的纳税明细，点击任意一条可查看详情或发起异议",
+                                stringResource(R.string.query_20),
                                 color = ResultSecondaryText,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
@@ -167,7 +168,7 @@ private fun ResultTopBar(title: String, onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.query_01),
             color = Color(0xFF2787E8),
             fontSize = 17.sp,
             modifier = Modifier
@@ -209,7 +210,7 @@ private fun SummaryCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "$year 年度收入合计（元）",
+                stringResource(R.string.query_02, year),
                 color = ResultSecondaryText,
                 fontSize = 12.sp
             )
@@ -222,7 +223,7 @@ private fun SummaryCard(
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                "查询范围：" + selectedTypes.joinToString("、"),
+                stringResource(R.string.query_03) + selectedTypes.joinToString("、"),
                 color = ResultSecondaryText,
                 fontSize = 12.sp,
                 maxLines = 2,
@@ -232,9 +233,9 @@ private fun SummaryCard(
             HorizontalDivider(color = ResultDivider)
             Spacer(Modifier.height(12.dp))
             Row {
-                SummaryMetric("记录条数", "$recordCount", Modifier.weight(1f))
-                SummaryMetric("所得类型", "$typeCount", Modifier.weight(1f))
-                SummaryMetric("覆盖月份", "$monthCount", Modifier.weight(1f))
+                SummaryMetric(stringResource(R.string.query_04), "$recordCount", Modifier.weight(1f))
+                SummaryMetric(stringResource(R.string.query_05), "$typeCount", Modifier.weight(1f))
+                SummaryMetric(stringResource(R.string.query_06), "$monthCount", Modifier.weight(1f))
             }
         }
     }
@@ -260,7 +261,7 @@ private fun TypeBreakdownCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("按所得类型汇总", color = ResultPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.query_07), color = ResultPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(12.dp))
             typeGroups.forEach { (type, cents) ->
                 val ratio = if (totalCents > 0) cents.toFloat() / totalCents else 0f
@@ -320,14 +321,14 @@ private fun MonthHeader(year: Int, month: Int, subtotalCents: Long, count: Int) 
         )
         Spacer(Modifier.width(7.dp))
         Text(
-            "$year 年 $month 月",
+            stringResource(R.string.query_08, year, month),
             color = ResultPrimaryText,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(" （$count 条）", color = ResultSecondaryText, fontSize = 12.sp)
+        Text(stringResource(R.string.query_09, count), color = ResultSecondaryText, fontSize = 12.sp)
         Spacer(Modifier.weight(1f))
-        Text("小计 ${formatYuan(subtotalCents)}", color = ResultBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.query_10, formatYuan(subtotalCents)), color = ResultBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -359,7 +360,7 @@ private fun ResultRecordRow(
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
-                                "申诉中",
+                                stringResource(R.string.query_11),
                                 color = ResultWarn,
                                 fontSize = 10.sp,
                                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
@@ -410,10 +411,10 @@ private fun EmptyResultCard(onOpenBatchCreate: () -> Unit) {
                 .padding(vertical = 30.dp, horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("该年度所选类型下暂无可查询的记录", color = ResultPrimaryText, fontSize = 15.sp)
+            Text(stringResource(R.string.query_12), color = ResultPrimaryText, fontSize = 15.sp)
             Spacer(Modifier.height(8.dp))
             Text(
-                "真实 APP 的数据由扣缴单位申报后自动带出，本演示项目需要先录入",
+                stringResource(R.string.query_13),
                 color = ResultSecondaryText,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center
@@ -425,7 +426,7 @@ private fun EmptyResultCard(onOpenBatchCreate: () -> Unit) {
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.height(42.dp)
             ) {
-                Text("去批量录入", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.query_14), fontSize = 15.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -437,7 +438,7 @@ private fun QueryResultPreview() {
     MyApplicationTheme(dynamicColor = false, darkTheme = false) {
         QueryResultScreen(
             year = 2026,
-            incomeTypes = listOf("工资薪金", "劳务报酬", "稿酬", "特许权使用费"),
+            incomeTypes = listOf(stringResource(R.string.query_15), stringResource(R.string.query_16), stringResource(R.string.query_17), stringResource(R.string.query_18)),
             onBack = {},
             onOpenRecord = {}
         )

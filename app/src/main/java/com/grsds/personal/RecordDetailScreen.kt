@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -123,11 +124,11 @@ fun RecordDetailScreen(
     if (showConfirm && record != null) {
         AlertDialog(
             onDismissRequest = { showConfirm = false },
-            title = { Text("发起异议申诉", fontSize = 17.sp) },
+            title = { Text(stringResource(R.string.record_detail_01), fontSize = 17.sp) },
             text = {
                 Text(
-                    "确认对 ${record.month} 月「${record.incomeType}」这笔 ${record.amountLabel} 元的记录发起申诉？" +
-                        "提交后税务机关将在 3 个工作日内核实，期间请留意消息通知。",
+                    stringResource(R.string.record_detail_02, record.month, record.incomeType, record.amountLabel) +
+                        stringResource(R.string.record_detail_03),
                     fontSize = 14.sp,
                     lineHeight = 21.sp
                 )
@@ -141,16 +142,16 @@ fun RecordDetailScreen(
                             repository.markDisputed(record.id)
                             submitting = false
                             snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar("申诉已提交，请留意后续核实结果")
+                            snackbarHostState.showSnackbar(context.getString(R.string.record_detail_04))
                         }
                     }
                 ) {
-                    Text("确认提交", color = DetailBlue)
+                    Text(stringResource(R.string.record_detail_05), color = DetailBlue)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirm = false }) {
-                    Text("再想想", color = DetailSecondaryText)
+                    Text(stringResource(R.string.record_detail_06), color = DetailSecondaryText)
                 }
             }
         )
@@ -166,7 +167,7 @@ private fun DetailTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.record_detail_07),
             color = Color(0xFF2787E8),
             fontSize = 17.sp,
             modifier = Modifier
@@ -175,7 +176,7 @@ private fun DetailTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "明细详情",
+            stringResource(R.string.record_detail_08),
             color = DetailPrimaryText,
             fontSize = 18.sp,
             modifier = Modifier.align(Alignment.Center)
@@ -199,7 +200,7 @@ private fun AmountCard(record: IncomeRecord) {
                 StatusTag(record.disputed)
             }
             Spacer(Modifier.height(10.dp))
-            Text("收入额（元）", color = DetailSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.record_detail_09), color = DetailSecondaryText, fontSize = 12.sp)
             Text(
                 formatYuan(record.amountInCents),
                 color = DetailPrimaryText,
@@ -211,15 +212,15 @@ private fun AmountCard(record: IncomeRecord) {
             Spacer(Modifier.height(12.dp))
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("所得期间", color = DetailSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.record_detail_10), color = DetailSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
-                    Text("${record.year} 年 ${record.month} 月", color = DetailPrimaryText, fontSize = 15.sp)
+                    Text(stringResource(R.string.record_detail_11, record.year, record.month), color = DetailPrimaryText, fontSize = 15.sp)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("申报状态", color = DetailSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.record_detail_12), color = DetailSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
                     Text(
-                        if (record.disputed) "申诉核实中" else "已申报 · 已缴清",
+                        if (record.disputed) stringResource(R.string.record_detail_13) else stringResource(R.string.record_detail_14),
                         color = if (record.disputed) DetailWarn else Color(0xFF1D9E75),
                         fontSize = 15.sp
                     )
@@ -239,13 +240,13 @@ private fun InfoCard(record: IncomeRecord) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-            InfoRow("扣缴义务人", record.withholdingAgent)
+            InfoRow(stringResource(R.string.record_detail_15), record.withholdingAgent)
             HorizontalDivider(color = DetailDivider)
-            InfoRow("所得项目", record.incomeType)
+            InfoRow(stringResource(R.string.record_detail_16), record.incomeType)
             HorizontalDivider(color = DetailDivider)
-            InfoRow("录入时间", formatter.format(Date(record.createdAt)))
+            InfoRow(stringResource(R.string.record_detail_17), formatter.format(Date(record.createdAt)))
             HorizontalDivider(color = DetailDivider)
-            InfoRow("数据来源", "本机录入（演示数据）")
+            InfoRow(stringResource(R.string.record_detail_18), stringResource(R.string.record_detail_19))
         }
     }
 }
@@ -278,13 +279,13 @@ private fun AppealCard(disputed: Boolean, submitting: Boolean, onAppeal: () -> U
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("对这笔记录有疑问？", color = DetailPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.record_detail_20), color = DetailPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 if (disputed) {
-                    "申诉已提交，税务机关正在核实，结果会通过消息通知你。"
+                    stringResource(R.string.record_detail_21)
                 } else {
-                    "如果这笔收入并非本人取得，或金额与实际不符，可以向税务机关发起异议申诉。"
+                    stringResource(R.string.record_detail_22)
                 },
                 color = DetailSecondaryText,
                 fontSize = 12.sp,
@@ -306,9 +307,9 @@ private fun AppealCard(disputed: Boolean, submitting: Boolean, onAppeal: () -> U
             ) {
                 Text(
                     when {
-                        submitting -> "提交中…"
-                        disputed -> "申诉处理中"
-                        else -> "发起异议申诉"
+                        submitting -> stringResource(R.string.record_detail_23)
+                        disputed -> stringResource(R.string.record_detail_24)
+                        else -> stringResource(R.string.record_detail_01)
                     },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -325,7 +326,7 @@ private fun StatusTag(disputed: Boolean) {
         shape = RoundedCornerShape(4.dp)
     ) {
         Text(
-            if (disputed) "申诉中" else "已申报",
+            if (disputed) stringResource(R.string.record_detail_25) else stringResource(R.string.record_detail_26),
             color = if (disputed) DetailWarn else Color(0xFF1D9E75),
             fontSize = 10.sp,
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
@@ -342,9 +343,9 @@ private fun MissingRecordHint() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(120.dp))
-        Text("记录不存在或已被删除", color = DetailPrimaryText, fontSize = 16.sp)
+        Text(stringResource(R.string.record_detail_27), color = DetailPrimaryText, fontSize = 16.sp)
         Spacer(Modifier.height(8.dp))
-        Text("请返回上一页重新查询", color = DetailSecondaryText, fontSize = 13.sp)
+        Text(stringResource(R.string.record_detail_28), color = DetailSecondaryText, fontSize = 13.sp)
     }
 }
 

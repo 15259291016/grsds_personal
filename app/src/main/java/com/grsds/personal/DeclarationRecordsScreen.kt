@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -102,7 +103,7 @@ private fun RecTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.declarations_01),
             color = RecBlue,
             fontSize = 17.sp,
             modifier = Modifier
@@ -111,7 +112,7 @@ private fun RecTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "申报记录",
+            stringResource(R.string.declarations_02),
             color = RecPrimaryText,
             fontSize = 19.sp,
             fontWeight = FontWeight.Bold,
@@ -131,10 +132,10 @@ private fun SummaryCard(count: Int, refundTotal: Long, payableTotal: Long) {
             .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("已申报年度", color = RecSecondaryText, fontSize = 13.sp)
+            Text(stringResource(R.string.declarations_03), color = RecSecondaryText, fontSize = 13.sp)
             Spacer(Modifier.height(4.dp))
             Text(
-                "$count 个",
+                stringResource(R.string.declarations_04, count),
                 color = RecPrimaryText,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Black
@@ -144,7 +145,7 @@ private fun SummaryCard(count: Int, refundTotal: Long, payableTotal: Long) {
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("累计应退税额", color = RecSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.declarations_05), color = RecSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
                     Text(
                         "¥${formatYuan(refundTotal)}",
@@ -154,7 +155,7 @@ private fun SummaryCard(count: Int, refundTotal: Long, payableTotal: Long) {
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("累计应补税额", color = RecSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.declarations_06), color = RecSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(3.dp))
                     Text(
                         "¥${formatYuan(payableTotal)}",
@@ -180,7 +181,7 @@ private fun DeclarationCard(record: DeclarationRecord) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${record.year} 年度综合所得年度汇算",
+                    stringResource(R.string.declarations_07, record.year),
                     color = RecPrimaryText,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
@@ -195,16 +196,16 @@ private fun DeclarationCard(record: DeclarationRecord) {
                 }
             }
             Spacer(Modifier.height(6.dp))
-            Text("申报编号 ${record.declarationNo}", color = RecSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.declarations_08, record.declarationNo), color = RecSecondaryText, fontSize = 12.sp)
             Spacer(Modifier.height(2.dp))
-            Text("提交时间 ${record.submittedAtLabel}", color = RecSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.declarations_09, record.submittedAtLabel), color = RecSecondaryText, fontSize = 12.sp)
             Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = RecDivider)
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
-                Metric("收入额", "¥${formatYuan(record.incomeCents)}", Modifier.weight(1f))
-                Metric("应纳税额", "¥${formatYuan(record.taxPayableCents)}", Modifier.weight(1f))
-                Metric("已预缴", "¥${formatYuan(record.taxPrepaidCents)}", Modifier.weight(1f))
+                Metric(stringResource(R.string.declarations_10), "¥${formatYuan(record.incomeCents)}", Modifier.weight(1f))
+                Metric(stringResource(R.string.declarations_11), "¥${formatYuan(record.taxPayableCents)}", Modifier.weight(1f))
+                Metric(stringResource(R.string.declarations_12), "¥${formatYuan(record.taxPrepaidCents)}", Modifier.weight(1f))
             }
             Spacer(Modifier.height(12.dp))
             Row(
@@ -215,7 +216,7 @@ private fun DeclarationCard(record: DeclarationRecord) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    if (record.isRefund) "应退税额" else "应补税额",
+                    if (record.isRefund) stringResource(R.string.declarations_13) else stringResource(R.string.declarations_14),
                     color = if (record.isRefund) RecGreen else RecWarn,
                     fontSize = 13.sp
                 )
@@ -260,20 +261,20 @@ private fun EmptyState(onOpenReconciliation: () -> Unit) {
                     .background(Color(0xFFE6F1FB), RoundedCornerShape(28.dp))
                     .padding(horizontal = 22.dp, vertical = 18.dp)
             ) {
-                Text("税", color = RecBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text(stringResource(R.string.declarations_15), color = RecBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
             }
             Spacer(Modifier.height(16.dp))
-            Text("暂无申报记录", color = RecPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.declarations_16), color = RecPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
-                "完成年度综合所得汇算申报后，可在这里查询申报编号与退补税结果",
+                stringResource(R.string.declarations_17),
                 color = RecSecondaryText,
                 fontSize = 13.sp,
                 lineHeight = 19.sp
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "去办理年度汇算",
+                stringResource(R.string.declarations_18),
                 color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,

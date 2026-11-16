@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +66,9 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var confirmClear by remember { mutableStateOf(false) }
+    // 事件回调里不能调 @Composable，提示文案先在这里取好
+    val aboutToast = stringResource(R.string.settings_12)
+    val clearedToast = stringResource(R.string.settings_15)
     BackHandler(onBack = onBack)
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
@@ -86,7 +90,7 @@ fun SettingsScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Spacer(Modifier.height(12.dp))
-                    GroupTitle("演示数据")
+                    GroupTitle(stringResource(R.string.settings_01))
                     Surface(
                         color = Color.White,
                         shape = RoundedCornerShape(14.dp),
@@ -96,7 +100,7 @@ fun SettingsScreen(
                     ) {
                         Column {
                             Text(
-                                "当前为本地演示版本：收入明细、扣除填报、申报结果都保存在本机，不会上传服务器。",
+                                stringResource(R.string.settings_02),
                                 color = SetSecondaryText,
                                 fontSize = 12.sp,
                                 lineHeight = 18.sp,
@@ -104,14 +108,14 @@ fun SettingsScreen(
                             )
                             HorizontalDivider(color = SetDivider, modifier = Modifier.padding(horizontal = 16.dp))
                             SettingRow(
-                                title = "批量录入纳税明细",
-                                subtitle = "一次新增多条收入记录",
+                                title = stringResource(R.string.settings_03),
+                                subtitle = stringResource(R.string.settings_04),
                                 onClick = onOpenBatchCreate
                             )
                             HorizontalDivider(color = SetDivider, modifier = Modifier.padding(start = 16.dp))
                             SettingRow(
-                                title = "清空演示数据",
-                                subtitle = "删除全部收入明细、扣除填报与申报记录",
+                                title = stringResource(R.string.settings_05),
+                                subtitle = stringResource(R.string.settings_06),
                                 danger = true,
                                 onClick = { confirmClear = true }
                             )
@@ -119,7 +123,7 @@ fun SettingsScreen(
                     }
 
                     Spacer(Modifier.height(16.dp))
-                    GroupTitle("关于")
+                    GroupTitle(stringResource(R.string.settings_07))
                     Surface(
                         color = Color.White,
                         shape = RoundedCornerShape(14.dp),
@@ -128,14 +132,14 @@ fun SettingsScreen(
                             .padding(horizontal = 12.dp)
                     ) {
                         Column {
-                            SettingRow(title = "版本", subtitle = "1.0.0 演示版", onClick = null)
+                            SettingRow(title = stringResource(R.string.settings_08), subtitle = stringResource(R.string.settings_09), onClick = null)
                             HorizontalDivider(color = SetDivider, modifier = Modifier.padding(start = 16.dp))
                             SettingRow(
-                                title = "数据来源说明",
-                                subtitle = "所有数据由本地生成，非税务总局真实数据",
+                                title = stringResource(R.string.settings_10),
+                                subtitle = stringResource(R.string.settings_11),
                                 onClick = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("演示数据仅用于界面与流程演示")
+                                        snackbarHostState.showSnackbar(aboutToast)
                                     }
                                 }
                             )
@@ -150,10 +154,10 @@ fun SettingsScreen(
     if (confirmClear) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
-            title = { Text("清空全部演示数据？", fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.settings_13), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "将删除所有年度的收入纳税明细、专项附加扣除填报和申报记录，且无法恢复。",
+                    stringResource(R.string.settings_14),
                     fontSize = 14.sp,
                     lineHeight = 21.sp
                 )
@@ -166,15 +170,15 @@ fun SettingsScreen(
                             recordRepository.clear()
                             prefsRepository.clearDeductions()
                             prefsRepository.clearDeclarations()
-                            snackbarHostState.showSnackbar("演示数据已清空")
+                            snackbarHostState.showSnackbar(clearedToast)
                         }
                     }
                 ) {
-                    Text("清空", color = SetDanger, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.settings_16), color = SetDanger, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { confirmClear = false }) { Text("取消") }
+                TextButton(onClick = { confirmClear = false }) { Text(stringResource(R.string.settings_17)) }
             }
         )
     }
@@ -189,7 +193,7 @@ private fun SetTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.settings_18),
             color = SetBlue,
             fontSize = 17.sp,
             modifier = Modifier
@@ -198,7 +202,7 @@ private fun SetTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "设置",
+            stringResource(R.string.settings_19),
             color = SetPrimaryText,
             fontSize = 19.sp,
             fontWeight = FontWeight.Bold,

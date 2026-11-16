@@ -50,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -143,7 +144,7 @@ fun IncomeTaxDetailsScreen(
                             .height(10.dp)
                             .background(DetailsBackground)
                     )
-                    SectionTitle("请选择纳税年度")
+                    SectionTitle(stringResource(R.string.details_22))
                     YearRow(
                         year = selectedYear,
                         onClick = {
@@ -157,7 +158,7 @@ fun IncomeTaxDetailsScreen(
                             .height(10.dp)
                             .background(DetailsBackground)
                     )
-                    SectionTitle("请选择所得类型")
+                    SectionTitle(stringResource(R.string.details_23))
 
                     val visibleCount = if (otherTypesExpanded) incomeTypes.size else 4
                     repeat(visibleCount) { index ->
@@ -169,7 +170,7 @@ fun IncomeTaxDetailsScreen(
                     }
 
                     Text(
-                        text = if (otherTypesExpanded) "收起 ︿" else "其他类型 ﹀",
+                        text = if (otherTypesExpanded) stringResource(R.string.details_24) else stringResource(R.string.details_25),
                         color = Color(0xFF2488E8),
                         fontSize = 15.sp,
                         textAlign = TextAlign.Center,
@@ -193,7 +194,7 @@ fun IncomeTaxDetailsScreen(
                                 if (selectedTypes.isEmpty()) {
                                     scope.launch {
                                         snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("请至少选择一种所得类型")
+                                        snackbarHostState.showSnackbar(context.getString(R.string.details_26))
                                     }
                                 } else {
                                     onQuery(selectedYear, selectedTypes)
@@ -205,13 +206,13 @@ fun IncomeTaxDetailsScreen(
                                 .fillMaxWidth()
                                 .height(48.dp)
                         ) {
-                            Text("查询", color = Color.White, fontSize = 17.sp)
+                            Text(stringResource(R.string.details_27), color = Color.White, fontSize = 17.sp)
                         }
                     }
                     Spacer(Modifier.height(16.dp))
 
                     val yearRecords = allRecords.filter { it.year == selectedYear }
-                    SectionTitle("我录入的纳税明细")
+                    SectionTitle(stringResource(R.string.details_28))
                     if (yearRecords.isEmpty()) {
                         EmptyRecordsHint(onOpenBatchCreate = onOpenBatchCreate)
                     } else {
@@ -248,7 +249,7 @@ fun IncomeTaxDetailsScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "已删除 ${deleted.month} 月 ${deleted.incomeType} ¥${deleted.amountLabel}",
+                context.getString(R.string.details_29, deleted.month, deleted.incomeType, deleted.amountLabel),
                 color = Color.White,
                 fontSize = 13.sp,
                 maxLines = 1,
@@ -256,7 +257,7 @@ fun IncomeTaxDetailsScreen(
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "撤销",
+                stringResource(R.string.details_30),
                 color = Color(0xFF6FB6FF),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -266,7 +267,7 @@ fun IncomeTaxDetailsScreen(
                         recentlyDeleted = null
                         scope.launch {
                             repository.addAll(listOf(target))
-                            snackbarHostState.showSnackbar("已恢复该条明细")
+                            snackbarHostState.showSnackbar(context.getString(R.string.details_31))
                         }
                     }
                     .padding(horizontal = 12.dp, vertical = 8.dp)
@@ -299,10 +300,15 @@ fun IncomeTaxDetailsScreen(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text("删除这条纳税明细？", fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.details_32), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "${target.month} 月 · ${target.incomeType}　¥${target.amountLabel}\n删除后可在底部提示中撤销。",
+                    stringResource(
+                        R.string.details_33,
+                        target.month,
+                        target.incomeType,
+                        target.amountLabel
+                    ),
                     fontSize = 14.sp,
                     lineHeight = 21.sp
                 )
@@ -317,11 +323,11 @@ fun IncomeTaxDetailsScreen(
                         }
                     }
                 ) {
-                    Text("删除", color = Color(0xFFE24B4A), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.details_34), color = Color(0xFFE24B4A), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) { Text("取消") }
+                TextButton(onClick = { pendingDelete = null }) { Text(stringResource(R.string.details_35)) }
             }
         )
     }
@@ -334,7 +340,7 @@ fun IncomeTaxDetailsScreen(
                 editingRecord = null
                 scope.launch {
                     repository.update(updated)
-                    snackbarHostState.showSnackbar("已保存修改")
+                    snackbarHostState.showSnackbar(context.getString(R.string.details_36))
                 }
             }
         )
@@ -350,7 +356,7 @@ private fun DetailsTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.details_01),
             color = Color(0xFF2787E8),
             fontSize = 17.sp,
             modifier = Modifier
@@ -359,7 +365,7 @@ private fun DetailsTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "收入纳税明细",
+            stringResource(R.string.details_02),
             color = DetailsText,
             fontSize = 19.sp,
             modifier = Modifier.align(Alignment.Center)
@@ -407,7 +413,7 @@ private fun YearRow(year: Int, onClick: () -> Unit) {
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("年度", color = Color(0xFF50545B), fontSize = 17.sp)
+        Text(stringResource(R.string.details_03), color = Color(0xFF50545B), fontSize = 17.sp)
         Text(
             year.toString(),
             color = DetailsText,
@@ -507,13 +513,13 @@ private fun YearPickerSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "取消",
+                    stringResource(R.string.details_37),
                     color = Color(0xFF4E535B),
                     fontSize = 17.sp,
                     modifier = Modifier.clickable(onClick = onCancel)
                 )
                 Text(
-                    "确定",
+                    stringResource(R.string.details_38),
                     color = Color(0xFF318BE8),
                     fontSize = 17.sp,
                     modifier = Modifier.clickable(onClick = onConfirm)
@@ -568,7 +574,7 @@ private fun CreatedRecordRow(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "${record.month} 月 · ${record.incomeType}",
+                    stringResource(R.string.details_04, record.month, record.incomeType),
                     color = DetailsText,
                     fontSize = 16.sp
                 )
@@ -590,7 +596,7 @@ private fun CreatedRecordRow(
             Spacer(Modifier.width(8.dp))
             // 点击区抬到 40dp 以上，避免误触旁边的删除
             Text(
-                "编辑",
+                stringResource(R.string.details_05),
                 color = DetailsBlue,
                 fontSize = 13.sp,
                 modifier = Modifier
@@ -598,7 +604,7 @@ private fun CreatedRecordRow(
                     .padding(horizontal = 6.dp, vertical = 12.dp)
             )
             Text(
-                "删除",
+                stringResource(R.string.details_06),
                 color = Color(0xFFE24B4A),
                 fontSize = 13.sp,
                 modifier = Modifier
@@ -624,12 +630,12 @@ private fun EmptyRecordsHint(onOpenBatchCreate: () -> Unit) {
             .padding(vertical = 26.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("该年度暂无已创建的记录", color = Color(0xFF8A9099), fontSize = 15.sp)
+        Text(stringResource(R.string.details_07), color = Color(0xFF8A9099), fontSize = 15.sp)
         Spacer(Modifier.height(6.dp))
-        Text("可从「我的 → 设置 → 演示数据」批量录入", color = Color(0xFFB4B8BF), fontSize = 13.sp)
+        Text(stringResource(R.string.details_08), color = Color(0xFFB4B8BF), fontSize = 13.sp)
         Spacer(Modifier.height(10.dp))
         Text(
-            "去批量录入",
+            stringResource(R.string.details_09),
             color = DetailsBlue,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
@@ -649,10 +655,10 @@ private fun RecordsTotalRow(count: Int, totalCents: Long) {
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("共 $count 条记录", color = Color(0xFF50545B), fontSize = 14.sp)
+        Text(stringResource(R.string.details_10, count), color = Color(0xFF50545B), fontSize = 14.sp)
         Spacer(Modifier.weight(1f))
         Text(
-            "合计 ¥${formatYuan(totalCents)}",
+            stringResource(R.string.details_11, formatYuan(totalCents)),
             color = DetailsBlue,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
@@ -666,6 +672,7 @@ private fun EditRecordDialog(
     onDismiss: () -> Unit,
     onSave: (IncomeRecord) -> Unit
 ) {
+    val context = LocalContext.current
     var amountText by remember(record.id) {
         mutableStateOf(String.format(java.util.Locale.CHINA, "%.2f", record.amountInCents / 100.0))
     }
@@ -678,25 +685,25 @@ private fun EditRecordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("修改纳税明细", fontSize = 17.sp, fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.details_12), fontSize = 17.sp, fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                Text("所得类型：${record.incomeType}", color = Color(0xFF7D8490), fontSize = 13.sp)
+                Text(stringResource(R.string.details_13, record.incomeType), color = Color(0xFF7D8490), fontSize = 13.sp)
                 Spacer(Modifier.height(12.dp))
                 OutlinedTextField(
                     value = amountText,
                     onValueChange = { input -> amountText = input.filter { it.isDigit() || it == '.' } },
-                    label = { Text("收入额（元）") },
+                    label = { Text(stringResource(R.string.details_14)) },
                     isError = invalid,
                     supportingText = if (invalid) {
-                        { Text("请输入 0 到 1 亿之间的金额", fontSize = 11.sp) }
+                        { Text(stringResource(R.string.details_15), fontSize = 11.sp) }
                     } else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(10.dp))
-                Text("纳税月份", color = Color(0xFF7D8490), fontSize = 13.sp)
+                Text(stringResource(R.string.details_16), color = Color(0xFF7D8490), fontSize = 13.sp)
                 Spacer(Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -714,7 +721,7 @@ private fun EditRecordDialog(
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                "$m 月",
+                                stringResource(R.string.details_17, m),
                                 color = if (selected) Color.White else Color(0xFF50545B),
                                 fontSize = 13.sp
                             )
@@ -725,7 +732,7 @@ private fun EditRecordDialog(
                 OutlinedTextField(
                     value = agent,
                     onValueChange = { agent = it },
-                    label = { Text("扣缴义务人（选填）") },
+                    label = { Text(stringResource(R.string.details_18)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -734,12 +741,12 @@ private fun EditRecordDialog(
         confirmButton = {
             TextButton(
                 enabled = canSave,
-                onClick = { cents?.let { onSave(record.copy(month = month, amountInCents = it, withholdingAgent = agent.trim().ifEmpty { "未填写扣缴义务人" })) } }
+                onClick = { cents?.let { onSave(record.copy(month = month, amountInCents = it, withholdingAgent = agent.trim().ifEmpty { context.getString(R.string.details_19) })) } }
             ) {
-                Text("保存", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.details_20), fontWeight = FontWeight.Bold)
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.details_21)) } }
     )
 }
 

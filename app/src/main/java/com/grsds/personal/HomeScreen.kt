@@ -43,6 +43,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -69,54 +72,56 @@ private val PrimaryText = Color(0xFF171B22)
 private val SecondaryText = Color(0xFF7D8490)
 
 private data class ServiceItem(
-    val symbol: String,
+    /** 稳定的跳转标识，与展示文案解耦，避免用文案做分支判断 */
+    val id: String,
+    @StringRes val symbol: Int,
     val color: Color,
-    val title: String,
-    val description: String,
-    val action: String
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    @StringRes val action: Int
 )
 
 private data class ArticleItem(
-    val title: String,
+    @StringRes val title: Int,
     val date: String,
-    val symbol: String,
+    @StringRes val symbol: Int,
     val accent: Color,
     val imageFirst: Boolean = false
 )
 
 private val serviceItems = listOf(
-    ServiceItem("汇", Color(0xFF1598F4), "综合所得年度汇算", "申报与查询综合所得年度汇算", "去申报"),
-    ServiceItem("税", Color(0xFF8B5CF6), "收入纳税明细", "查看个人所得税纳税明细", "去查询"),
-    ServiceItem("票", Color(0xFF15CDB1), "纳税记录开具", "生成或查看纳税记录", "去开具"),
-    ServiceItem("多", Color(0xFF2A9CF2), "更多服务", "设置并管理常用功能", "去看看")
+    ServiceItem("annual", R.string.home_35, Color(0xFF1598F4), R.string.home_36, R.string.home_37, R.string.home_38),
+    ServiceItem("income", R.string.home_39, Color(0xFF8B5CF6), R.string.home_40, R.string.home_41, R.string.home_42),
+    ServiceItem("issue", R.string.home_43, Color(0xFF15CDB1), R.string.home_44, R.string.home_45, R.string.home_46),
+    ServiceItem("more", R.string.home_47, Color(0xFF2A9CF2), R.string.home_48, R.string.home_49, R.string.home_50)
 )
 
 private val bottomTabs = listOf(
-    "⌂" to "首页",
-    "✓" to "待办",
-    "▤" to "办&查",
-    "□" to "消息",
-    "○" to "我的"
+    "⌂" to R.string.home_51,
+    "✓" to R.string.home_52,
+    "▤" to R.string.home_53,
+    "□" to R.string.home_54,
+    "○" to R.string.home_55
 )
 
 private val articleGroups = listOf(
     listOf(
-        ArticleItem("办理汇算想便捷 APP密码要记牢", "2025-02-28", "税", Color(0xFF72C8F7)),
-        ArticleItem("获取退税想及时 准确卡号必须有", "2025-02-28", "退", Color(0xFFFFD68D)),
-        ArticleItem("未依法办理个人所得税综合所得汇算清缴案件", "2024-03-15", "申报", Color(0xFF94E9EB), true),
-        ArticleItem("未在法定期限内办理综合所得汇算清缴、虚假填报子女教育专项附加扣除案件", "2024-03-15", "权威", Color(0xFFB9D7FF), true)
+        ArticleItem(R.string.home_56, "2025-02-28", R.string.home_57, Color(0xFF72C8F7)),
+        ArticleItem(R.string.home_58, "2025-02-28", R.string.home_59, Color(0xFFFFD68D)),
+        ArticleItem(R.string.home_60, "2024-03-15", R.string.home_61, Color(0xFF94E9EB), true),
+        ArticleItem(R.string.home_62, "2024-03-15", R.string.home_63, Color(0xFFB9D7FF), true)
     ),
     listOf(
-        ArticleItem("关于办理2025年度个人所得税综合所得汇算清缴事项的公告", "2026-02-26", "公告", Color(0xFF81C6FF)),
-        ArticleItem("个人所得税APP服务时间调整通知", "2026-01-05", "通知", Color(0xFF9CE4D8))
+        ArticleItem(R.string.home_64, "2026-02-26", R.string.home_65, Color(0xFF81C6FF)),
+        ArticleItem(R.string.home_66, "2026-01-05", R.string.home_67, Color(0xFF9CE4D8))
     ),
     listOf(
-        ArticleItem("年度汇算退税进度在哪里查询？", "2025-06-12", "问答", Color(0xFFFFDCA4)),
-        ArticleItem("专项附加扣除信息如何修改？", "2025-05-20", "热点", Color(0xFFAED5FF))
+        ArticleItem(R.string.home_68, "2025-06-12", R.string.home_69, Color(0xFFFFDCA4)),
+        ArticleItem(R.string.home_70, "2025-05-20", R.string.home_71, Color(0xFFAED5FF))
     ),
     listOf(
-        ArticleItem("综合所得年度汇算政策解读", "2025-03-01", "政策", Color(0xFFA6E6DB)),
-        ArticleItem("专项附加扣除政策要点", "2025-02-28", "解读", Color(0xFFC7D7FF))
+        ArticleItem(R.string.home_72, "2025-03-01", R.string.home_73, Color(0xFFA6E6DB)),
+        ArticleItem(R.string.home_74, "2025-02-28", R.string.home_75, Color(0xFFC7D7FF))
     )
 )
 
@@ -209,8 +214,15 @@ private fun HomeFeed(
     onOpenDeductions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var query by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableIntStateOf(0) }
+    val searchHintBlank = context.getString(R.string.home_01)
+    val searchHintQuery = context.getString(R.string.home_02)
+    val scanHint = context.getString(R.string.home_03)
+    val policyHint = context.getString(R.string.home_05)
+    val promoHint = context.getString(R.string.home_06)
+    val moreHint = context.getString(R.string.home_08)
 
     Column(
         modifier = modifier
@@ -221,9 +233,9 @@ private fun HomeFeed(
             query = query,
             onQueryChange = { query = it },
             onSearch = {
-                onAction(if (query.isBlank()) "请输入要搜索的功能或服务" else "搜索功能尚未接入，当前为演示版本")
+                onAction(if (query.isBlank()) searchHintBlank else searchHintQuery)
             },
-            onScan = { onAction("扫一扫尚未接入，当前为演示版本") }
+            onScan = { onAction(scanHint) }
         )
 
         LazyColumn(
@@ -240,7 +252,7 @@ private fun HomeFeed(
             }
             item {
                 Text(
-                    text = "重点服务推荐",
+                    text = stringResource(R.string.home_04),
                     color = PrimaryText,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
@@ -249,7 +261,7 @@ private fun HomeFeed(
             }
             item {
                 DeductionCard(
-                    onPolicyClick = { onAction(unavailableHint("专项附加扣除政策")) },
+                    onPolicyClick = { onAction(unavailableHint(context, policyHint)) },
                     onFillClick = onOpenDeductions,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
@@ -264,7 +276,7 @@ private fun HomeFeed(
             }
             item {
                 PromoBanner(
-                    onClick = { onAction(unavailableHint("专项附加扣除宣传")) },
+                    onClick = { onAction(unavailableHint(context, promoHint)) },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 18.dp)
                 )
             }
@@ -277,19 +289,22 @@ private fun HomeFeed(
             items(articleGroups[selectedCategory].size) { index ->
                 ArticleCard(
                     article = articleGroups[selectedCategory][index],
-                    onClick = { onAction(unavailableHint(articleGroups[selectedCategory][index].title)) },
+                    onClick = {
+                        val title = context.getString(articleGroups[selectedCategory][index].title)
+                        onAction(unavailableHint(context, title))
+                    },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 7.dp)
                 )
             }
             item {
                 Text(
-                    "查看更多  ›",
+                    stringResource(R.string.home_07),
                     color = SecondaryText,
                     fontSize = 17.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onAction("已展示全部内容") }
+                        .clickable { onAction(moreHint) }
                         .padding(vertical = 22.dp)
                 )
             }
@@ -333,7 +348,7 @@ private fun PersistentSearchBar(
                     Box(Modifier.weight(1f)) {
                         if (query.isEmpty()) {
                             Text(
-                                "请输入想搜索的功能/服务",
+                                stringResource(R.string.home_09),
                                 color = Color.White.copy(alpha = 0.9f),
                                 fontSize = 14.sp
                             )
@@ -402,6 +417,7 @@ private fun HomeHeader(
     onAction: (String) -> Unit,
     onOpenAnnualReconciliation: () -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -418,7 +434,7 @@ private fun HomeHeader(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .fillMaxWidth()
-                .clickable { onAction(unavailableHint("汇算清缴预约")) }
+                .clickable { onAction(unavailableHint(context, context.getString(R.string.home_10))) }
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 11.dp, vertical = 9.dp),
@@ -434,7 +450,7 @@ private fun HomeHeader(
                 }
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    "关于2025年度个人所得税综合所得汇算清缴预约办理的通知",
+                    stringResource(R.string.home_11),
                     color = Color(0xFFAD6700),
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -471,18 +487,18 @@ private fun AnnualSettlementCard(onEnter: () -> Unit, modifier: Modifier = Modif
                     .background(Color(0xFFDCEEFF), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text("税务\n服务", color = HomeBlue, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.home_12), color = HomeBlue, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
             }
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    "2025综合所得年度汇算",
+                    stringResource(R.string.home_13),
                     color = PrimaryText,
                     fontWeight = FontWeight.Black,
                     fontSize = 18.sp
                 )
                 Spacer(Modifier.height(7.dp))
                 Text(
-                    "已于6月30日结束，您可进入本专题页查看记录或补办年度汇算",
+                    stringResource(R.string.home_14),
                     color = Color(0xFF3C4654),
                     fontSize = 14.sp,
                     lineHeight = 21.sp,
@@ -497,7 +513,7 @@ private fun AnnualSettlementCard(onEnter: () -> Unit, modifier: Modifier = Modif
                         .width(170.dp)
                         .height(44.dp)
                 ) {
-                    Text("进入专题页", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.home_15), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
         }
@@ -531,13 +547,13 @@ private fun DeductionCard(
                         .background(Color(0xFFFF4A45), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("火", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.home_16), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.width(7.dp))
-                Text("专项附加扣除", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.home_17), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(Modifier.weight(1f))
                 Text(
-                    "相关政策  ›",
+                    stringResource(R.string.home_18),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
@@ -545,7 +561,7 @@ private fun DeductionCard(
                 )
             }
             Text(
-                "若符合条件，您可点击下方填报",
+                stringResource(R.string.home_19),
                 color = Color.White,
                 fontWeight = FontWeight.Black,
                 fontSize = 18.sp,
@@ -567,9 +583,9 @@ private fun DeductionCard(
                 ) {
                     Text("👨‍👩‍👧", fontSize = 18.sp)
                     Spacer(Modifier.width(8.dp))
-                    Text("超1亿人参与", color = Color(0xFF4B5360), fontSize = 13.sp)
+                    Text(stringResource(R.string.home_20), color = Color(0xFF4B5360), fontSize = 13.sp)
                     Spacer(Modifier.weight(1f))
-                    Text("我要填报", color = PrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                    Text(stringResource(R.string.home_21), color = PrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
                 }
             }
         }
@@ -583,6 +599,7 @@ private fun ServiceCards(
     onOpenTaxRecordIssue: () -> Unit,
     onOpenAnnualReconciliation: () -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -598,11 +615,11 @@ private fun ServiceCards(
                     .width(100.dp)
                     .height(142.dp)
                     .clickable {
-                        when (item.title) {
-                            "收入纳税明细" -> onOpenIncomeTaxDetails()
-                            "纳税记录开具" -> onOpenTaxRecordIssue()
-                            "综合所得年度汇算" -> onOpenAnnualReconciliation()
-                            else -> onAction(unavailableHint(item.title))
+                        when (item.id) {
+                            "income" -> onOpenIncomeTaxDetails()
+                            "issue" -> onOpenTaxRecordIssue()
+                            "annual" -> onOpenAnnualReconciliation()
+                            else -> onAction(unavailableHint(context, context.getString(item.title)))
                         }
                     }
             ) {
@@ -613,15 +630,15 @@ private fun ServiceCards(
                             .background(item.color, RoundedCornerShape(9.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(item.symbol, color = Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                        Text(stringResource(item.symbol), color = Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
                     }
                     Spacer(Modifier.height(9.dp))
-                    Text(item.title, color = PrimaryText, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(stringResource(item.title), color = PrimaryText, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     Spacer(Modifier.height(5.dp))
-                    Text(item.description, color = SecondaryText, fontSize = 10.sp, lineHeight = 15.sp)
+                    Text(stringResource(item.description), color = SecondaryText, fontSize = 10.sp, lineHeight = 15.sp)
                     Spacer(Modifier.weight(1f))
                     Text(
-                        item.action,
+                        stringResource(item.action),
                         color = item.color,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
@@ -668,13 +685,13 @@ private fun PromoBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.align(Alignment.CenterStart)) {
                 Text(
-                    if (page == 0) "入职季" else "光影记忆",
+                    if (page == 0) stringResource(R.string.home_25) else stringResource(R.string.home_26),
                     color = if (page == 0) Color.White else Color(0xFFC86223),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black
                 )
                 Text(
-                    if (page == 0) "减负利器“专项附加扣除”" else "税收带来美好生活",
+                    if (page == 0) stringResource(R.string.home_27) else stringResource(R.string.home_28),
                     color = if (page == 0) Color(0xFF075F9D) else Color(0xFF984418),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
@@ -686,7 +703,7 @@ private fun PromoBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier.align(Alignment.CenterEnd)
             ) {
                 Text(
-                    if (page == 0) "了解一下" else "开启回忆",
+                    if (page == 0) stringResource(R.string.home_29) else stringResource(R.string.home_30),
                     color = if (page == 0) DeepBlue else Color(0xFFE07B2C),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 13.dp, vertical = 6.dp)
@@ -711,7 +728,7 @@ private fun PromoBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 @Composable
 private fun ArticleCategories(selected: Int, onSelected: (Int) -> Unit) {
-    val categories = listOf("警示案例", "通知公告", "热点问题", "政策解读")
+    val categories = listOf(stringResource(R.string.home_31), stringResource(R.string.home_32), stringResource(R.string.home_33), stringResource(R.string.home_34))
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -771,7 +788,7 @@ private fun ArticleCard(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    article.title,
+                    stringResource(article.title),
                     color = PrimaryText,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
@@ -810,10 +827,11 @@ private fun ArticleThumbnail(article: ArticleItem) {
                 .background(Color.White.copy(alpha = 0.48f), RoundedCornerShape(15.dp)),
             contentAlignment = Alignment.Center
         ) {
+            val symbol = stringResource(article.symbol)
             Text(
-                article.symbol,
+                symbol,
                 color = Color(0xFF2389EA),
-                fontSize = if (article.symbol.length > 2) 13.sp else 21.sp,
+                fontSize = if (symbol.length > 2) 13.sp else 21.sp,
                 fontWeight = FontWeight.Black,
                 textAlign = TextAlign.Center
             )
@@ -857,7 +875,7 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                             fontSize = 18.sp
                         )
                         Text(
-                            item.second,
+                            stringResource(item.second),
                             color = if (selected) HomeBlue else Color(0xFF343B45),
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 12.sp

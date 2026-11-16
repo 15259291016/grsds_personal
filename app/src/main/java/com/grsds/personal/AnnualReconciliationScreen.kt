@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -59,7 +60,9 @@ private val ReconDivider = Color(0xFFEFF1F5)
 private val ReconGreen = Color(0xFF12A66C)
 private val ReconWarn = Color(0xFFE28A2D)
 
-private val stepTitles = listOf("收入确认", "扣除确认", "税款计算", "申报完成")
+private val stepTitles = listOf(
+    R.string.reconcile_39, R.string.reconcile_40, R.string.reconcile_41, R.string.reconcile_42
+)
 
 @Composable
 fun AnnualReconciliationScreen(
@@ -102,7 +105,7 @@ fun AnnualReconciliationScreen(
             .background(ReconPageBackground)
             .statusBarsPadding()
     ) {
-        ReconTopBar(title = "${year}年度汇算", onBack = onBack)
+        ReconTopBar(title = stringResource(R.string.reconcile_01, year), onBack = onBack)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -141,7 +144,7 @@ fun AnnualReconciliationScreen(
             ) {
                 if (step > 0 && !submitted) {
                     Text(
-                        "上一步",
+                        stringResource(R.string.reconcile_02),
                         color = ReconSecondaryText,
                         fontSize = 15.sp,
                         modifier = Modifier
@@ -170,9 +173,9 @@ fun AnnualReconciliationScreen(
                 ) {
                     Text(
                         when {
-                            submitted -> "完成"
-                            step == 2 -> "提交申报"
-                            else -> "下一步"
+                            submitted -> stringResource(R.string.reconcile_03)
+                            step == 2 -> stringResource(R.string.reconcile_04)
+                            else -> stringResource(R.string.reconcile_05)
                         },
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
@@ -192,7 +195,7 @@ private fun ReconTopBar(title: String, onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.reconcile_06),
             color = ReconBlue,
             fontSize = 17.sp,
             modifier = Modifier
@@ -222,14 +225,14 @@ private fun ReconHeader(year: Int, submitted: Boolean) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${year}年度综合所得年度汇算",
+                    stringResource(R.string.reconcile_07, year),
                     color = Color.White,
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    if (submitted) "已申报" else "可办理",
+                    if (submitted) stringResource(R.string.reconcile_08) else stringResource(R.string.reconcile_09),
                     color = Color.White,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -243,13 +246,13 @@ private fun ReconHeader(year: Int, submitted: Boolean) {
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                "办理时间：${year + 1}-03-01 至 ${year + 1}-06-30",
+                stringResource(R.string.reconcile_10, year + 1, year + 1),
                 color = Color.White.copy(alpha = 0.88f),
                 fontSize = 12.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "汇总全年综合所得，多退少补",
+                stringResource(R.string.reconcile_11),
                 color = Color.White.copy(alpha = 0.88f),
                 fontSize = 12.sp
             )
@@ -291,7 +294,7 @@ private fun StepIndicator(current: Int) {
                     }
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        title,
+                        stringResource(title),
                         color = if (active) ReconBlue else ReconSecondaryText,
                         fontSize = 11.sp,
                         fontWeight = if (index == current) FontWeight.Bold else FontWeight.Normal,
@@ -319,7 +322,7 @@ private fun IncomeStep(
                 .padding(horizontal = 12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("综合所得收入额", color = ReconSecondaryText, fontSize = 13.sp)
+                Text(stringResource(R.string.reconcile_12), color = ReconSecondaryText, fontSize = 13.sp)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     "¥${formatYuan(settlement.incomeCents)}",
@@ -329,7 +332,7 @@ private fun IncomeStep(
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    "共 ${records.size} 条收入记录，数据来自「收入纳税明细」",
+                    stringResource(R.string.reconcile_13, records.size),
                     color = ReconSecondaryText,
                     fontSize = 12.sp
                 )
@@ -353,7 +356,7 @@ private fun IncomeStep(
                 } else {
                     Spacer(Modifier.height(14.dp))
                     Text(
-                        "该年度暂无收入记录，可先到「收入纳税明细」批量录入后再来办理。",
+                        stringResource(R.string.reconcile_14),
                         color = ReconWarn,
                         fontSize = 13.sp,
                         lineHeight = 19.sp
@@ -379,7 +382,7 @@ private fun IncomeStep(
                         .padding(horizontal = 16.dp, vertical = 7.dp)
                 ) {
                     Text(
-                        "${option}年度",
+                        stringResource(R.string.reconcile_15, option),
                         color = if (selected) Color.White else Color(0xFF3C4654),
                         fontSize = 13.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
@@ -404,10 +407,10 @@ private fun DeductionStep(
             .padding(horizontal = 12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("扣除项目确认", color = ReconPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            Text(stringResource(R.string.reconcile_16), color = ReconPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(14.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("基本减除费用", color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.reconcile_17), color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
                 Text(
                     "¥${formatYuan(settlement.basicDeductionCents)}",
                     color = ReconPrimaryText,
@@ -416,14 +419,14 @@ private fun DeductionStep(
                 )
             }
             Spacer(Modifier.height(6.dp))
-            Text("每年 60,000 元，系统自动计入", color = ReconSecondaryText, fontSize = 12.sp)
+            Text(stringResource(R.string.reconcile_18), color = ReconSecondaryText, fontSize = 12.sp)
 
             Spacer(Modifier.height(14.dp))
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(14.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("专项附加扣除", color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.reconcile_19), color = Color(0xFF3C4654), fontSize = 14.sp, modifier = Modifier.weight(1f))
                 Text(
                     "¥${formatYuan(settlement.specialDeductionCents)}",
                     color = ReconPrimaryText,
@@ -433,7 +436,7 @@ private fun DeductionStep(
             }
             Spacer(Modifier.height(6.dp))
             if (yearDeductions.isEmpty()) {
-                Text("尚未填报任何扣除项目", color = ReconSecondaryText, fontSize = 12.sp)
+                Text(stringResource(R.string.reconcile_20), color = ReconSecondaryText, fontSize = 12.sp)
             } else {
                 yearDeductions.forEach { record ->
                     Row(
@@ -456,7 +459,7 @@ private fun DeductionStep(
             }
             Spacer(Modifier.height(14.dp))
             Text(
-                "去填报 / 修改专项附加扣除",
+                stringResource(R.string.reconcile_21),
                 color = ReconBlue,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -481,18 +484,18 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
             .padding(horizontal = 12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("税款计算", color = ReconPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Black)
+            Text(stringResource(R.string.reconcile_22), color = ReconPrimaryText, fontSize = 16.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(14.dp))
-            ReconRow("收入额", settlement.incomeCents)
-            ReconRow("减除费用", -settlement.basicDeductionCents)
-            ReconRow("专项附加扣除", -settlement.specialDeductionCents)
+            ReconRow(stringResource(R.string.reconcile_23), settlement.incomeCents)
+            ReconRow(stringResource(R.string.reconcile_24), -settlement.basicDeductionCents)
+            ReconRow(stringResource(R.string.reconcile_19), -settlement.specialDeductionCents)
             Spacer(Modifier.height(8.dp))
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(8.dp))
-            ReconRow("应纳税所得额", settlement.taxableIncomeCents, bold = true)
-            ReconRow("适用税率", null, text = "${settlement.taxRatePercent}%")
-            ReconRow("应纳税额", settlement.taxPayableCents, bold = true)
-            ReconRow("已预缴税额", settlement.taxPrepaidCents)
+            ReconRow(stringResource(R.string.reconcile_25), settlement.taxableIncomeCents, bold = true)
+            ReconRow(stringResource(R.string.reconcile_26), null, text = "${settlement.taxRatePercent}%")
+            ReconRow(stringResource(R.string.reconcile_27), settlement.taxPayableCents, bold = true)
+            ReconRow(stringResource(R.string.reconcile_28), settlement.taxPrepaidCents)
 
             Spacer(Modifier.height(16.dp))
             Column(
@@ -506,7 +509,7 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    if (settlement.isRefund) "应退税额" else "应补税额",
+                    if (settlement.isRefund) stringResource(R.string.reconcile_29) else stringResource(R.string.reconcile_30),
                     color = ReconSecondaryText,
                     fontSize = 13.sp
                 )
@@ -519,7 +522,7 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    if (settlement.isRefund) "提交后可申请退税，退至已绑定银行卡" else "提交后需在申报期内完成缴款",
+                    if (settlement.isRefund) stringResource(R.string.reconcile_31) else stringResource(R.string.reconcile_32),
                     color = ReconSecondaryText,
                     fontSize = 11.sp
                 )
@@ -572,24 +575,24 @@ private fun SubmitResultCard(declaration: DeclarationRecord) {
                 Text("✓", color = Color(0xFF12A66C), fontSize = 26.sp, fontWeight = FontWeight.Black)
             }
             Spacer(Modifier.height(14.dp))
-            Text("申报成功", color = ReconPrimaryText, fontSize = 20.sp, fontWeight = FontWeight.Black)
+            Text(stringResource(R.string.reconcile_33), color = ReconPrimaryText, fontSize = 20.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(6.dp))
             Text(
-                "申报编号 ${e.declarationNo}",
+                stringResource(R.string.reconcile_34, e.declarationNo),
                 color = ReconSecondaryText,
                 fontSize = 12.sp
             )
             if (e.submittedAt > 0L) {
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    "提交时间 ${e.submittedAtLabel}",
+                    stringResource(R.string.reconcile_35, e.submittedAtLabel),
                     color = ReconSecondaryText,
                     fontSize = 12.sp
                 )
             }
             Spacer(Modifier.height(18.dp))
             Text(
-                if (e.isRefund) "应退税额" else "应补税额",
+                if (e.isRefund) stringResource(R.string.reconcile_29) else stringResource(R.string.reconcile_30),
                 color = ReconSecondaryText,
                 fontSize = 13.sp
             )
@@ -602,7 +605,7 @@ private fun SubmitResultCard(declaration: DeclarationRecord) {
             )
             Spacer(Modifier.height(14.dp))
             Text(
-                if (e.isRefund) "退税申请已提交，预计 10 个工作日内退至绑定银行卡" else "请在申报期内完成缴款，避免产生滞纳金",
+                if (e.isRefund) stringResource(R.string.reconcile_36) else stringResource(R.string.reconcile_37),
                 color = ReconSecondaryText,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
@@ -613,17 +616,17 @@ private fun SubmitResultCard(declaration: DeclarationRecord) {
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("收入额", color = ReconSecondaryText, fontSize = 11.sp)
+                    Text(stringResource(R.string.reconcile_23), color = ReconSecondaryText, fontSize = 11.sp)
                     Spacer(Modifier.height(3.dp))
                     Text("¥${formatYuan(e.incomeCents)}", color = ReconPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("应纳税额", color = ReconSecondaryText, fontSize = 11.sp)
+                    Text(stringResource(R.string.reconcile_27), color = ReconSecondaryText, fontSize = 11.sp)
                     Spacer(Modifier.height(3.dp))
                     Text("¥${formatYuan(e.taxPayableCents)}", color = ReconPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("已预缴", color = ReconSecondaryText, fontSize = 11.sp)
+                    Text(stringResource(R.string.reconcile_38), color = ReconSecondaryText, fontSize = 11.sp)
                     Spacer(Modifier.height(3.dp))
                     Text("¥${formatYuan(e.taxPrepaidCents)}", color = ReconPrimaryText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }

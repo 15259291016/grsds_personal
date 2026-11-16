@@ -24,7 +24,12 @@ data class LoginSession(
         get() = if (phone.length == 11) "${phone.take(3)}****${phone.takeLast(4)}" else phone
 }
 
-/** 专项附加扣除项目定义：名称、年度扣除标准（分）、是否支持 50% 分摊、图标字与配色。 */
+/**
+ * 专项附加扣除项目定义：名称、年度扣除标准（分）、是否支持 50% 分摊、图标字与配色。
+ *
+ * [DeductionOption.type] 会随填报记录一起落盘，属于数据值而非纯 UI 文案，
+ * 因此与 [INCOME_TYPE_OPTIONS] 一样保留字面量、不抽到 strings.xml。
+ */
 data class DeductionOption(
     val type: String,
     val yearlyStandardInCents: Long,

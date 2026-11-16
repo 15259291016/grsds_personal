@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -106,14 +107,14 @@ fun TaxRecordIssueScreen(
                                 .background(Color(0xFF15CDB1).copy(alpha = 0.14f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("票", color = Color(0xFF15CDB1), fontWeight = FontWeight.Black, fontSize = 13.sp)
+                            Text(stringResource(R.string.issue_01), color = Color(0xFF15CDB1), fontWeight = FontWeight.Black, fontSize = 13.sp)
                         }
                         Spacer(Modifier.width(8.dp))
-                        Text("开具说明", color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                        Text(stringResource(R.string.issue_02), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "· 您可开具 2020 年及以后年度的个人所得税纳税记录；\n· 纳税记录为 PDF 格式文件，可应用于购房、贷款、签证等场景；\n· 每份记录附有验真码，可通过税务机关渠道验证真伪。",
+                        stringResource(R.string.issue_03),
                         color = Color(0xFF3C4654),
                         fontSize = 13.sp,
                         lineHeight = 20.sp
@@ -130,7 +131,7 @@ fun TaxRecordIssueScreen(
                     .padding(horizontal = 12.dp)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
-                    Text("选择开具年度", color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                    Text(stringResource(R.string.issue_04), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
                     Spacer(Modifier.height(12.dp))
                     issuedYears.chunked(4).forEach { years ->
                         Row(
@@ -149,7 +150,7 @@ fun TaxRecordIssueScreen(
                                         .padding(horizontal = 16.dp, vertical = 7.dp)
                                 ) {
                                     Text(
-                                        "${year}年",
+                                        stringResource(R.string.issue_05, year),
                                         color = if (selected) Color.White else Color(0xFF3C4654),
                                         fontSize = 13.sp,
                                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
@@ -171,7 +172,7 @@ fun TaxRecordIssueScreen(
                             .fillMaxWidth()
                             .height(46.dp)
                     ) {
-                        Text("申请开具", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.issue_06), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }
@@ -185,10 +186,10 @@ fun TaxRecordIssueScreen(
                         .background(IssueBlue, RoundedCornerShape(2.dp))
                 )
                 Spacer(Modifier.width(7.dp))
-                Text("开具记录", color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text(stringResource(R.string.issue_07), color = IssuePrimaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
                 Spacer(Modifier.weight(1f))
                 Text(
-                    "共 ${issuedRecords.size} 份",
+                    stringResource(R.string.issue_08, issuedRecords.size),
                     color = IssueSecondaryText,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(end = 14.dp)
@@ -214,7 +215,7 @@ private fun IssueTopBar(onBack: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.issue_09),
             color = IssueBlue,
             fontSize = 17.sp,
             modifier = Modifier
@@ -223,7 +224,7 @@ private fun IssueTopBar(onBack: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "纳税记录开具",
+            stringResource(R.string.issue_10),
             color = IssuePrimaryText,
             fontSize = 19.sp,
             fontWeight = FontWeight.Bold,
@@ -249,20 +250,20 @@ private fun IssuedRecordCard(record: IssuedRecord) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "${record.year}年度个人所得税纳税记录",
+                        stringResource(R.string.issue_11, record.year),
                         color = IssuePrimaryText,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
-                        "开具时间：${record.issuedAt}",
+                        stringResource(R.string.issue_12, record.issuedAt),
                         color = IssueSecondaryText,
                         fontSize = 12.sp
                     )
                 }
                 Text(
-                    "开具成功",
+                    stringResource(R.string.issue_13),
                     color = Color(0xFF12A66C),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -274,13 +275,13 @@ private fun IssuedRecordCard(record: IssuedRecord) {
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "验真码 ${record.verifyCode}",
+                    stringResource(R.string.issue_14, record.verifyCode),
                     color = IssueSecondaryText,
                     fontSize = 12.sp,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    "查看 / 下载 PDF",
+                    stringResource(R.string.issue_15),
                     color = IssueBlue,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold

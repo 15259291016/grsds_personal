@@ -21,7 +21,13 @@ data class IncomeRecord(
         get() = formatYuan(amountInCents)
 }
 
-/** 个税法定所得类型，批量录入与明细查询共用同一份定义。 */
+/**
+ * 个税法定所得类型，批量录入与明细查询共用同一份定义。
+ *
+ * 这些文案同时是**落盘用的数据值**（[IncomeRecord.incomeType] 存的就是这里的字符串），
+ * 所以刻意不抽到 strings.xml：一旦跟着语言变，历史记录就对不上类型了。
+ * 将来要做多语言，应该改成存稳定 id、展示时再按 id 取文案。
+ */
 val INCOME_TYPE_OPTIONS: List<String> = listOf(
     "工资薪金",
     "劳务报酬",

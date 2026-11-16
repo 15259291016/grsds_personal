@@ -46,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -83,9 +84,10 @@ private data class DraftRow(
     val withholdingAgent: String = ""
 )
 
-private fun validateDraft(row: DraftRow): String? {
-    if (row.amount.isBlank()) return "请填写收入金额"
-    if (parseYuanToCents(row.amount) == null) return "金额需为大于 0 的数字"
+/** 校验一行草稿，返回错误文案的资源 id，通过校验时返回 null。 */
+private fun validateDraft(row: DraftRow): Int? {
+    if (row.amount.isBlank()) return R.string.batch_28
+    if (parseYuanToCents(row.amount) == null) return R.string.batch_29
     return null
 }
 
@@ -112,7 +114,7 @@ fun BatchCreateScreen(
 
     val submit: () -> Unit = {
         val firstError = drafts.withIndex().firstNotNullOfOrNull { (index, row) ->
-            validateDraft(row)?.let { "第 ${index + 1} 行：$it" }
+            validateDraft(row)?.let { context.getString(R.string.batch_01, index + 1, context.getString(it)) }
         }
         if (firstError != null) {
             showErrors = true
@@ -131,7 +133,7 @@ fun BatchCreateScreen(
                         month = row.month,
                         incomeType = row.incomeType,
                         amountInCents = parseYuanToCents(row.amount) ?: 0L,
-                        withholdingAgent = row.withholdingAgent.trim().ifBlank { "未填写扣缴义务人" },
+                        withholdingAgent = row.withholdingAgent.trim().ifBlank { context.getString(R.string.batch_02) },
                         createdAt = now + index
                     )
                 }
@@ -141,7 +143,7 @@ fun BatchCreateScreen(
                 drafts.clear()
                 drafts.add(DraftRow(id = nextDraftId++))
                 snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("已保存 ${newRecords.size} 条 ${year} 年度记录")
+                snackbarHostState.showSnackbar(context.getString(R.string.batch_03, newRecords.size, year))
             }
         }
     }
@@ -198,7 +200,7 @@ fun BatchCreateScreen(
                     }
                     item {
                         Text(
-                            "一次可录入多行，提交后统一写入本地",
+                            stringResource(R.string.batch_04),
                             color = BatchSecondaryText,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 4.dp)
@@ -208,7 +210,7 @@ fun BatchCreateScreen(
                         DraftRowEditor(
                             index = index,
                             row = row,
-                            errorText = if (showErrors) validateDraft(row) else null,
+                            errorText = if (showErrors) validateDraft(row)?.let { stringResource(it) } else null,
                             canDelete = drafts.size > 1,
                             onMonthChange = { month -> drafts[index] = drafts[index].copy(month = month) },
                             onTypeChange = { type -> drafts[index] = drafts[index].copy(incomeType = type) },
@@ -238,7 +240,7 @@ private fun BatchTopBar(onBack: () -> Unit, onClear: () -> Unit) {
             .background(Color.White)
     ) {
         Text(
-            "‹ 返回",
+            stringResource(R.string.batch_05),
             color = Color(0xFF2787E8),
             fontSize = 17.sp,
             modifier = Modifier
@@ -247,13 +249,13 @@ private fun BatchTopBar(onBack: () -> Unit, onClear: () -> Unit) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         Text(
-            "批量添加纳税明细",
+            stringResource(R.string.batch_06),
             color = BatchPrimaryText,
             fontSize = 19.sp,
             modifier = Modifier.align(Alignment.Center)
         )
         Text(
-            "清空",
+            stringResource(R.string.batch_07),
             color = Color(0xFF2787E8),
             fontSize = 15.sp,
             modifier = Modifier
@@ -288,9 +290,9 @@ private fun BatchSummaryCard(
         Column(modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("纳税年度", color = BatchSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.batch_08), color = BatchSecondaryText, fontSize = 12.sp)
                     Spacer(Modifier.height(2.dp))
-                    Text("$year 年度", color = BatchPrimaryText, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                    Text(stringResource(R.string.batch_09, year), color = BatchPrimaryText, fontSize = 18.sp, fontWeight = FontWeight.Black)
                 }
                 Box {
                     Surface(
@@ -299,7 +301,7 @@ private fun BatchSummaryCard(
                         modifier = Modifier.clickable { yearMenuExpanded = true }
                     ) {
                         Text(
-                            "切换年度",
+                            stringResource(R.string.batch_10),
                             color = BatchBlue,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
@@ -312,7 +314,7 @@ private fun BatchSummaryCard(
                     ) {
                         yearOptions.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text("$option 年度") },
+                                text = { Text(stringResource(R.string.batch_11, option)) },
                                 onClick = {
                                     yearMenuExpanded = false
                                     onYearSelected(option)
@@ -327,11 +329,11 @@ private fun BatchSummaryCard(
             Spacer(Modifier.height(12.dp))
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("已保存记录", color = BatchSecondaryText, fontSize = 12.sp)
-                    Text("$savedCount 条", color = BatchPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.batch_12), color = BatchSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.batch_13, savedCount), color = BatchPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("累计金额（元）", color = BatchSecondaryText, fontSize = 12.sp)
+                    Text(stringResource(R.string.batch_14), color = BatchSecondaryText, fontSize = 12.sp)
                     Text(
                         formatYuan(savedTotalCents),
                         color = BatchBlue,
@@ -374,10 +376,10 @@ private fun DraftRowEditor(
                     Text("${index + 1}", color = BatchBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text("第 ${index + 1} 条记录", color = BatchSecondaryText, fontSize = 12.sp)
+                Text(stringResource(R.string.batch_15, index + 1), color = BatchSecondaryText, fontSize = 12.sp)
                 Spacer(Modifier.weight(1f))
                 Text(
-                    "复制",
+                    stringResource(R.string.batch_16),
                     color = BatchBlue,
                     fontSize = 13.sp,
                     modifier = Modifier
@@ -385,7 +387,7 @@ private fun DraftRowEditor(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Text(
-                    if (canDelete) "删除" else "清空",
+                    if (canDelete) stringResource(R.string.batch_17) else stringResource(R.string.batch_07),
                     color = if (canDelete) BatchDanger else BatchSecondaryText,
                     fontSize = 13.sp,
                     modifier = Modifier
@@ -413,7 +415,7 @@ private fun DraftRowEditor(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextInputField(
-                    label = "收入金额（元）",
+                    label = stringResource(R.string.batch_18),
                     value = row.amount,
                     placeholder = "0.00",
                     keyboardType = KeyboardType.Decimal,
@@ -422,9 +424,9 @@ private fun DraftRowEditor(
                     modifier = Modifier.weight(0.9f)
                 )
                 TextInputField(
-                    label = "扣缴义务人",
+                    label = stringResource(R.string.batch_19),
                     value = row.withholdingAgent,
-                    placeholder = "选填",
+                    placeholder = stringResource(R.string.batch_20),
                     keyboardType = KeyboardType.Text,
                     onValueChange = onAgentChange,
                     modifier = Modifier.weight(1.1f)
@@ -448,16 +450,16 @@ private fun MonthField(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
-        FieldLabel("纳税月份")
+        FieldLabel(stringResource(R.string.batch_21))
         Spacer(Modifier.height(4.dp))
         Box {
             FieldSurface(onClick = { expanded = true }) {
-                Text("$month 月", color = BatchPrimaryText, fontSize = 15.sp)
+                Text(stringResource(R.string.batch_22, month), color = BatchPrimaryText, fontSize = 15.sp)
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 (1..12).forEach { option ->
                     DropdownMenuItem(
-                        text = { Text("$option 月") },
+                        text = { Text(stringResource(R.string.batch_23, option)) },
                         onClick = {
                             expanded = false
                             onMonthChange(option)
@@ -478,7 +480,7 @@ private fun IncomeTypeField(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
-        FieldLabel("所得类型")
+        FieldLabel(stringResource(R.string.batch_24))
         Spacer(Modifier.height(4.dp))
         Box {
             FieldSurface(onClick = { expanded = true }) {
@@ -595,7 +597,7 @@ private fun BatchActionBar(
                     .weight(0.42f)
                     .height(46.dp)
             ) {
-                Text("+ 添加一行", fontSize = 15.sp, color = BatchBlue)
+                Text(stringResource(R.string.batch_25), fontSize = 15.sp, color = BatchBlue)
             }
             Button(
                 onClick = onSubmit,
@@ -607,7 +609,7 @@ private fun BatchActionBar(
                     .height(46.dp)
             ) {
                 Text(
-                    if (saving) "保存中…" else "提交 $rowCount 条记录",
+                    if (saving) stringResource(R.string.batch_26) else stringResource(R.string.batch_27, rowCount),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
