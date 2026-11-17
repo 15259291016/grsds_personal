@@ -77,7 +77,8 @@ fun AnnualReconciliationScreen(
     modifier: Modifier = Modifier,
     onOpenBankCards: () -> Unit = {},
     onOpenRefundProgress: (String) -> Unit = {},
-    onOpenPayment: (String) -> Unit = {}
+    onOpenPayment: (String) -> Unit = {},
+    onOpenCalculation: (Int) -> Unit = {}
 ) {
     val context = LocalContext.current
     val recordRepository = remember { IncomeRecordRepository.get(context) }
@@ -139,7 +140,8 @@ fun AnnualReconciliationScreen(
                         refundSheet = true
                     },
                     onOpenRefundProgress = { onOpenRefundProgress(displayedDeclaration.id) },
-                    onOpenPayment = { onOpenPayment(displayedDeclaration.id) }
+                    onOpenPayment = { onOpenPayment(displayedDeclaration.id) },
+                    onOpenCalculation = { onOpenCalculation(year) }
                 )
                 step == 0 -> IncomeStep(
                     year = year,
@@ -152,7 +154,10 @@ fun AnnualReconciliationScreen(
                     yearDeductions = yearDeductions,
                     onOpenDeductions = onOpenDeductions
                 )
-                else -> TaxStep(settlement)
+                else -> TaxStep(
+                    settlement = settlement,
+                    onOpenCalculation = { onOpenCalculation(year) }
+                )
             }
             Spacer(Modifier.height(20.dp))
         }
@@ -620,7 +625,10 @@ private fun DeductionStep(
 }
 
 @Composable
-private fun TaxStep(settlement: TaxCalculator.Settlement) {
+private fun TaxStep(
+    settlement: TaxCalculator.Settlement,
+    onOpenCalculation: () -> Unit
+) {
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(14.dp),
@@ -678,6 +686,18 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
                     fontSize = 12.sp
                 )
             }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(R.string.calc_38),
+                color = ReconBlue,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenCalculation)
+                    .padding(vertical = 6.dp)
+            )
         }
     }
 }
@@ -708,7 +728,8 @@ private fun SubmitResultCard(
     declaration: DeclarationRecord,
     onApplyRefund: () -> Unit,
     onOpenRefundProgress: () -> Unit,
-    onOpenPayment: () -> Unit
+    onOpenPayment: () -> Unit,
+    onOpenCalculation: () -> Unit
 ) {
     val e = declaration
     Surface(
@@ -788,6 +809,20 @@ private fun SubmitResultCard(
                 }
             }
             Spacer(Modifier.height(16.dp))
+            HorizontalDivider(color = ReconDivider)
+            Spacer(Modifier.height(10.dp))
+            Text(
+                stringResource(R.string.calc_38),
+                color = ReconBlue,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenCalculation)
+                    .padding(vertical = 6.dp)
+            )
+            Spacer(Modifier.height(4.dp))
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(14.dp))
             SettlementActionBlock(

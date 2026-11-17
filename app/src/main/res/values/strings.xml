@@ -656,6 +656,13 @@
     <string name="more_not_ready_body">「%1$s」需要连接税务系统，本地版暂未开放，其余功能可以正常使用。</string>
     <string name="more_ok">知道了</string>
     <string name="query_21">已缴税额 ¥%1$s</string>
+    <string name="query_22">已预缴税额 ¥%1$s</string>
+    <string name="query_23">月均收入 ¥%1$s</string>
+    <string name="query_24">已缴 ¥%1$s</string>
+    <string name="query_25">按扣缴单位汇总</string>
+    <string name="query_26">共 %1$d 家</string>
+    <string name="query_27">%1$d 笔 · 占 %2$d%%</string>
+    <string name="query_28">已缴 ¥%1$s</string>
     <string name="record_detail_29">扣缴义务人识别号</string>
     <string name="record_detail_30">已缴税额</string>
 
@@ -809,4 +816,40 @@
     <string name="employ_15">任职期间：%1$s</string>
     <string name="employ_16_title">删除单位</string>
     <string name="employ_16_body">确定删除「%1$s」吗？删除后不可恢复。</string>
+
+    <!-- 汇算计算明细 -->
+    <string name="calc_01">计算明细</string>
+    <string name="calc_02">%1$d 年度汇算结果</string>
+    <string name="calc_03">应退税额</string>
+    <string name="calc_04">应补税额</string>
+    <string name="calc_05">综合所得收入额</string>
+    <string name="calc_06">全额计入收入额</string>
+    <string name="calc_07">原额 ¥%2$s，按 %1$d%% 计入</string>
+    <string name="calc_08">收入额合计</string>
+    <string name="calc_09">申报后收入明细有调整，以下构成仅供参考；合计以申报快照的 ¥%1$s 为准。</string>
+    <string name="calc_10">减除费用与扣除</string>
+    <string name="calc_11">基本减除费用</string>
+    <string name="calc_12">专项附加扣除</string>
+    <string name="calc_13">扣除合计</string>
+    <string name="calc_14">应纳税所得额</string>
+    <string name="calc_15">收入额 ¥%1$s − 扣除合计 ¥%2$s</string>
+    <string name="calc_16">适用税率与应纳税额</string>
+    <string name="calc_17">税率</string>
+    <string name="calc_18">速算扣除数</string>
+    <string name="calc_19">应纳税额</string>
+    <string name="calc_20">已预缴税额与汇算结果</string>
+    <string name="calc_21">已预缴税额</string>
+    <string name="calc_23">汇算结果 = 已预缴税额 − 应纳税额；正数表示可退税，负数表示需要补税。</string>
+    <string name="calc_24">本明细按综合所得年度汇算口径计算，金额四舍五入到分；实际以税务机关核定结果为准。</string>
+    <string name="calc_26">适用税率档位</string>
+    <string name="calc_27">应纳税所得额区间</string>
+    <string name="calc_30">‹ 返回</string>
+    <string name="calc_31">本年度还没有收入纳税明细，收入额按 0 计。</string>
+    <string name="calc_32">按申报时的扣除金额列示</string>
+    <string name="calc_33">每年固定 60000 元</string>
+    <string name="calc_34">本年度未填报专项附加扣除</string>
+    <string name="calc_35">取自各笔收入明细的已缴税额合计</string>
+    <string name="calc_36">本明细取自申报快照，与已提交的申报数据一致</string>
+    <string name="calc_37">本年度尚未申报，以下为按当前明细试算的结果</string>
+    <string name="calc_38">查看计算明细 ›</string>
 </resources>

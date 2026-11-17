@@ -64,6 +64,7 @@ fun DeclarationRecordsScreen(
     onOpenCorrection: (String) -> Unit = {},
     onOpenRefundProgress: (String) -> Unit = {},
     onOpenTaxPayment: (String) -> Unit = {},
+    onOpenCalculation: (Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -115,7 +116,8 @@ fun DeclarationRecordsScreen(
                             onVoid = { pendingVoid = record },
                             onProcess = {
                                 if (record.isRefund) onOpenRefundProgress(record.id) else onOpenTaxPayment(record.id)
-                            }
+                            },
+                            onOpenCalculation = { onOpenCalculation(record.year) }
                         )
                         Spacer(Modifier.height(10.dp))
                     }
@@ -240,7 +242,8 @@ private fun DeclarationCard(
     record: DeclarationRecord,
     onCorrect: () -> Unit,
     onVoid: () -> Unit,
-    onProcess: () -> Unit
+    onProcess: () -> Unit,
+    onOpenCalculation: () -> Unit
 ) {
     val statusColor = when {
         record.status == "已作废" -> Color(0xFF9AA0A8)
@@ -284,7 +287,23 @@ private fun DeclarationCard(
                 }
             }
             Spacer(Modifier.height(6.dp))
-            Text(stringResource(R.string.declarations_08, record.declarationNo), color = RecSecondaryText, fontSize = 13.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.declarations_08, record.declarationNo),
+                    color = RecSecondaryText,
+                    fontSize = 13.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    stringResource(R.string.calc_38),
+                    color = RecBlue,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clickable(onClick = onOpenCalculation)
+                        .padding(start = 8.dp, top = 6.dp, bottom = 6.dp)
+                )
+            }
             if (record.correctionOf != null) {
                 Text(
                     stringResource(R.string.declarations_24, record.correctionOf, record.correctionSeq),

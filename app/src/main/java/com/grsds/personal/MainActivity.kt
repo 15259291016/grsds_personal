@@ -173,6 +173,7 @@ fun CoverImage(modifier: Modifier = Modifier) {
                 onOpenCorrection = { id -> navigate(AppScreen.Correction(id)) },
                 onOpenRefundProgress = { id -> navigate(AppScreen.RefundProgress(id)) },
                 onOpenTaxPayment = { id -> navigate(AppScreen.TaxPayment(id)) },
+                onOpenCalculation = { year -> navigate(AppScreen.CalculationDetail(year)) },
                 modifier = modifier
             )
 
@@ -236,7 +237,14 @@ fun CoverImage(modifier: Modifier = Modifier) {
                 modifier = modifier,
                 onOpenBankCards = { navigate(AppScreen.BankCards) },
                 onOpenRefundProgress = { id -> navigate(AppScreen.RefundProgress(id)) },
-                onOpenPayment = { id -> navigate(AppScreen.TaxPayment(id)) }
+                onOpenPayment = { id -> navigate(AppScreen.TaxPayment(id)) },
+                onOpenCalculation = { year -> navigate(AppScreen.CalculationDetail(year)) }
+            )
+
+            is AppScreen.CalculationDetail -> CalculationDetailScreen(
+                year = current.year,
+                onBack = { goBack() },
+                modifier = modifier
             )
 
             is AppScreen.RefundProgress -> RefundProgressScreen(
@@ -333,6 +341,7 @@ private sealed interface AppScreen {
     data class TaxRecordDetail(val year: Int, val issuedAt: Long, val verifyCode: String) : AppScreen
     data class RefundProgress(val declarationId: String) : AppScreen
     data class TaxPayment(val declarationId: String) : AppScreen
+    data class CalculationDetail(val year: Int) : AppScreen
     data class QueryResult(val year: Int, val incomeTypes: List<String>) : AppScreen
     data class RecordDetail(val recordId: String) : AppScreen
 }

@@ -70,10 +70,22 @@ fun QueryResultScreen(
 
     val records = allRecords.filter { it.year == year && it.incomeType in incomeTypes }
     val totalCents = records.sumOf { it.amountInCents }
+    val prepaidCents = records.sumOf { it.paidTaxCents }
     val monthGroups = records.groupBy { it.month }.toList().sortedByDescending { it.first }
     val typeGroups = records.groupBy { it.incomeType }
         .map { (type, list) -> type to list.sumOf { it.amountInCents } }
         .sortedByDescending { it.second }
+    // 按扣缴单位汇总：核对“这笔钱是哪家单位报的”
+    val agentGroups = records.groupBy { it.withholdingAgent }
+        .map { (agent, list) ->
+            AgentSummary(
+                agent = agent,
+                count = list.size,
+                incomeCents = list.sumOf { it.amountInCents },
+                taxCents = list.sumOf { it.paidTaxCents }
+            )
+        }
+        .sortedByDescending { it.incomeCents }
 
     Box(
         modifier = modifier
@@ -105,6 +117,7 @@ fun QueryResultScreen(
                         SummaryCard(
                             year = year,
                             totalCents = totalCents,
+                            prepaidCents = prepaidCents,
                             recordCount = records.size,
                             typeCount = typeGroups.size,
                             monthCount = monthGroups.size,
@@ -125,12 +138,21 @@ fun QueryResultScreen(
                                 )
                             }
                         }
+                        if (agentGroups.size > 1) {
+                            item {
+                                AgentBreakdownCard(
+                                    agents = agentGroups,
+                                    totalCents = totalCents
+                                )
+                            }
+                        }
                         monthGroups.forEach { (month, list) ->
                             item(key = "header-$month") {
                                 MonthHeader(
                                     year = year,
                                     month = month,
                                     subtotalCents = list.sumOf { it.amountInCents },
+                                    subtotalTaxCents = list.sumOf { it.paidTaxCents },
                                     count = list.size
                                 )
                             }
@@ -200,6 +222,7 @@ private fun ResultTopBar(title: String, onBack: () -> Unit) {
 private fun SummaryCard(
     year: Int,
     totalCents: Long,
+    prepaidCents: Long,
     recordCount: Int,
     typeCount: Int,
     monthCount: Int,
@@ -224,7 +247,24 @@ private fun SummaryCard(
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Black
             )
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
+            Row {
+                Text(
+                    stringResource(R.string.query_22, formatYuan(prepaidCents)),
+                    color = ResultSecondaryText,
+                    fontSize = 13.sp
+                )
+                Spacer(Modifier.width(14.dp))
+                Text(
+                    stringResource(
+                        R.string.query_23,
+                        formatYuan(if (monthCount > 0) totalCents / monthCount else 0L)
+                    ),
+                    color = ResultSecondaryText,
+                    fontSize = 13.sp
+                )
+            }
+            Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.query_03) + selectedTypes.joinToString("、"),
                 color = ResultSecondaryText,
@@ -249,6 +289,83 @@ private fun SummaryMetric(label: String, value: String, modifier: Modifier = Mod
     Column(modifier = modifier) {
         Text(value, color = ResultPrimaryText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Text(label, color = ResultSecondaryText, fontSize = 13.sp)
+    }
+}
+
+/** 扣缴单位维度的汇总行。 */
+private data class AgentSummary(
+    val agent: String,
+    val count: Int,
+    val incomeCents: Long,
+    val taxCents: Long
+)
+
+@Composable
+private fun AgentBreakdownCard(agents: List<AgentSummary>, totalCents: Long) {
+    Surface(
+        color = Color.White,
+        shape = RoundedCornerShape(16.dp),
+        shadowElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.query_25),
+                    color = ResultPrimaryText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    stringResource(R.string.query_26, agents.size),
+                    color = ResultSecondaryText,
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            agents.forEachIndexed { index, agent ->
+                if (index > 0) {
+                    HorizontalDivider(color = ResultDivider)
+                }
+                Column(modifier = Modifier.padding(vertical = 9.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            agent.agent,
+                            color = ResultPrimaryText,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            formatYuan(agent.incomeCents),
+                            color = ResultPrimaryText,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(Modifier.height(3.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            stringResource(
+                                R.string.query_27,
+                                agent.count,
+                                if (totalCents > 0) (agent.incomeCents * 100 / totalCents).toInt() else 0
+                            ),
+                            color = ResultSecondaryText,
+                            fontSize = 12.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            stringResource(R.string.query_28, formatYuan(agent.taxCents)),
+                            color = ResultSecondaryText,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -309,7 +426,13 @@ private fun TypeBreakdownCard(
 }
 
 @Composable
-private fun MonthHeader(year: Int, month: Int, subtotalCents: Long, count: Int) {
+private fun MonthHeader(
+    year: Int,
+    month: Int,
+    subtotalCents: Long,
+    subtotalTaxCents: Long,
+    count: Int
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -331,7 +454,20 @@ private fun MonthHeader(year: Int, month: Int, subtotalCents: Long, count: Int) 
         )
         Text(stringResource(R.string.query_09, count), color = ResultSecondaryText, fontSize = 13.sp)
         Spacer(Modifier.weight(1f))
-        Text(stringResource(R.string.query_10, formatYuan(subtotalCents)), color = ResultBlue, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                stringResource(R.string.query_10, formatYuan(subtotalCents)),
+                color = ResultBlue,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.query_24, formatYuan(subtotalTaxCents)),
+                color = ResultSecondaryText,
+                fontSize = 11.sp
+            )
+        }
     }
 }
 
