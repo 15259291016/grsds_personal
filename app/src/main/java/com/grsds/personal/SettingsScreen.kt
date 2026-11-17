@@ -172,6 +172,7 @@ fun SettingsScreen(
                             recordRepository.clear()
                             prefsRepository.clearDeductions()
                             prefsRepository.clearDeclarations()
+                            prefsRepository.clearReadMessages()
                             snackbarHostState.showSnackbar(clearedToast)
                         }
                     }

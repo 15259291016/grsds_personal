@@ -113,4 +113,10 @@ object MessageCenter {
     )
 
     fun find(id: String?): MessageItem? = items.firstOrNull { it.id == id }
+
+    /** 当前消息全集 id，供“清除未读”一次性落盘。 */
+    fun allIds(): List<String> = items.map { it.id }
+
+    /** 未读条数 = 全集减去已读；已读集合里出现不存在的 id 不影响结果。 */
+    fun unreadCount(readIds: List<String>): Int = items.count { it.id !in readIds }
 }

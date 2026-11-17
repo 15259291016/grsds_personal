@@ -3,6 +3,7 @@ package com.grsds.personal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -157,6 +158,12 @@ fun HomeScreen(
         }
     }
 
+    // 消息未读数：数据落盘在 DataStore，底栏徽标与消息页共用同一份状态
+    val context = LocalContext.current
+    val messageRepository = remember { com.grsds.personal.data.AppPreferencesRepository.get(context) }
+    val readMessageIds by messageRepository.readMessageIds.collectAsState(initial = emptyList())
+    val unreadMessageCount = MessageCenter.unreadCount(readMessageIds)
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -170,6 +177,7 @@ fun HomeScreen(
             bottomBar = {
                 HomeBottomNavigation(
                     selectedTab = selectedTab,
+                    unreadMessageCount = unreadMessageCount,
                     onSelected = onSelectTab
                 )
             }
@@ -209,6 +217,11 @@ fun HomeScreen(
                     modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 3 -> MessagesTab(
+                    readMessageIds = readMessageIds,
+                    onMessageRead = { id -> scope.launch { messageRepository.markMessageRead(id) } },
+                    onReadAll = {
+                        scope.launch { messageRepository.markAllMessagesRead(MessageCenter.allIds()) }
+                    },
                     onOpenMessage = onOpenMessage,
                     modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
@@ -1098,7 +1111,11 @@ private fun ArticleThumbnail(article: ArticleItem) {
 }
 
 @Composable
-private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
+private fun HomeBottomNavigation(
+    selectedTab: Int,
+    unreadMessageCount: Int,
+    onSelected: (Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -1131,12 +1148,23 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                             .clip(RoundedCornerShape(16.dp))
                             .clickable { onSelected(index) }
                     ) {
-                        GlyphIcon(
-                            if (selected) item.first.filledVariant else item.first,
-                            tint = tint,
-                            size = 24.dp,
-                            strokeWidth = 1.8.dp
-                        )
+                        Box {
+                            GlyphIcon(
+                                if (selected) item.first.filledVariant else item.first,
+                                tint = tint,
+                                size = 24.dp,
+                                strokeWidth = 1.8.dp
+                            )
+                            // 官方只有「消息」tab 带未读数徽标：红色圆点 + 白色数字，叠在图标右上角
+                            if (index == 3 && unreadMessageCount > 0) {
+                                UnreadBadge(
+                                    count = unreadMessageCount,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = 7.dp, y = (-6).dp)
+                                )
+                            }
+                        }
                         Spacer(Modifier.height(3.dp))
                         Text(
                             stringResource(item.second),
@@ -1148,6 +1176,29 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                 }
             }
         }
+    }
+}
+
+/** 底栏未读数徽标：红色圆/胶囊 + 白色数字，超过 99 显示 99+，白描边与官方一致。 */
+@Composable
+private fun UnreadBadge(count: Int, modifier: Modifier = Modifier) {
+    val label = if (count > 99) "99+" else count.toString()
+    val shape = RoundedCornerShape(9.dp)
+    Box(
+        modifier = modifier
+            .height(18.dp)
+            .background(Color(0xFFFF4D4F), shape)
+            .border(1.5.dp, Color.White, shape)
+            .padding(horizontal = if (label.length > 2) 3.dp else 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            label,
+            color = Color.White,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            lineHeight = 13.sp
+        )
     }
 }
 

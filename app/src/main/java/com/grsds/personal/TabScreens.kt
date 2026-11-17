@@ -474,20 +474,17 @@ private val messageItems: List<MessageItem> get() = MessageCenter.items
 
 @Composable
 fun MessagesTab(
+    readMessageIds: List<String> = emptyList(),
+    onMessageRead: (String) -> Unit = {},
+    onReadAll: () -> Unit = {},
     onOpenMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember { mutableIntStateOf(0) }
-    val readIndexes = remember { mutableStateListOf<Int>() }
     val visible = if (selectedCategory == 0) {
         messageItems
     } else {
         messageItems.filter { it.category == messageCategories[selectedCategory] }
-    }
-    val globalIndexes = if (selectedCategory == 0) {
-        messageItems.indices.toList()
-    } else {
-        messageItems.indices.filter { messageItems[it].category == messageCategories[selectedCategory] }
     }
 
     Column(
@@ -513,9 +510,7 @@ fun MessagesTab(
                 stringResource(R.string.tab_17),
                 color = TabBlue,
                 fontSize = 14.sp,
-                modifier = Modifier.clickable {
-                    readIndexes.addAll(messageItems.indices.filterNot { it in readIndexes })
-                }
+                modifier = Modifier.clickable { onReadAll() }
             )
         }
         Row(
@@ -548,11 +543,10 @@ fun MessagesTab(
                 .verticalScroll(rememberScrollState())
                 .padding(top = 4.dp)
         ) {
-            visible.forEachIndexed { position, item ->
-                val globalIndex = globalIndexes[position]
-                val unread = globalIndex !in readIndexes
+            visible.forEach { item ->
+                val unread = item.id !in readMessageIds
                 MessageCard(item, unread) {
-                    if (globalIndex !in readIndexes) readIndexes.add(globalIndex)
+                    onMessageRead(item.id)
                     onOpenMessage(item.id)
                 }
                 Spacer(Modifier.height(10.dp))

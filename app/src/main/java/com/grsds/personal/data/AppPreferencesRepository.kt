@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 /** 会话与扣除记录的编解码，单独抽出来便于单测。 */
@@ -29,6 +30,7 @@ internal object AppPreferencesCodec {
     private val familySerializer = ListSerializer(FamilyMember.serializer())
     private val employmentSerializer = ListSerializer(EmploymentRecord.serializer())
     private val taxRecordIssueSerializer = ListSerializer(TaxRecordIssue.serializer())
+    private val stringListSerializer = ListSerializer(String.serializer())
 
     fun encodeSession(session: LoginSession): String = json.encodeToString(LoginSession.serializer(), session)
 
@@ -130,6 +132,20 @@ internal object AppPreferencesCodec {
     fun encodeBankCards(cards: List<BankCard>): String =
         json.encodeToString(bankCardSerializer, cards)
 
+    fun encodeReadMessageIds(ids: List<String>): String =
+        json.encodeToString(stringListSerializer, ids)
+
+    fun decodeReadMessageIds(raw: String?): List<String> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return try {
+            json.decodeFromString(stringListSerializer, raw)
+        } catch (e: SerializationException) {
+            emptyList()
+        } catch (e: IllegalArgumentException) {
+            emptyList()
+        }
+    }
+
     fun decodeBankCards(raw: String?): List<BankCard> {
         if (raw.isNullOrBlank()) return emptyList()
         return try {
@@ -157,6 +173,7 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     private val familyKey = stringPreferencesKey("family_members_json")
     private val employmentKey = stringPreferencesKey("employment_records_json")
     private val taxRecordIssuesKey = stringPreferencesKey("tax_record_issues_json")
+    private val readMessageIdsKey = stringPreferencesKey("read_message_ids_json")
 
     val session: Flow<LoginSession?> = dataStore.data
         .catch { throwable ->
@@ -232,6 +249,40 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     /** 清空申报记录（设置页“清空演示数据”用）。 */
     suspend fun clearDeclarations() {
         dataStore.edit { preferences -> preferences.remove(declarationsKey) }
+    }
+
+    // -- 消息已读状态 -------------------------------------------------------
+
+    /**
+     * 已读消息 id 集合。未读数 = 消息中心总条数 - 已读条数，
+     * 由 UI 层据此渲染底栏消息 tab 的红色数字徽标，点开单条或“清除未读”都会写回这里。
+     */
+    val readMessageIds: Flow<List<String>> = dataStore.data
+        .catch { throwable ->
+            if (throwable is IOException) emit(emptyPreferences()) else throw throwable
+        }
+        .map { preferences -> AppPreferencesCodec.decodeReadMessageIds(preferences[readMessageIdsKey]) }
+
+    /** 标记单条消息已读（幂等）。 */
+    suspend fun markMessageRead(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeReadMessageIds(preferences[readMessageIdsKey])
+            if (id !in existing) {
+                preferences[readMessageIdsKey] = AppPreferencesCodec.encodeReadMessageIds(existing + id)
+            }
+        }
+    }
+
+    /** 把所有消息标为已读（“清除未读”按钮用），ids 由 UI 层传入当前消息全集。 */
+    suspend fun markAllMessagesRead(ids: List<String>) {
+        dataStore.edit { preferences ->
+            preferences[readMessageIdsKey] = AppPreferencesCodec.encodeReadMessageIds(ids.distinct())
+        }
+    }
+
+    /** 清空消息已读状态（设置页“清空演示数据”用）。 */
+    suspend fun clearReadMessages() {
+        dataStore.edit { preferences -> preferences.remove(readMessageIdsKey) }
     }
 
     // -- 个人信息 -----------------------------------------------------------
