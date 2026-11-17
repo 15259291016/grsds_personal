@@ -251,7 +251,7 @@ private fun SettingRow(
         }
         if (onClick != null) {
             Spacer(Modifier.width(8.dp))
-            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFC6CBD3), size = 14.dp, strokeWidth = 2.dp)
+            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFC0C6CF), size = 16.dp, strokeWidth = 1.9.dp)
         }
     }
 }

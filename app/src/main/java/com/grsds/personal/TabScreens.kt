@@ -689,7 +689,7 @@ fun ProfileTab(
                                 fontSize = 16.sp,
                                 modifier = Modifier.weight(1f)
                             )
-                            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFC6CBD3), size = 14.dp, strokeWidth = 2.dp)
+                            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFC0C6CF), size = 16.dp, strokeWidth = 1.9.dp)
                         }
                         if (index < group.entries.lastIndex) {
                             HorizontalDivider(
