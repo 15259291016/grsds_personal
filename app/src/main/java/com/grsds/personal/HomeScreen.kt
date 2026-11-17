@@ -2,6 +2,7 @@ package com.grsds.personal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -10,10 +11,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -47,34 +50,43 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.annotation.StringRes
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.grsds.personal.ui.Glyph
+import com.grsds.personal.ui.GlyphIcon
 import com.grsds.personal.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private val HomeBlue = Color(0xFF168AF4)
 private val DeepBlue = Color(0xFF147EEA)
-private val PageBackground = Color(0xFFF5F7FB)
+private val PageBackground = Color(0xFFF2F4F8)
 private val PrimaryText = Color(0xFF171B22)
 private val SecondaryText = Color(0xFF7D8490)
 
 private data class ServiceItem(
     /** 稳定的跳转标识，与展示文案解耦，避免用文案做分支判断 */
     val id: String,
-    @StringRes val symbol: Int,
+    val glyph: Glyph,
     val color: Color,
     @StringRes val title: Int,
     @StringRes val description: Int,
@@ -84,44 +96,44 @@ private data class ServiceItem(
 private data class ArticleItem(
     @StringRes val title: Int,
     val date: String,
-    @StringRes val symbol: Int,
+    val glyph: Glyph,
     val accent: Color,
     val imageFirst: Boolean = false
 )
 
 private val serviceItems = listOf(
-    ServiceItem("annual", R.string.home_35, Color(0xFF1598F4), R.string.home_36, R.string.home_37, R.string.home_38),
-    ServiceItem("income", R.string.home_39, Color(0xFF8B5CF6), R.string.home_40, R.string.home_41, R.string.home_42),
-    ServiceItem("issue", R.string.home_43, Color(0xFF15CDB1), R.string.home_44, R.string.home_45, R.string.home_46),
-    ServiceItem("more", R.string.home_47, Color(0xFF2A9CF2), R.string.home_48, R.string.home_49, R.string.home_50)
+    ServiceItem("annual", Glyph.Chart, Color(0xFF2E7BF6), R.string.home_36, R.string.home_37, R.string.home_38),
+    ServiceItem("income", Glyph.Receipt, Color(0xFF8B5CF6), R.string.home_40, R.string.home_41, R.string.home_42),
+    ServiceItem("issue", Glyph.Printer, Color(0xFF18C7AC), R.string.home_44, R.string.home_45, R.string.home_46),
+    ServiceItem("more", Glyph.Grid, Color(0xFF2A9CF2), R.string.home_48, R.string.home_49, R.string.home_50)
 )
 
 private val bottomTabs = listOf(
-    "⌂" to R.string.home_51,
-    "✓" to R.string.home_52,
-    "▤" to R.string.home_53,
-    "□" to R.string.home_54,
-    "○" to R.string.home_55
+    Glyph.Home to R.string.home_51,
+    Glyph.Todo to R.string.home_52,
+    Glyph.Services to R.string.home_53,
+    Glyph.Message to R.string.home_54,
+    Glyph.Profile to R.string.home_55
 )
 
 private val articleGroups = listOf(
     listOf(
-        ArticleItem(R.string.home_56, "2025-02-28", R.string.home_57, Color(0xFF72C8F7)),
-        ArticleItem(R.string.home_58, "2025-02-28", R.string.home_59, Color(0xFFFFD68D)),
-        ArticleItem(R.string.home_60, "2024-03-15", R.string.home_61, Color(0xFF94E9EB), true),
-        ArticleItem(R.string.home_62, "2024-03-15", R.string.home_63, Color(0xFFB9D7FF), true)
+        ArticleItem(R.string.home_56, "2025-02-28", Glyph.Card, Color(0xFF8FD3F4)),
+        ArticleItem(R.string.home_58, "2025-02-28", Glyph.Shield, Color(0xFFFFD68D)),
+        ArticleItem(R.string.home_60, "2024-03-15", Glyph.DocCheck, Color(0xFF94E9EB), true),
+        ArticleItem(R.string.home_62, "2024-03-15", Glyph.Stamp, Color(0xFFB9D7FF), true)
     ),
     listOf(
-        ArticleItem(R.string.home_64, "2026-02-26", R.string.home_65, Color(0xFF81C6FF)),
-        ArticleItem(R.string.home_66, "2026-01-05", R.string.home_67, Color(0xFF9CE4D8))
+        ArticleItem(R.string.home_64, "2026-02-26", Glyph.Receipt, Color(0xFF81C6FF)),
+        ArticleItem(R.string.home_66, "2026-01-05", Glyph.Calendar, Color(0xFF9CE4D8))
     ),
     listOf(
-        ArticleItem(R.string.home_68, "2025-06-12", R.string.home_69, Color(0xFFFFDCA4)),
-        ArticleItem(R.string.home_70, "2025-05-20", R.string.home_71, Color(0xFFAED5FF))
+        ArticleItem(R.string.home_68, "2025-06-12", Glyph.Briefcase, Color(0xFFFFDCA4)),
+        ArticleItem(R.string.home_70, "2025-05-20", Glyph.People, Color(0xFFAED5FF))
     ),
     listOf(
-        ArticleItem(R.string.home_72, "2025-03-01", R.string.home_73, Color(0xFFA6E6DB)),
-        ArticleItem(R.string.home_74, "2025-02-28", R.string.home_75, Color(0xFFC7D7FF))
+        ArticleItem(R.string.home_72, "2025-03-01", Glyph.Clock, Color(0xFFA6E6DB)),
+        ArticleItem(R.string.home_74, "2025-02-28", Glyph.Check, Color(0xFFC7D7FF))
     )
 )
 
@@ -254,9 +266,9 @@ private fun HomeFeed(
                 Text(
                     text = stringResource(R.string.home_04),
                     color = PrimaryText,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 12.dp, top = 24.dp, bottom = 12.dp)
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(start = 12.dp, top = 26.dp, bottom = 12.dp)
                 )
             }
             item {
@@ -430,35 +442,30 @@ private fun HomeHeader(
             .padding(horizontal = 12.dp)
     ) {
         Surface(
-            color = Color(0xFFFFF9EA),
-            shape = RoundedCornerShape(13.dp),
+            color = Color(0xFFFFF6E5),
+            shape = RoundedCornerShape(10.dp),
             modifier = Modifier
-                .padding(top = 12.dp)
+                .padding(top = 10.dp)
                 .fillMaxWidth()
+                .height(40.dp)
                 .clickable { onAction(unavailableHint(context, context.getString(R.string.home_10))) }
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 11.dp, vertical = 9.dp),
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(Color(0xFFFF7B22), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("!", color = Color.White, fontWeight = FontWeight.Black)
-                }
-                Spacer(Modifier.width(9.dp))
+                GlyphIcon(Glyph.Bell, tint = Color(0xFFFF8A2B), size = 20.dp, strokeWidth = 1.7.dp)
+                Spacer(Modifier.width(10.dp))
                 Text(
                     stringResource(R.string.home_11),
-                    color = Color(0xFFAD6700),
-                    fontSize = 15.sp,
+                    color = Color(0xFFA8630B),
+                    fontSize = 14.sp,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    softWrap = false,
+                    modifier = Modifier
+                        .weight(1f)
+                        .basicMarquee(iterations = Int.MAX_VALUE)
                 )
-                Text("›", color = Color(0xFFAD6700), fontSize = 24.sp)
             }
         }
 
@@ -474,22 +481,26 @@ private fun AnnualSettlementCard(onEnter: () -> Unit, modifier: Modifier = Modif
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(190.dp)
-            .shadow(10.dp, RoundedCornerShape(16.dp)),
-        color = Color(0xFFF1F8FF),
-        shape = RoundedCornerShape(16.dp)
+            .height(204.dp),
+        color = Color.Transparent,
+        shape = RoundedCornerShape(16.dp),
+        shadowElevation = 3.dp
     ) {
-        Box {
-            Box(
+        Box(
+            modifier = Modifier.background(
+                Brush.linearGradient(
+                    listOf(Color(0xFFFFFFFF), Color(0xFFEDF4FE), Color(0xFFDCEBFC)),
+                    start = Offset.Zero,
+                    end = Offset(1100f, 520f)
+                )
+            )
+        ) {
+            SettlementIllustration(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(14.dp)
-                    .size(82.dp)
-                    .background(Color(0xFFDCEEFF), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(stringResource(R.string.home_12), color = HomeBlue, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
-            }
+                    .padding(end = 6.dp, bottom = 6.dp)
+                    .size(width = 136.dp, height = 138.dp)
+            )
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     stringResource(R.string.home_13),
@@ -497,27 +508,95 @@ private fun AnnualSettlementCard(onEnter: () -> Unit, modifier: Modifier = Modif
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
-                Spacer(Modifier.height(7.dp))
+                Spacer(Modifier.height(8.dp))
                 Text(
                     stringResource(R.string.home_14),
                     color = Color(0xFF3C4654),
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp,
-                    modifier = Modifier.fillMaxWidth(0.74f)
+                    fontSize = 17.sp,
+                    lineHeight = 25.sp,
+                    modifier = Modifier.fillMaxWidth(0.72f)
                 )
-                Spacer(Modifier.height(15.dp))
+                Spacer(Modifier.height(16.dp))
                 Button(
                     onClick = onEnter,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2589F4)),
-                    shape = RoundedCornerShape(28.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E86F2)),
+                    shape = RoundedCornerShape(24.dp),
                     modifier = Modifier
-                        .width(170.dp)
-                        .height(44.dp)
+                        .width(168.dp)
+                        .height(46.dp)
                 ) {
                     Text(stringResource(R.string.home_15), fontWeight = FontWeight.Bold, fontSize = 17.sp)
                 }
             }
         }
+    }
+}
+
+/**
+ * 年度汇算大卡右侧的插画：淡蓝底、倾斜的申报表卡片、一枚通过标记。
+ * 官方这里是人物插画，我们用同色系几何插画占位——比原来写死的「税务服务」圆形徽章自然得多。
+ */
+@Composable
+private fun SettlementIllustration(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        drawCircle(Color(0xFFD5E7FB), radius = w * 0.42f, center = Offset(w * 0.52f, h * 0.60f))
+        drawCircle(Color(0xFFE9F3FF), radius = w * 0.26f, center = Offset(w * 0.26f, h * 0.30f))
+
+        rotate(degrees = -9f, pivot = Offset(w * 0.50f, h * 0.54f)) {
+            drawRoundRect(
+                color = Color.White,
+                topLeft = Offset(w * 0.26f, h * 0.20f),
+                size = Size(w * 0.44f, h * 0.58f),
+                cornerRadius = CornerRadius(w * 0.05f, w * 0.05f)
+            )
+            drawRoundRect(
+                color = Color(0xFF3D8CF6),
+                topLeft = Offset(w * 0.26f, h * 0.20f),
+                size = Size(w * 0.44f, h * 0.11f),
+                cornerRadius = CornerRadius(w * 0.05f, w * 0.05f)
+            )
+            drawRoundRect(
+                color = Color(0xFF3D8CF6),
+                topLeft = Offset(w * 0.26f, h * 0.20f + h * 0.05f),
+                size = Size(w * 0.44f, h * 0.06f)
+            )
+            val line = Color(0xFFD3E3F8)
+            listOf(0.40f, 0.48f, 0.56f).forEachIndexed { index, y ->
+                drawRoundRect(
+                    color = line,
+                    topLeft = Offset(w * 0.33f, h * y),
+                    size = Size(w * (if (index == 2) 0.18f else 0.30f), h * 0.028f),
+                    cornerRadius = CornerRadius(h * 0.014f, h * 0.014f)
+                )
+            }
+            drawRoundRect(
+                color = Color(0xFFBFDCFB),
+                topLeft = Offset(w * 0.33f, h * 0.63f),
+                size = Size(w * 0.16f, h * 0.06f),
+                cornerRadius = CornerRadius(h * 0.03f, h * 0.03f)
+            )
+        }
+
+        val badge = Offset(w * 0.77f, h * 0.26f)
+        drawCircle(Color.White, radius = w * 0.13f, center = badge)
+        val stroke = w * 0.022f
+        drawLine(
+            Color(0xFF2E86F2),
+            Offset(badge.x - w * 0.055f, badge.y),
+            Offset(badge.x - w * 0.012f, badge.y + w * 0.045f),
+            stroke, StrokeCap.Round
+        )
+        drawLine(
+            Color(0xFF2E86F2),
+            Offset(badge.x - w * 0.012f, badge.y + w * 0.045f),
+            Offset(badge.x + w * 0.058f, badge.y - w * 0.038f),
+            stroke, StrokeCap.Round
+        )
+
+        drawCircle(Color(0xFFB6D5FA), radius = w * 0.018f, center = Offset(w * 0.16f, h * 0.72f))
+        drawCircle(Color(0xFFCBE2FA), radius = w * 0.012f, center = Offset(w * 0.86f, h * 0.62f))
     }
 }
 
@@ -527,68 +606,122 @@ private fun DeductionCard(
     onFillClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(12.dp, RoundedCornerShape(18.dp)),
-        shape = RoundedCornerShape(18.dp),
-        color = Color.Transparent
-    ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    Brush.linearGradient(listOf(Color(0xFF5FB0F6), Color(0xFF238DF1)))
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF5CA8F8), Color(0xFF2D86F2)),
+                    start = Offset.Zero,
+                    end = Offset(900f, 420f)
                 )
-                .padding(14.dp)
-        ) {
+            )
+    ) {
+        Column(modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 18.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     Modifier
-                        .size(22.dp)
+                        .size(26.dp)
                         .background(Color(0xFFFF4A45), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.home_16), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    GlyphIcon(Glyph.Flame, tint = Color.White, size = 15.dp, strokeWidth = 1.6.dp)
                 }
-                Spacer(Modifier.width(7.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.home_17), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                Spacer(Modifier.weight(1f))
-                Text(
-                    stringResource(R.string.home_18),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.clickable(onClick = onPolicyClick)
-                )
             }
             Text(
                 stringResource(R.string.home_19),
                 color = Color.White,
                 fontWeight = FontWeight.Black,
-                fontSize = 17.sp,
+                fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 18.dp)
+                    .padding(top = 28.dp, bottom = 26.dp)
             )
             Surface(
-                color = Color.White.copy(alpha = 0.96f),
-                shape = RoundedCornerShape(30.dp),
+                color = Color.White.copy(alpha = 0.97f),
+                shape = RoundedCornerShape(28.dp),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(56.dp)
                     .clickable(onClick = onFillClick)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("👨‍👩‍👧", fontSize = 17.sp)
-                    Spacer(Modifier.width(8.dp))
+                    AvatarDot(Color(0xFF4A91F0), Color(0xFF8FC4FF))
+                    AvatarDot(Color(0xFFF08AA8), Color(0xFFFFC2D2), overlap = 8.dp)
+                    Spacer(Modifier.width(10.dp))
                     Text(stringResource(R.string.home_20), color = Color(0xFF4B5360), fontSize = 14.sp)
+                    Spacer(Modifier.weight(1f))
+                    Box(
+                        Modifier
+                            .rotate(12f)
+                            .width(1.4.dp)
+                            .height(22.dp)
+                            .background(Color(0xFFE1E5EB))
+                    )
                     Spacer(Modifier.weight(1f))
                     Text(stringResource(R.string.home_21), color = PrimaryText, fontWeight = FontWeight.Black, fontSize = 17.sp)
                 }
             }
+        }
+
+        // 右上角「相关政策」的斜切标签
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .width(148.dp)
+                .height(34.dp)
+                .drawBehind {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.20f, 0f)
+                        lineTo(size.width, 0f)
+                        lineTo(size.width, size.height)
+                        lineTo(0f, size.height)
+                        close()
+                    }
+                    drawPath(path, Color(0xFF1B74DF).copy(alpha = 0.55f))
+                }
+                .clickable(onClick = onPolicyClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.home_18),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+                Spacer(Modifier.width(4.dp))
+                GlyphIcon(Glyph.ChevronRight, tint = Color.White, size = 13.dp, strokeWidth = 2.dp)
+            }
+        }
+    }
+}
+
+/** 白胶囊左侧的两个小头像，官方是两个卡通人物，这里用同尺寸的圆形头像块表示。 */
+@Composable
+private fun AvatarDot(outer: Color, inner: Color, overlap: Dp = 0.dp) {
+    Box(
+        modifier = Modifier
+            .offset(x = -overlap)
+            .size(26.dp)
+            .background(outer, CircleShape)
+            .padding(2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(inner, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            GlyphIcon(Glyph.Profile, tint = Color.White, size = 15.dp, strokeWidth = 1.6.dp)
         }
     }
 }
@@ -605,66 +738,93 @@ private fun ServiceCards(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(start = 12.dp, top = 20.dp, end = 12.dp),
+            .padding(start = 12.dp, top = 20.dp, end = 12.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         serviceItems.forEach { item ->
-            Surface(
-                color = Color.White,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier
-                    .width(112.dp)
-                    .height(156.dp)
-                    .clickable {
-                        when (item.id) {
-                            "income" -> onOpenIncomeTaxDetails()
-                            "issue" -> onOpenTaxRecordIssue()
-                            "annual" -> onOpenAnnualReconciliation()
-                            else -> onAction(unavailableHint(context, context.getString(item.title)))
-                        }
+            ServiceCard(
+                item = item,
+                onClick = {
+                    when (item.id) {
+                        "income" -> onOpenIncomeTaxDetails()
+                        "issue" -> onOpenTaxRecordIssue()
+                        "annual" -> onOpenAnnualReconciliation()
+                        else -> onAction(unavailableHint(context, context.getString(item.title)))
                     }
-            ) {
-                Column(modifier = Modifier.padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 8.dp)) {
-                    Box(
-                        modifier = Modifier
-                            .size(26.dp)
-                            .background(item.color, RoundedCornerShape(9.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(item.symbol), color = Color.White, fontWeight = FontWeight.Black, fontSize = 15.sp)
-                    }
-                    Spacer(Modifier.height(7.dp))
-                    Text(
-                        stringResource(item.title),
-                        color = PrimaryText,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        lineHeight = 19.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        stringResource(item.description),
-                        color = SecondaryText,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(Modifier.weight(1f))
-                    Text(
-                        stringResource(item.action),
-                        color = item.color,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .background(item.color.copy(alpha = 0.12f), RoundedCornerShape(9.dp))
-                            .padding(horizontal = 9.dp, vertical = 3.dp)
-                    )
                 }
+            )
+        }
+    }
+}
+
+/**
+ * 官方服务卡：103×132dp 的白色圆角卡，图标是一个从卡面左上角凸出来 16dp 的彩色圆角方块，
+ * 底部是淡色底的同色胶囊按钮。四张之后还会露出下一张的边，提示可以横向滑动。
+ */
+@Composable
+private fun ServiceCard(item: ServiceItem, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(108.dp)
+            .height(142.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Surface(
+            color = Color.White,
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(start = 10.dp, top = 31.dp, end = 8.dp, bottom = 8.dp)
+            ) {
+                Text(
+                    stringResource(item.title),
+                    color = PrimaryText,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    lineHeight = 17.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    stringResource(item.description),
+                    color = Color(0xFF9AA0A8),
+                    fontSize = 11.sp,
+                    lineHeight = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    stringResource(item.action),
+                    color = item.color,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    modifier = Modifier
+                        .background(item.color.copy(alpha = 0.10f), RoundedCornerShape(7.dp))
+                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                )
             }
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .size(34.dp)
+                .background(
+                    Brush.linearGradient(
+                        listOf(item.color.copy(alpha = 0.72f), item.color),
+                        start = Offset.Zero,
+                        end = Offset(120f, 120f)
+                    ),
+                    RoundedCornerShape(10.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            GlyphIcon(item.glyph, tint = Color.White, size = 19.dp, strokeWidth = 1.7.dp)
         }
     }
 }
@@ -832,28 +992,33 @@ private fun ArticleThumbnail(article: ArticleItem) {
         modifier = Modifier
             .width(112.dp)
             .height(88.dp)
-            .clip(RoundedCornerShape(13.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(
                 Brush.linearGradient(
-                    listOf(article.accent.copy(alpha = 0.45f), article.accent)
+                    listOf(article.accent.copy(alpha = 0.55f), article.accent)
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
+        Canvas(Modifier.fillMaxSize()) {
+            drawCircle(
+                Color.White.copy(alpha = 0.26f),
+                radius = size.minDimension * 0.36f,
+                center = Offset(size.width * 0.20f, size.height * 0.26f)
+            )
+            drawCircle(
+                Color.White.copy(alpha = 0.18f),
+                radius = size.minDimension * 0.28f,
+                center = Offset(size.width * 0.84f, size.height * 0.80f)
+            )
+        }
         Box(
             modifier = Modifier
-                .size(56.dp)
-                .background(Color.White.copy(alpha = 0.48f), RoundedCornerShape(15.dp)),
+                .size(50.dp)
+                .background(Color.White, RoundedCornerShape(14.dp)),
             contentAlignment = Alignment.Center
         ) {
-            val symbol = stringResource(article.symbol)
-            Text(
-                symbol,
-                color = Color(0xFF2389EA),
-                fontSize = if (symbol.length > 2) 13.sp else 21.sp,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center
-            )
+            GlyphIcon(article.glyph, tint = Color(0xFF2F74D8), size = 26.dp, strokeWidth = 2.dp)
         }
     }
 }
@@ -865,39 +1030,45 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
             .fillMaxWidth()
             .background(PageBackground)
             .navigationBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 5.dp)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Surface(
-            color = Color.White.copy(alpha = 0.96f),
-            shape = RoundedCornerShape(26.dp),
-            shadowElevation = 12.dp,
+            color = Color.White,
+            shape = RoundedCornerShape(28.dp),
+            shadowElevation = 10.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 4.dp, vertical = 5.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .height(58.dp)
+                    .padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 bottomTabs.forEachIndexed { index, item ->
                     val selected = selectedTab == index
+                    val tint = if (selected) HomeBlue else Color(0xFF3A414B)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(14.dp))
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(16.dp))
                             .clickable { onSelected(index) }
-                            .padding(vertical = 2.dp)
                     ) {
-                        Text(
+                        GlyphIcon(
                             item.first,
-                            color = if (selected) HomeBlue else Color(0xFF343B45),
-                            fontWeight = FontWeight.Black,
-                            fontSize = 17.sp
+                            tint = tint,
+                            size = 24.dp,
+                            strokeWidth = if (selected) 2.0.dp else 1.8.dp
                         )
+                        Spacer(Modifier.height(3.dp))
                         Text(
                             stringResource(item.second),
-                            color = if (selected) HomeBlue else Color(0xFF343B45),
+                            color = tint,
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 13.sp
+                            fontSize = 12.sp
                         )
                     }
                 }

@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import com.grsds.personal.data.AppPreferencesRepository
 import com.grsds.personal.data.IncomeRecordRepository
 import kotlinx.coroutines.launch
+import com.grsds.personal.ui.Glyph
+import com.grsds.personal.ui.GlyphIcon
 
 private val SetBlue = Color(0xFF168AF4)
 private val SetPageBackground = Color(0xFFF5F7FB)
@@ -249,7 +251,7 @@ private fun SettingRow(
         }
         if (onClick != null) {
             Spacer(Modifier.width(8.dp))
-            Text("›", color = SetSecondaryText, fontSize = 20.sp)
+            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFC6CBD3), size = 14.dp, strokeWidth = 2.dp)
         }
     }
 }

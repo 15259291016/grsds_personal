@@ -18,16 +18,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,11 +40,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.grsds.personal.data.TaxCalendar
+import com.grsds.personal.ui.Glyph
+import com.grsds.personal.ui.GlyphIcon
 import kotlinx.coroutines.launch
 
 // ---------------------------------------------------------------------------
@@ -56,12 +63,14 @@ private val TabBlue = Color(0xFF168AF4)
 private data class TabEntry(
     /** 稳定的跳转标识，与展示文案解耦 */
     val id: String,
-    @StringRes val symbol: Int,
+    val glyph: Glyph,
     val color: Color,
     @StringRes val title: Int,
     @StringRes val description: Int = 0,
     @StringRes val time: Int = 0,
-    val done: Boolean = false
+    val done: Boolean = false,
+    /** 待办事项的截止日（年、月、日），用于按当天日期判断是否已结束 */
+    val deadline: Triple<Int, Int, Int>? = null
 )
 
 // ---------------------------------------------------------------------------
@@ -69,10 +78,10 @@ private data class TabEntry(
 // ---------------------------------------------------------------------------
 
 private val todoItems = listOf(
-    TabEntry("annual", R.string.tab_29, Color(0xFF1598F4), R.string.tab_30, R.string.tab_31, R.string.tab_32),
-    TabEntry("deductions", R.string.tab_33, Color(0xFF8B5CF6), R.string.tab_34, R.string.tab_35, R.string.tab_36),
-    TabEntry("bank", R.string.tab_37, Color(0xFF15CDB1), R.string.tab_38, R.string.tab_39, R.string.tab_40),
-    TabEntry("done", R.string.tab_41, Color(0xFF9AB0C4), R.string.tab_42, R.string.tab_43, R.string.tab_44, done = true)
+    TabEntry("annual", Glyph.Chart, Color(0xFF1598F4), R.string.tab_30, R.string.tab_31, R.string.tab_32, deadline = Triple(2026, 6, 30)),
+    TabEntry("deductions", Glyph.Shield, Color(0xFF8B5CF6), R.string.tab_34, R.string.tab_35, R.string.tab_36, deadline = Triple(2026, 1, 31)),
+    TabEntry("bank", Glyph.Card, Color(0xFF15CDB1), R.string.tab_38, R.string.tab_39, R.string.tab_40),
+    TabEntry("done", Glyph.Check, Color(0xFF9AB0C4), R.string.tab_42, R.string.tab_43, R.string.tab_44, done = true)
 )
 
 /** 未接入功能的统一提示，避免“正在打开”点完却什么都没发生。 */
@@ -107,9 +116,21 @@ fun TodoTab(
             fontSize = 14.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
-        todoItems.forEach { item ->
+        // 已结束的排到后面，和真实 APP「先办该办的」一致
+        todoItems
+            .sortedBy { item ->
+                val expired = item.deadline?.let { TaxCalendar.isPast(it.first, it.second, it.third) } == true
+                when {
+                    item.done -> 2
+                    expired -> 1
+                    else -> 0
+                }
+            }
+            .forEach { item ->
+            val expired = item.deadline?.let { TaxCalendar.isPast(it.first, it.second, it.third) } == true
             TodoCard(
                 item = item,
+                expired = expired,
                 onHandle = {
                     when {
                         // 已办结的那条点进去看申报记录，和真实 APP 一致
@@ -127,7 +148,7 @@ fun TodoTab(
 }
 
 @Composable
-private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
+private fun TodoCard(item: TabEntry, expired: Boolean, onHandle: () -> Unit) {
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(14.dp),
@@ -140,10 +161,17 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .background(item.color.copy(alpha = 0.12f), RoundedCornerShape(10.dp)),
+                        .background(
+                            if (expired) {
+                                Brush.linearGradient(listOf(Color(0xFFC3CBD6), Color(0xFF9AA6B4)))
+                            } else {
+                                Brush.linearGradient(listOf(item.color.copy(alpha = 0.72f), item.color))
+                            },
+                            RoundedCornerShape(10.dp)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                    GlyphIcon(item.glyph, tint = Color.White, size = 19.dp, strokeWidth = 1.7.dp)
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
@@ -161,6 +189,18 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
                         modifier = Modifier
                             .clickable(onClick = onHandle)
                             .padding(horizontal = 4.dp, vertical = 8.dp)
+                    )
+                } else if (expired) {
+                    Text(
+                        stringResource(R.string.status_closed),
+                        color = Color(0xFF8A929C),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(Color(0xFFEEF0F3))
+                            .clickable(onClick = onHandle)
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
                     )
                 } else {
                     Button(
@@ -196,19 +236,19 @@ private fun TodoCard(item: TabEntry, onHandle: () -> Unit) {
 // ---------------------------------------------------------------------------
 
 private val taxHandlingServices = listOf(
-    TabEntry("annual", R.string.tab_45, Color(0xFF1598F4), R.string.tab_46),
-    TabEntry("deductions", R.string.tab_47, Color(0xFF8B5CF6), R.string.tab_48),
-    TabEntry("income", R.string.tab_49, Color(0xFF3D8BFF), R.string.tab_50),
-    TabEntry("issue", R.string.tab_51, Color(0xFF15CDB1), R.string.tab_52),
-    TabEntry("correction", R.string.tab_53, Color(0xFFFF9F43), R.string.tab_54),
-    TabEntry("agent", R.string.tab_55, Color(0xFF6C7CF0), R.string.tab_56)
+    TabEntry("annual", Glyph.Chart, Color(0xFF1598F4), R.string.tab_46),
+    TabEntry("deductions", Glyph.Shield, Color(0xFF8B5CF6), R.string.tab_48),
+    TabEntry("income", Glyph.Receipt, Color(0xFF3D8BFF), R.string.tab_50),
+    TabEntry("issue", Glyph.Printer, Color(0xFF15CDB1), R.string.tab_52),
+    TabEntry("correction", Glyph.Pencil, Color(0xFFFF9F43), R.string.tab_54),
+    TabEntry("agent", Glyph.Headset, Color(0xFF6C7CF0), R.string.tab_56)
 )
 
 private val queryServices = listOf(
-    TabEntry("income", R.string.tab_57, Color(0xFF3D8BFF), R.string.tab_58),
-    TabEntry("issue", R.string.tab_59, Color(0xFF15CDB1), R.string.tab_60),
-    TabEntry("declarations", R.string.tab_61, Color(0xFFFF9F43), R.string.tab_62),
-    TabEntry("proof", R.string.tab_63, Color(0xFF26B4A8), R.string.tab_64)
+    TabEntry("income", Glyph.Receipt, Color(0xFF3D8BFF), R.string.tab_58),
+    TabEntry("issue", Glyph.Printer, Color(0xFF15CDB1), R.string.tab_60),
+    TabEntry("declarations", Glyph.DocCheck, Color(0xFFFF9F43), R.string.tab_62),
+    TabEntry("proof", Glyph.Stamp, Color(0xFF26B4A8), R.string.tab_64)
 )
 
 @Composable
@@ -292,10 +332,13 @@ private fun ServiceSection(
                             Box(
                                 modifier = Modifier
                                     .size(44.dp)
-                                    .background(entry.color.copy(alpha = 0.14f), RoundedCornerShape(13.dp)),
+                                    .background(
+                                        Brush.linearGradient(listOf(entry.color.copy(alpha = 0.72f), entry.color)),
+                                        RoundedCornerShape(13.dp)
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 17.sp)
+                                GlyphIcon(entry.glyph, tint = Color.White, size = 22.dp, strokeWidth = 1.7.dp)
                             }
                             Spacer(Modifier.height(7.dp))
                             Text(
@@ -329,7 +372,7 @@ private val messageCategories = listOf(
 
 private data class MessageItem(
     @StringRes val category: Int,
-    @StringRes val symbol: Int,
+    val glyph: Glyph,
     val color: Color,
     @StringRes val title: Int,
     @StringRes val summary: Int,
@@ -337,11 +380,11 @@ private data class MessageItem(
 )
 
 private val messageItems = listOf(
-    MessageItem(R.string.tab_66, R.string.tab_69, Color(0xFF1598F4), R.string.tab_70, R.string.tab_71, R.string.tab_72),
-    MessageItem(R.string.tab_66, R.string.tab_73, Color(0xFF8B5CF6), R.string.tab_74, R.string.tab_75, R.string.tab_76),
-    MessageItem(R.string.tab_67, R.string.tab_77, Color(0xFFFF7043), R.string.tab_78, R.string.tab_79, R.string.tab_80),
-    MessageItem(R.string.tab_68, R.string.tab_81, Color(0xFF26B4A8), R.string.tab_82, R.string.tab_83, R.string.tab_84),
-    MessageItem(R.string.tab_68, R.string.tab_85, Color(0xFF6C7CF0), R.string.tab_86, R.string.tab_87, R.string.tab_88)
+    MessageItem(R.string.tab_66, Glyph.Bell, Color(0xFF1598F4), R.string.tab_70, R.string.tab_71, R.string.tab_72),
+    MessageItem(R.string.tab_66, Glyph.Message, Color(0xFF8B5CF6), R.string.tab_74, R.string.tab_75, R.string.tab_76),
+    MessageItem(R.string.tab_67, Glyph.Shield, Color(0xFFFF7043), R.string.tab_78, R.string.tab_79, R.string.tab_80),
+    MessageItem(R.string.tab_68, Glyph.Card, Color(0xFF26B4A8), R.string.tab_82, R.string.tab_83, R.string.tab_84),
+    MessageItem(R.string.tab_68, Glyph.DocCheck, Color(0xFF6C7CF0), R.string.tab_86, R.string.tab_87, R.string.tab_88)
 )
 
 @Composable
@@ -464,10 +507,13 @@ private fun MessageCard(item: MessageItem, unread: Boolean, onClick: () -> Unit)
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(item.color.copy(alpha = 0.14f), RoundedCornerShape(11.dp)),
+                    .background(
+                        Brush.linearGradient(listOf(item.color.copy(alpha = 0.72f), item.color)),
+                        RoundedCornerShape(11.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(item.symbol), color = item.color, fontWeight = FontWeight.Black, fontSize = 17.sp)
+                GlyphIcon(item.glyph, tint = Color.White, size = 21.dp, strokeWidth = 1.7.dp)
             }
             Spacer(Modifier.width(11.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -521,22 +567,22 @@ private data class ProfileGroup(val entries: List<TabEntry>)
 private val profileGroups = listOf(
     ProfileGroup(
         listOf(
-            TabEntry("profile", R.string.tab_89, Color(0xFF1598F4), R.string.tab_90),
-            TabEntry("family", R.string.tab_91, Color(0xFF8B5CF6), R.string.tab_92),
-            TabEntry("employment", R.string.tab_93, Color(0xFF3D8BFF), R.string.tab_94)
+            TabEntry("profile", Glyph.IdCard, Color(0xFF1598F4), R.string.tab_90),
+            TabEntry("family", Glyph.People, Color(0xFF8B5CF6), R.string.tab_92),
+            TabEntry("employment", Glyph.Briefcase, Color(0xFF3D8BFF), R.string.tab_94)
         )
     ),
     ProfileGroup(
         listOf(
-            TabEntry("bank", R.string.tab_95, Color(0xFF15CDB1), R.string.tab_96),
-            TabEntry("security", R.string.tab_97, Color(0xFFFF7043), R.string.tab_98)
+            TabEntry("bank", Glyph.Card, Color(0xFF15CDB1), R.string.tab_96),
+            TabEntry("security", Glyph.Shield, Color(0xFFFF7043), R.string.tab_98)
         )
     ),
     ProfileGroup(
         listOf(
-            TabEntry("help", R.string.tab_99, Color(0xFF6C7CF0), R.string.tab_100),
-            TabEntry("about", R.string.tab_101, Color(0xFF26B4A8), R.string.tab_102),
-            TabEntry("settings", R.string.tab_103, Color(0xFF9AB0C4), R.string.tab_104)
+            TabEntry("help", Glyph.Headset, Color(0xFF6C7CF0), R.string.tab_100),
+            TabEntry("about", Glyph.DocCheck, Color(0xFF26B4A8), R.string.tab_102),
+            TabEntry("settings", Glyph.Grid, Color(0xFF9AB0C4), R.string.tab_104)
         )
     )
 )
@@ -553,6 +599,7 @@ fun ProfileTab(
     val repository = remember { com.grsds.personal.data.AppPreferencesRepository.get(context) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val session by repository.session.collectAsState(initial = null)
+    var showLogoutConfirm by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -597,7 +644,7 @@ fun ProfileTab(
                         fontSize = 13.sp
                     )
                 }
-                Text("›", color = Color.White.copy(alpha = 0.85f), fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                GlyphIcon(Glyph.ChevronRight, tint = Color.White.copy(alpha = 0.85f), size = 17.dp, strokeWidth = 2.dp)
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -633,7 +680,7 @@ fun ProfileTab(
                                     .background(entry.color.copy(alpha = 0.13f), RoundedCornerShape(9.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(stringResource(entry.symbol), color = entry.color, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                                GlyphIcon(entry.glyph, tint = entry.color, size = 16.dp, strokeWidth = 1.6.dp)
                             }
                             Spacer(Modifier.width(12.dp))
                             Text(
@@ -642,7 +689,7 @@ fun ProfileTab(
                                 fontSize = 16.sp,
                                 modifier = Modifier.weight(1f)
                             )
-                            Text("›", color = Color(0xFFC0C6CF), fontSize = 17.sp)
+                            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFC6CBD3), size = 14.dp, strokeWidth = 2.dp)
                         }
                         if (index < group.entries.lastIndex) {
                             HorizontalDivider(
@@ -670,9 +717,31 @@ fun ProfileTab(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { scope.launch { repository.logout() } }
+                        .clickable { showLogoutConfirm = true }
                         .padding(vertical = 15.dp),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
+            // 真实 APP 退出登录会先确认一次，避免误触直接掉登录态
+            if (showLogoutConfirm) {
+                AlertDialog(
+                    onDismissRequest = { showLogoutConfirm = false },
+                    containerColor = Color.White,
+                    title = { Text(stringResource(R.string.logout_title), fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                    text = { Text(stringResource(R.string.logout_message), fontSize = 15.sp, color = Color(0xFF5A616B)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showLogoutConfirm = false
+                            scope.launch { repository.logout() }
+                        }) {
+                            Text(stringResource(R.string.logout_confirm), color = Color(0xFFE5484D), fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showLogoutConfirm = false }) {
+                            Text(stringResource(R.string.logout_cancel), color = Color(0xFF6B7280))
+                        }
+                    }
                 )
             }
             Spacer(Modifier.height(12.dp))

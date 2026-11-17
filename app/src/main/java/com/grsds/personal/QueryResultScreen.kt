@@ -43,6 +43,8 @@ import com.grsds.personal.data.IncomeRecord
 import com.grsds.personal.data.IncomeRecordRepository
 import com.grsds.personal.data.formatYuan
 import com.grsds.personal.ui.theme.MyApplicationTheme
+import com.grsds.personal.ui.Glyph
+import com.grsds.personal.ui.GlyphIcon
 
 private val ResultBlue = Color(0xFF168AF4)
 private val ResultPageBackground = Color(0xFFF5F7FB)
@@ -385,7 +387,7 @@ private fun ResultRecordRow(
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.width(6.dp))
-            Text("›", color = Color(0xFFD7DADF), fontSize = 20.sp)
+            GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFD7DADF), size = 14.dp, strokeWidth = 2.dp)
         }
         if (showDivider) {
             HorizontalDivider(

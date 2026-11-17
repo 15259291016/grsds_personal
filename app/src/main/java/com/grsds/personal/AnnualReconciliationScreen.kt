@@ -48,6 +48,7 @@ import com.grsds.personal.data.DeclarationRecord
 import com.grsds.personal.data.DeductionRecord
 import com.grsds.personal.data.IncomeRecord
 import com.grsds.personal.data.IncomeRecordRepository
+import com.grsds.personal.data.TaxCalendar
 import com.grsds.personal.data.TaxCalculator
 import com.grsds.personal.data.formatYuan
 import kotlinx.coroutines.launch
@@ -165,8 +166,14 @@ fun AnnualReconciliationScreen(
                             }
                         }
                     },
-                    // 没有任何收入时不允许往下走，否则会提交一张 0 元的申报
-                    enabled = submitted || step > 0 || settlement.incomeCents > 0,
+                    // 没有任何收入时不允许往下走，否则会提交一张 0 元的申报；
+                    // 办理期还没开始的年度也不让进向导（真实 APP 会在那时直接提示未开始）
+                    enabled = when {
+                        submitted -> true
+                        step > 0 -> true
+                        TaxCalendar.settlementWindow(year) == TaxCalendar.Window.NotOpen -> false
+                        else -> settlement.incomeCents > 0
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = ReconBlue),
                     shape = RoundedCornerShape(24.dp),
                     contentPadding = PaddingValues(vertical = 12.dp),
@@ -235,7 +242,14 @@ private fun ReconHeader(year: Int, submitted: Boolean) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    if (submitted) stringResource(R.string.reconcile_08) else stringResource(R.string.reconcile_09),
+                    when {
+                        submitted -> stringResource(R.string.reconcile_08)
+                        TaxCalendar.settlementWindow(year) == TaxCalendar.Window.Open ->
+                            stringResource(R.string.status_open)
+                        TaxCalendar.settlementWindow(year) == TaxCalendar.Window.NotOpen ->
+                            stringResource(R.string.status_not_started)
+                        else -> stringResource(R.string.status_supplement)
+                    },
                     color = Color.White,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

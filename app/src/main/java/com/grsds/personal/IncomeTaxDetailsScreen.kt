@@ -69,6 +69,8 @@ import com.grsds.personal.ui.theme.MyApplicationTheme
 import java.util.Calendar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.grsds.personal.ui.Glyph
+import com.grsds.personal.ui.GlyphIcon
 
 private val DetailsBlue = Color(0xFF3D8CF2)
 private val DetailsBackground = Color(0xFFF5F7FA)
@@ -422,7 +424,7 @@ private fun YearRow(year: Int, onClick: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
         )
-        Text("›", color = Color(0xFFD7DADF), fontSize = 27.sp)
+        GlyphIcon(Glyph.ChevronRight, tint = Color(0xFFD7DADF), size = 15.dp, strokeWidth = 2.dp)
     }
 }
 

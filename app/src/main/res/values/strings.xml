@@ -3,21 +3,21 @@
     <string name="app_name">个人所得税</string>
 
     <!-- SettingsScreen.kt -->
-    <string name="settings_01">演示数据</string>
-    <string name="settings_02">当前为本地演示版本：收入明细、扣除填报、申报结果都保存在本机，不会上传服务器。</string>
+    <string name="settings_01">数据管理</string>
+    <string name="settings_02">当前为本地版：收入明细、扣除填报、申报结果都保存在本机，不会上传服务器。</string>
     <string name="settings_03">批量录入纳税明细</string>
     <string name="settings_04">一次新增多条收入记录</string>
-    <string name="settings_05">清空演示数据</string>
+    <string name="settings_05">清空本地记录</string>
     <string name="settings_06">删除全部收入明细、扣除填报与申报记录</string>
     <string name="settings_07">关于</string>
     <string name="settings_08">版本</string>
-    <string name="settings_09">1.0.0 演示版</string>
+    <string name="settings_09">1.0.0</string>
     <string name="settings_10">数据来源说明</string>
     <string name="settings_11">所有数据由本地生成，非税务总局真实数据</string>
-    <string name="settings_12">演示数据仅用于界面与流程演示</string>
-    <string name="settings_13">清空全部演示数据？</string>
+    <string name="settings_12">记录仅保存在本机，不会上传到任何服务器</string>
+    <string name="settings_13">清空全部本地记录？</string>
     <string name="settings_14">将删除所有年度的收入纳税明细、专项附加扣除填报和申报记录，且无法恢复。</string>
-    <string name="settings_15">演示数据已清空</string>
+    <string name="settings_15">本地记录已清空</string>
     <string name="settings_16">清空</string>
     <string name="settings_17">取消</string>
     <string name="settings_18">‹ 返回</string>
@@ -37,7 +37,7 @@
     <string name="reconcile_11">汇总全年综合所得，多退少补</string>
     <string name="reconcile_12">综合所得收入额</string>
     <string name="reconcile_13">共 %1$s 条收入记录，数据来自「收入纳税明细」</string>
-    <string name="reconcile_14">该年度暂无收入记录，可先到「收入纳税明细」批量录入后再来办理。</string>
+    <string name="reconcile_14">该年度暂无收入记录，可先到「收入纳税明细」录入后再来办理。</string>
     <string name="reconcile_15">%1$s年度</string>
     <string name="reconcile_16">扣除项目确认</string>
     <string name="reconcile_17">基本减除费用</string>
@@ -139,8 +139,8 @@
 
     <!-- HomeScreen.kt -->
     <string name="home_01">请输入要搜索的功能或服务</string>
-    <string name="home_02">搜索功能尚未接入，当前为演示版本</string>
-    <string name="home_03">扫一扫尚未接入，当前为演示版本</string>
+    <string name="home_02">搜索服务暂不可用，请稍后再试</string>
+    <string name="home_03">扫一扫暂不可用，请稍后再试</string>
     <string name="home_04">重点服务推荐</string>
     <string name="home_05">专项附加扣除政策</string>
     <string name="home_06">专项附加扣除宣传</string>
@@ -180,9 +180,9 @@
     <string name="details_04">%1$s 月 · %2$s</string>
     <string name="details_05">编辑</string>
     <string name="details_06">删除</string>
-    <string name="details_07">该年度暂无已创建的记录</string>
-    <string name="details_08">可从「我的 → 设置 → 演示数据」批量录入</string>
-    <string name="details_09">去批量录入</string>
+    <string name="details_07">该年度暂无记录</string>
+    <string name="details_08">录入后即可在此查看、查询与发起异议</string>
+    <string name="details_09">去录入</string>
     <string name="details_10">共 %1$s 条记录</string>
     <string name="details_11">合计 ¥%1$s</string>
     <string name="details_12">修改纳税明细</string>
@@ -294,7 +294,7 @@
     <string name="tab_25">登录后可查看个人信息</string>
     <string name="tab_26">设置</string>
     <string name="tab_27">退出登录</string>
-    <string name="tab_28">个人所得税 APP · 演示版</string>
+    <string name="tab_28">个人所得税 APP  v1.0.0</string>
     <!-- TaxRecordIssueScreen.kt -->
     <string name="issue_01">票</string>
     <string name="issue_02">开具说明</string>
@@ -431,7 +431,7 @@
     <string name="tab_102">关于</string>
     <string name="tab_103">设</string>
     <string name="tab_104">设置</string>
-    <string name="tab_105">「%1$s」尚未接入，当前为演示版本</string>
+    <string name="tab_105">「%1$s」暂不可用，请稍后再试</string>
 
     <!-- 步骤条 / 校验提示 / 弹窗等补充文案 -->
     <string name="reconcile_39">收入确认</string>
@@ -459,4 +459,12 @@
     <string name="details_38">确定</string>
     <string name="query_19">%1$s 年度收入纳税明细</string>
     <string name="query_20">数据来自本机已录入的纳税明细，点击任意一条可查看详情或发起异议</string>
+    <string name="status_not_started">未开始</string>
+    <string name="status_closed">已结束</string>
+    <string name="status_open">可办理</string>
+    <string name="status_supplement">可补办</string>
+    <string name="logout_title">退出登录</string>
+    <string name="logout_message">退出后需重新验证手机号才能查看个人办税信息，本机已录入的明细不会被删除。</string>
+    <string name="logout_confirm">退出</string>
+    <string name="logout_cancel">取消</string>
 </resources>

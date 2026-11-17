@@ -35,13 +35,14 @@ app/src/main/java/com/grsds/personal/
 ├── IncomeTaxDetailsScreen.kt       # 收入纳税明细：查询条件 + 已录入列表（编辑/删除/撤销）
 ├── QueryResultScreen.kt            # 查询结果：汇总、占比、按月分组
 ├── RecordDetailScreen.kt           # 明细详情 + 异议申诉
-├── BatchCreateScreen.kt            # 批量录入（演示用，藏在 设置 → 演示数据）
+├── BatchCreateScreen.kt            # 批量录入（藏在 设置 → 数据管理）
 ├── AnnualReconciliationScreen.kt   # 年度汇算四步向导
 ├── DeductionsScreen.kt             # 专项附加扣除填报
 ├── DeclarationRecordsScreen.kt     # 申报记录查询
 ├── TaxRecordIssueScreen.kt         # 纳税记录开具
 ├── LoginScreen.kt / SettingsScreen.kt
-├── data/                           # 记录模型、DataStore 仓库、税额计算
+├── data/                           # 记录模型、DataStore 仓库、税额计算、TaxCalendar 办理期判定
+├── ui/Glyphs.kt                    # 自绘线性图标集（24dp / 1.8dp 描边）
 └── ui/theme/                       # Compose 主题
 
 tools/gen_assets.ps1                # 生成启动图标与封面（GDI+，可重复运行）
@@ -80,6 +81,19 @@ app/sampledata/                     # 官方 App 真机截图，UI 还原参考
 
 多行文本（卡片标题、描述）请显式写 `lineHeight ≈ 1.3 × fontSize`，并配 `maxLines` + `TextOverflow.Ellipsis`，避免字号调整后把卡片撑破。
 
+## 图标
+
+界面图标全部来自 `ui/Glyphs.kt`：在 24×24 的网格上用 `Canvas` 画路径，1.8dp 圆头描边，规格对齐官方 App。
+不要再用「⌂ ✓ ▤」这类字符或单个汉字当图标——字形和粗细跟着系统字体走，换机型就会变形，风格也和线性图标对不上。
+
+用法：
+
+```kotlin
+GlyphIcon(Glyph.Bell, tint = Color(0xFFFF8A2B), size = 20.dp)
+```
+
+新增图标时在 `Glyph` 枚举里加一项，并在 `drawGlyph` 的 `when` 里补一段路径即可。
+
 ## 图标与启动封面
 
 `tools/gen_assets.ps1` 用 GDI+ 画出蓝色盾牌 + 「税」字，输出 5 档密度的 `ic_launcher*`（含自适应与单色层）以及 `drawable-nodpi/cover.png`（1080×2400 启动页）。改样式后重跑脚本即可：
@@ -87,6 +101,14 @@ app/sampledata/                     # 官方 App 真机截图，UI 还原参考
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\gen_assets.ps1
 ```
+
+## 办理期与状态
+
+「能不能办」按系统当天日期算，不写死在文案里（`data/TaxCalendar.kt`）：
+
+- 综合所得年度汇算：次年 3 月 1 日 ~ 6 月 30 日。期内显示「可办理」，期后显示「可补办」，未到期显示「未开始」且禁用「下一步」。
+- 专项附加扣除确认：上年 12 月 1 日 ~ 12 月 31 日。
+- 待办列表按截止日排序，已过期的置灰并显示「已结束」，与首页「已于 6 月 30 日结束」不再互相矛盾。
 
 ## 发布
 
@@ -103,4 +125,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\gen_assets.ps1
 
 - 所有业务数据均为本地演示数据，与税务总局系统无关，也不会外传。
 - 未接入网络层、真实鉴权与实名认证。
-- 首页「相关政策」「更多服务」等入口会提示「尚未接入，当前为演示版本」。
+- 首页「相关政策」「更多服务」等入口会提示「暂不可用，请稍后再试」。
