@@ -747,4 +747,52 @@
     <string name="record_doc_24">‹ 返回</string>
     <string name="record_doc_25">纳税记录</string>
     <string name="record_doc_26">%1$d月</string>
+
+    <!-- 待办动态提醒 -->
+    <string name="todo_107">申请退税</string>
+    <string name="todo_108">%1$d 年度有 ¥%2$s 待退税，请选择收款账户并提交申请。</string>
+    <string name="todo_109">补税缴款</string>
+    <string name="todo_110">%1$d 年度应补税 ¥%2$s，请于 6 月 30 日前完成缴款，逾期将按日加收滞纳金。</string>
+    <string name="todo_111">退税进度</string>
+    <string name="todo_112">%1$d 年度退税申请正在办理：当前处于「%2$s」。</string>
+
+    <!-- 申报记录办理状态 -->
+    <string name="declarations_26">待申请退税</string>
+    <string name="declarations_27">待缴款</string>
+    <string name="declarations_28">申请退税</string>
+    <string name="declarations_29">查看进度</string>
+    <string name="declarations_30">去缴款</string>
+
+    <!-- 家庭成员 -->
+    <string name="family_00">家庭成员</string>
+    <string name="family_01">添加家庭成员</string>
+    <string name="family_02">编辑成员</string>
+    <string name="family_03">删除该成员</string>
+    <string name="family_05">姓名</string>
+    <string name="family_06">身份证号</string>
+    <string name="family_07">保存</string>
+    <string name="family_10_cancel">取消</string>
+    <string name="family_11_title">删除成员</string>
+    <string name="family_11_body">确定删除「%1$s」吗？删除后不可恢复。</string>
+    <string name="family_12">还没有添加家庭成员</string>
+    <string name="family_13">维护配偶、子女、父母等成员信息，填报子女教育、赡养老人等专项附加扣除时可作为参考。</string>
+
+    <!-- 任职受雇信息 -->
+    <string name="employ_00">任职受雇信息</string>
+    <string name="employ_01">添加任职受雇单位</string>
+    <string name="employ_02">编辑单位</string>
+    <string name="employ_03">信用代码 %1$s</string>
+    <string name="employ_04">单位名称</string>
+    <string name="employ_05">统一社会信用代码（选填）</string>
+    <string name="employ_06">任职受雇起始年月</string>
+    <string name="employ_07">职务：%1$s</string>
+    <string name="employ_08">离职年月</string>
+    <string name="employ_09">职务（选填）</string>
+    <string name="employ_11_on">在职</string>
+    <string name="employ_11_off">已离职</string>
+    <string name="employ_13">还没有任职受雇记录</string>
+    <string name="employ_14">维护任职过的单位与在职期间，核对收入纳税明细、办理年度汇算时可作为参考。</string>
+    <string name="employ_15">任职期间：%1$s</string>
+    <string name="employ_16_title">删除单位</string>
+    <string name="employ_16_body">确定删除「%1$s」吗？删除后不可恢复。</string>
 </resources>

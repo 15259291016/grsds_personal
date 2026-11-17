@@ -77,6 +77,8 @@ fun CoverImage(modifier: Modifier = Modifier) {
             "correction" -> navigate(AppScreen.Correction())
             "profile" -> navigate(AppScreen.ProfileInfo)
             "bankcards" -> navigate(AppScreen.BankCards)
+            "family" -> navigate(AppScreen.FamilyMembers)
+            "employment" -> navigate(AppScreen.EmploymentInfo)
         }
     }
 
@@ -129,7 +131,11 @@ fun CoverImage(modifier: Modifier = Modifier) {
                 onOpenMoreServices = { navigate(AppScreen.MoreServices) },
                 onOpenArticle = { id -> navigate(AppScreen.ArticleDetail(id)) },
                 onOpenArticleList = { category -> navigate(AppScreen.ArticleList(category)) },
-                onOpenMessage = { id -> navigate(AppScreen.MessageDetail(id)) }
+                onOpenMessage = { id -> navigate(AppScreen.MessageDetail(id)) },
+                onOpenRefundProgress = { id -> navigate(AppScreen.RefundProgress(id)) },
+                onOpenTaxPayment = { id -> navigate(AppScreen.TaxPayment(id)) },
+                onOpenFamilyMembers = { navigate(AppScreen.FamilyMembers) },
+                onOpenEmploymentInfo = { navigate(AppScreen.EmploymentInfo) }
             )
 
             AppScreen.MoreServices -> MoreServicesScreen(
@@ -165,6 +171,8 @@ fun CoverImage(modifier: Modifier = Modifier) {
                 onBack = { goBack() },
                 onOpenReconciliation = { navigate(AppScreen.AnnualReconciliation) },
                 onOpenCorrection = { id -> navigate(AppScreen.Correction(id)) },
+                onOpenRefundProgress = { id -> navigate(AppScreen.RefundProgress(id)) },
+                onOpenTaxPayment = { id -> navigate(AppScreen.TaxPayment(id)) },
                 modifier = modifier
             )
 
@@ -181,6 +189,18 @@ fun CoverImage(modifier: Modifier = Modifier) {
             )
 
             AppScreen.BankCards -> BankCardScreen(
+                onBack = { goBack() },
+                onOpenLogin = { navigate(AppScreen.Login) },
+                modifier = modifier
+            )
+
+            AppScreen.FamilyMembers -> FamilyMemberScreen(
+                onBack = { goBack() },
+                onOpenLogin = { navigate(AppScreen.Login) },
+                modifier = modifier
+            )
+
+            AppScreen.EmploymentInfo -> EmploymentInfoScreen(
                 onBack = { goBack() },
                 onOpenLogin = { navigate(AppScreen.Login) },
                 modifier = modifier
@@ -222,6 +242,7 @@ fun CoverImage(modifier: Modifier = Modifier) {
             is AppScreen.RefundProgress -> RefundProgressScreen(
                 declarationId = current.declarationId,
                 onBack = { goBack() },
+                onOpenBankCards = { navigate(AppScreen.BankCards) },
                 modifier = modifier
             )
 
@@ -302,6 +323,8 @@ private sealed interface AppScreen {
     data object Login : AppScreen
     data object ProfileInfo : AppScreen
     data object BankCards : AppScreen
+    data object FamilyMembers : AppScreen
+    data object EmploymentInfo : AppScreen
     data object MoreServices : AppScreen
     data class MessageDetail(val messageId: String?) : AppScreen
     data class ArticleDetail(val articleId: String?) : AppScreen

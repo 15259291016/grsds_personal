@@ -46,7 +46,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.grsds.personal.data.SettlementProcess
 import com.grsds.personal.data.TaxCalendar
+import com.grsds.personal.data.formatYuan
 import com.grsds.personal.ui.Glyph
 import com.grsds.personal.ui.GlyphIcon
 import kotlinx.coroutines.launch
@@ -70,7 +72,9 @@ private data class TabEntry(
     @StringRes val time: Int = 0,
     val done: Boolean = false,
     /** 待办事项的截止日（年、月、日），用于按当天日期判断是否已结束 */
-    val deadline: Triple<Int, Int, Int>? = null
+    val deadline: Triple<Int, Int, Int>? = null,
+    /** 动态待办的跳转目标，形如 refund:decl-xxx / payment:decl-xxx */
+    val route: String? = null
 )
 
 // ---------------------------------------------------------------------------
@@ -95,6 +99,8 @@ fun TodoTab(
     onOpenDeductions: () -> Unit,
     onOpenDeclarationRecords: () -> Unit,
     onOpenBankCards: () -> Unit,
+    onOpenRefundProgress: (String) -> Unit = { _ -> },
+    onOpenTaxPayment: (String) -> Unit = { _ -> },
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -107,6 +113,66 @@ fun TodoTab(
             item.copy(done = true, description = R.string.tab_106, time = 0)
         } else {
             item
+        }
+    }
+    // 动态待办：按申报数据生成退税/缴款提醒，办结后自动消失
+    val dynamicEntries = declarations.filter { it.isActive }.flatMap { record ->
+        buildList {
+            if (record.isRefund && !record.hasAppliedRefund) {
+                add(
+                    TabEntry(
+                        "refund-apply-${record.id}",
+                        Glyph.Card,
+                        Color(0xFF12A66C),
+                        R.string.todo_107,
+                        description = 0,
+                        time = 0,
+                        route = "refund:${record.id}"
+                    )
+                )
+            }
+            if (record.isRefund && record.hasAppliedRefund && !SettlementProcess.isSettled(record.processStatus)) {
+                add(
+                    TabEntry(
+                        "refund-progress-${record.id}",
+                        Glyph.Chart,
+                        Color(0xFF1598F4),
+                        R.string.todo_111,
+                        description = 0,
+                        time = 0,
+                        route = "refund:${record.id}"
+                    )
+                )
+            }
+            if (!record.isRefund && !record.isPaid) {
+                add(
+                    TabEntry(
+                        "payment-${record.id}",
+                        Glyph.Receipt,
+                        Color(0xFFF08228),
+                        R.string.todo_109,
+                        description = 0,
+                        time = 0,
+                        route = "payment:${record.id}"
+                    )
+                )
+            }
+        }
+    }
+
+    val allEntries = dynamicEntries + entries
+
+    // 动态条目的描述文案带金额/阶段，从申报数据实时计算
+    fun dynamicDescription(item: TabEntry): String {
+        val declId = item.route?.substringAfter(':') ?: return ""
+        val record = declarations.firstOrNull { it.id == declId } ?: return ""
+        return when {
+            item.id.startsWith("refund-apply") ->
+                context.getString(R.string.todo_108, record.year, formatYuan(record.balanceCents))
+            item.id.startsWith("refund-progress") ->
+                context.getString(R.string.todo_112, record.year, record.processStatus)
+            else ->
+                context.getString(R.string.todo_110, record.year, formatYuan(kotlin.math.abs(record.balanceCents)))
         }
     }
 
@@ -129,8 +195,8 @@ fun TodoTab(
             fontSize = 14.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
-        // 已结束的排到后面，和真实 APP「先办该办的」一致
-        entries
+        // 已结束的排到后面，和真实 APP「先办该办的」一致；动态待办排最前
+        allEntries
             .sortedBy { item ->
                 val expired = item.deadline?.let { TaxCalendar.isPast(it.first, it.second, it.third) } == true
                 when {
@@ -144,8 +210,14 @@ fun TodoTab(
             TodoCard(
                 item = item,
                 expired = expired,
+                dynamicText = if (item.route != null) dynamicDescription(item) else null,
                 onHandle = {
+                    val route = item.route
                     when {
+                        route?.startsWith("refund:") == true ->
+                            onOpenRefundProgress(route.removePrefix("refund:"))
+                        route?.startsWith("payment:") == true ->
+                            onOpenTaxPayment(route.removePrefix("payment:"))
                         // 已办结的那条点进去看申报记录，和真实 APP 一致
                         item.done -> onOpenDeclarationRecords()
                         item.id == "annual" -> onOpenAnnualReconciliation()
@@ -162,7 +234,12 @@ fun TodoTab(
 }
 
 @Composable
-private fun TodoCard(item: TabEntry, expired: Boolean, onHandle: () -> Unit) {
+private fun TodoCard(
+    item: TabEntry,
+    expired: Boolean,
+    dynamicText: String?,
+    onHandle: () -> Unit
+) {
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(14.dp),
@@ -232,6 +309,13 @@ private fun TodoCard(item: TabEntry, expired: Boolean, onHandle: () -> Unit) {
             if (item.description != 0) {
                 Text(
                     stringResource(item.description),
+                    color = Color(0xFF3C4654),
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            } else if (dynamicText != null) {
+                Text(
+                    dynamicText,
                     color = Color(0xFF3C4654),
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -595,6 +679,8 @@ fun ProfileTab(
     onOpenSettings: () -> Unit,
     onOpenProfileInfo: () -> Unit,
     onOpenBankCards: () -> Unit,
+    onOpenFamilyMembers: () -> Unit = {},
+    onOpenEmploymentInfo: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -667,6 +753,8 @@ fun ProfileTab(
                                 .clickable {
                                     when (entry.id) {
                                         "profile" -> if (session == null) onOpenLogin() else onOpenProfileInfo()
+                                        "family" -> if (session == null) onOpenLogin() else onOpenFamilyMembers()
+                                        "employment" -> if (session == null) onOpenLogin() else onOpenEmploymentInfo()
                                         "bank" -> if (session == null) onOpenLogin() else onOpenBankCards()
                                         "settings" -> onOpenSettings()
                                         else -> onAction(unavailableHint(context, context.getString(entry.title)))

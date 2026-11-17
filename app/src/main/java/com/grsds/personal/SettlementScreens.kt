@@ -72,13 +72,21 @@ private val FlowWarn = Color(0xFFE28A2D)
 fun RefundProgressScreen(
     declarationId: String,
     onBack: () -> Unit,
+    onOpenBankCards: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     BackHandler(onBack = onBack)
     val context = LocalContext.current
     val repository = remember(context) { AppPreferencesRepository.get(context) }
     val declarations by repository.declarations.collectAsState(initial = emptyList())
+    val bankCards by repository.bankCards.collectAsState(initial = emptyList())
+    val scope = rememberCoroutineScope()
     val declaration = declarations.firstOrNull { it.id == declarationId }
+
+    // 未申请退税时展示选卡申请页；申请后同一页面切换为进度时间轴
+    val applied = declaration?.hasAppliedRefund == true
+    var selectedCardIndex by remember(declarationId) { mutableIntStateOf(0) }
+    var applying by remember { mutableStateOf(false) }
 
     // 演示推进：进入页面后每 20 秒前进一档，退库完成后停在终点
     LaunchedEffect(declaration?.id, declaration?.processStatus) {
@@ -96,91 +104,277 @@ fun RefundProgressScreen(
             .statusBarsPadding()
     ) {
         FlowTopBar(
-            title = stringResource(R.string.refund_16),
+            title = if (applied) stringResource(R.string.refund_16) else stringResource(R.string.refund_13),
             backLabel = stringResource(R.string.refund_17),
             onBack = onBack
         )
-        if (declaration == null || !declaration.hasAppliedRefund) {
-            EmptyState(text = stringResource(R.string.refund_18))
-            return@Column
-        }
-        val done = declaration.processStatus == SettlementProcess.REFUNDED
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-        ) {
-            RefundStatusHeader(declaration = declaration, done = done)
-            Spacer(Modifier.height(12.dp))
-            Surface(
-                color = Color.White,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-            ) {
-                Column(modifier = Modifier.padding(18.dp)) {
-                    Text(
-                        stringResource(R.string.refund_19),
-                        color = FlowPrimaryText,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    SettlementProcess.refundStages.forEachIndexed { index, stage ->
-                        val reached = index <= SettlementProcess.stageIndex(declaration.processStatus)
-                        RefundTimelineRow(
-                            stage = stage,
-                            reached = reached,
-                            current = stage == declaration.processStatus,
-                            isLast = index == SettlementProcess.refundStages.lastIndex,
-                            timeLabel = if (reached) stageTimeLabel(index, declaration.processedAt) else null
-                        )
+        when {
+            declaration == null -> EmptyState(text = stringResource(R.string.refund_18))
+            !applied -> {
+                ApplyRefundBody(
+                    declaration = declaration,
+                    cards = bankCards,
+                    selectedCardIndex = selectedCardIndex,
+                    onSelectCard = { selectedCardIndex = it },
+                    onOpenBankCards = onOpenBankCards,
+                    modifier = Modifier.weight(1f)
+                )
+                Surface(color = Color.White, shadowElevation = 8.dp) {
+                    Button(
+                        onClick = {
+                            val card = bankCards.getOrNull(selectedCardIndex) ?: return@Button
+                            applying = true
+                            scope.launch {
+                                repository.applyRefund(
+                                    declaration.id,
+                                    card.id,
+                                    "${card.bankName} ${card.maskedNumber}",
+                                    System.currentTimeMillis()
+                                )
+                                applying = false
+                            }
+                        },
+                        enabled = bankCards.isNotEmpty() && !applying && declaration.isActive,
+                        colors = ButtonDefaults.buttonColors(containerColor = FlowBlue),
+                        shape = RoundedCornerShape(24.dp),
+                        contentPadding = PaddingValues(vertical = 12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                            .height(46.dp)
+                    ) {
+                        if (applying) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        Text(stringResource(R.string.refund_13), fontWeight = FontWeight.Bold, fontSize = 17.sp)
                     }
                 }
             }
-            Spacer(Modifier.height(12.dp))
-            Surface(
-                color = Color.White,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)) {
-                    InfoLine(stringResource(R.string.refund_20), declaration.bankCardLabel.ifBlank { "—" })
-                    HorizontalDivider(color = FlowDivider)
-                    InfoLine(stringResource(R.string.refund_21), declaration.declarationNo)
-                    HorizontalDivider(color = FlowDivider)
-                    InfoLine(stringResource(R.string.refund_22), declaration.processedAtLabel)
-                    HorizontalDivider(color = FlowDivider)
-                    InfoLine(stringResource(R.string.refund_23), stringResource(R.string.refund_24, declaration.year))
+            else -> {
+                val done = declaration.processStatus == SettlementProcess.REFUNDED
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    RefundStatusHeader(declaration = declaration, done = done)
+                    Spacer(Modifier.height(12.dp))
+                    Surface(
+                        color = Color.White,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            Text(
+                                stringResource(R.string.refund_19),
+                                color = FlowPrimaryText,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            SettlementProcess.refundStages.forEachIndexed { index, stage ->
+                                val reached = index <= SettlementProcess.stageIndex(declaration.processStatus)
+                                RefundTimelineRow(
+                                    stage = stage,
+                                    reached = reached,
+                                    current = stage == declaration.processStatus,
+                                    isLast = index == SettlementProcess.refundStages.lastIndex,
+                                    timeLabel = if (reached) stageTimeLabel(index, declaration.processedAt) else null
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Surface(
+                        color = Color.White,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)) {
+                            InfoLine(stringResource(R.string.refund_20), declaration.bankCardLabel.ifBlank { "—" })
+                            HorizontalDivider(color = FlowDivider)
+                            InfoLine(stringResource(R.string.refund_21), declaration.declarationNo)
+                            HorizontalDivider(color = FlowDivider)
+                            InfoLine(stringResource(R.string.refund_22), declaration.processedAtLabel)
+                            HorizontalDivider(color = FlowDivider)
+                            InfoLine(stringResource(R.string.refund_23), stringResource(R.string.refund_24, declaration.year))
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        stringResource(R.string.refund_25),
+                        color = FlowSecondaryText,
+                        fontSize = 12.sp,
+                        lineHeight = 19.sp,
+                        modifier = Modifier.padding(horizontal = 18.dp)
+                    )
+                    Spacer(Modifier.height(20.dp))
+                }
+                Surface(color = Color.White, shadowElevation = 8.dp) {
+                    Button(
+                        onClick = onBack,
+                        colors = ButtonDefaults.buttonColors(containerColor = FlowBlue),
+                        shape = RoundedCornerShape(24.dp),
+                        contentPadding = PaddingValues(vertical = 12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                            .height(46.dp)
+                    ) {
+                        Text(stringResource(R.string.refund_26), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                    }
                 }
             }
-            Spacer(Modifier.height(12.dp))
-            Text(
-                stringResource(R.string.refund_25),
-                color = FlowSecondaryText,
-                fontSize = 12.sp,
-                lineHeight = 19.sp,
-                modifier = Modifier.padding(horizontal = 18.dp)
-            )
-            Spacer(Modifier.height(20.dp))
         }
-        Surface(color = Color.White, shadowElevation = 8.dp) {
-            Button(
-                onClick = onBack,
-                colors = ButtonDefaults.buttonColors(containerColor = FlowBlue),
-                shape = RoundedCornerShape(24.dp),
-                contentPadding = PaddingValues(vertical = 12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-                    .height(46.dp)
-            ) {
-                Text(stringResource(R.string.refund_26), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+    }
+
+}
+
+/** 未申请退税时的申请页：确认金额、选择收款账户。 */
+@Composable
+private fun ApplyRefundBody(
+    declaration: DeclarationRecord,
+    cards: List<com.grsds.personal.data.BankCard>,
+    selectedCardIndex: Int,
+    onSelectCard: (Int) -> Unit,
+    onOpenBankCards: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState())
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Brush.verticalGradient(listOf(Color(0xFF2E93F6), Color(0xFF147EEA))))
+                .padding(horizontal = 18.dp, vertical = 20.dp)
+        ) {
+            Column {
+                Text(
+                    stringResource(R.string.refund_27),
+                    color = Color.White.copy(alpha = 0.86f),
+                    fontSize = 13.sp
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "¥${formatYuan(declaration.balanceCents)}",
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    stringResource(R.string.refund_24, declaration.year) + " · " + declaration.declarationNo,
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = 13.sp
+                )
             }
         }
+        Spacer(Modifier.height(12.dp))
+        Surface(
+            color = Color.White,
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(
+                    stringResource(R.string.refund_01),
+                    color = FlowPrimaryText,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(R.string.refund_02, formatYuan(declaration.balanceCents)),
+                    color = FlowSecondaryText,
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp
+                )
+                Spacer(Modifier.height(12.dp))
+                if (cards.isEmpty()) {
+                    Text(
+                        stringResource(R.string.refund_03),
+                        color = FlowWarn,
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    Text(
+                        stringResource(R.string.refund_04),
+                        color = FlowBlue,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable(onClick = onOpenBankCards)
+                            .padding(vertical = 6.dp)
+                    )
+                } else {
+                    cards.forEachIndexed { index, card ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 5.dp)
+                                .background(
+                                    if (selectedCardIndex == index) Color(0xFFEAF4FF) else Color(0xFFF7F9FC),
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .clickable { onSelectCard(index) }
+                                .padding(horizontal = 14.dp, vertical = 13.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    card.bankName,
+                                    color = FlowPrimaryText,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.height(3.dp))
+                                Text(
+                                    stringResource(R.string.refund_11, card.maskedNumber),
+                                    color = FlowSecondaryText,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .background(
+                                        if (selectedCardIndex == index) FlowBlue else Color.White,
+                                        CircleShape
+                                    )
+                                    .border(1.dp, if (selectedCardIndex == index) FlowBlue else Color(0xFFD7DADF), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (selectedCardIndex == index) {
+                                    Text("✓", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Black)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            stringResource(R.string.refund_25),
+            color = FlowSecondaryText,
+            fontSize = 12.sp,
+            lineHeight = 19.sp,
+            modifier = Modifier.padding(horizontal = 18.dp)
+        )
+        Spacer(Modifier.height(20.dp))
     }
 }
 

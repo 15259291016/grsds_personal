@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.grsds.personal.data.AppPreferencesRepository
 import com.grsds.personal.data.DeclarationRecord
 import com.grsds.personal.data.formatYuan
+import androidx.annotation.StringRes
 import kotlin.math.abs
 import kotlinx.coroutines.launch
 
@@ -60,6 +61,8 @@ fun DeclarationRecordsScreen(
     onBack: () -> Unit,
     onOpenReconciliation: () -> Unit,
     onOpenCorrection: (String) -> Unit = {},
+    onOpenRefundProgress: (String) -> Unit = {},
+    onOpenTaxPayment: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -98,7 +101,10 @@ fun DeclarationRecordsScreen(
                     DeclarationCard(
                         record = record,
                         onCorrect = { onOpenCorrection(record.id) },
-                        onVoid = { pendingVoid = record }
+                        onVoid = { pendingVoid = record },
+                        onProcess = {
+                            if (record.isRefund) onOpenRefundProgress(record.id) else onOpenTaxPayment(record.id)
+                        }
                     )
                     Spacer(Modifier.height(10.dp))
                 }
@@ -221,7 +227,8 @@ private fun SummaryCard(count: Int, refundTotal: Long, payableTotal: Long) {
 private fun DeclarationCard(
     record: DeclarationRecord,
     onCorrect: () -> Unit,
-    onVoid: () -> Unit
+    onVoid: () -> Unit,
+    onProcess: () -> Unit
 ) {
     val statusColor = when {
         record.status == "已作废" -> Color(0xFF9AA0A8)
@@ -245,12 +252,23 @@ private fun DeclarationCard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
-                Box(
-                    modifier = Modifier
-                        .background(statusColor.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
-                    Text(record.status, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .background(statusColor.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(record.status, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    processTag(record)?.let { (label, color) ->
+                        Box(
+                            modifier = Modifier
+                                .background(color.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(label, color = color, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             }
             Spacer(Modifier.height(6.dp))
@@ -298,16 +316,28 @@ private fun DeclarationCard(
                 Spacer(Modifier.height(12.dp))
                 HorizontalDivider(color = RecDivider)
                 Spacer(Modifier.height(10.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    if (processAction(record) != null) {
+                        Text(
+                            stringResource(processAction(record)!!),
+                            color = RecGreen,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable(onClick = onProcess)
+                        )
+                    }
                     Text(
                         stringResource(R.string.declarations_19),
                         color = RecBlue,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier
+                        modifier = if (processAction(record) != null) Modifier.clickable(onClick = onCorrect) else Modifier
                             .weight(1f)
                             .clickable(onClick = onCorrect)
                     )
+                    Spacer(Modifier.width(16.dp))
                     Text(
                         stringResource(R.string.declarations_25),
                         color = Color(0xFFE5484D),
@@ -319,6 +349,28 @@ private fun DeclarationCard(
             }
         }
     }
+}
+
+/** 办理状态标签：为空表示申报已终结或无需单独提示。 */
+@Composable
+private fun processTag(record: DeclarationRecord): Pair<String, Color>? = when {
+    record.isActive && record.isRefund && !record.hasAppliedRefund ->
+        stringResource(R.string.declarations_26) to RecWarn
+    record.isActive && !record.isRefund && !record.isPaid ->
+        stringResource(R.string.declarations_27) to RecWarn
+    record.hasAppliedRefund -> record.processStatus to
+        (if (com.grsds.personal.data.SettlementProcess.isSettled(record.processStatus)) RecGreen else RecBlue)
+    else -> null
+}
+
+/** 卡片主操作：退税走进度页（未申请时页内申请），补税走缴款页。 */
+private fun processAction(record: DeclarationRecord): Int? = when {
+    record.isActive && record.isRefund && !record.hasAppliedRefund -> R.string.declarations_28
+    record.isActive && record.isRefund &&
+        record.hasAppliedRefund &&
+        !com.grsds.personal.data.SettlementProcess.isSettled(record.processStatus) -> R.string.declarations_29
+    record.isActive && !record.isRefund && !record.isPaid -> R.string.declarations_30
+    else -> null
 }
 
 @Composable

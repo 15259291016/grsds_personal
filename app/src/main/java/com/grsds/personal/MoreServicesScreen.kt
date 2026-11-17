@@ -55,8 +55,8 @@ private val moreEntries = listOf(
     MoreEntry(R.string.more_06, Glyph.DocCheck, Color(0xFF6C7CF0), MessageCenter.TARGET_RECORDS),
     MoreEntry(R.string.more_07, Glyph.IdCard, Color(0xFF26B4A8), "profile"),
     MoreEntry(R.string.more_08, Glyph.Card, Color(0xFF1598F4), "bankcards"),
-    MoreEntry(R.string.more_09, Glyph.People, Color(0xFF9B8AFB)),
-    MoreEntry(R.string.more_10, Glyph.Briefcase, Color(0xFFF78CA0)),
+    MoreEntry(R.string.more_09, Glyph.People, Color(0xFF9B8AFB), "family"),
+    MoreEntry(R.string.more_10, Glyph.Briefcase, Color(0xFFF78CA0), "employment"),
     MoreEntry(R.string.more_11, Glyph.Stamp, Color(0xFF4FB0C6)),
     MoreEntry(R.string.more_12, Glyph.Headset, Color(0xFF9AB0C4))
 )

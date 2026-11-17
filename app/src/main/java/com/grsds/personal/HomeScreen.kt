@@ -126,7 +126,11 @@ fun HomeScreen(
     onOpenArticle: (String) -> Unit = {},
     onOpenArticleList: (Int) -> Unit = {},
     onOpenMessage: (String) -> Unit = {},
-    onOpenMoreServices: () -> Unit = {}
+    onOpenMoreServices: () -> Unit = {},
+    onOpenRefundProgress: (String) -> Unit = {},
+    onOpenTaxPayment: (String) -> Unit = {},
+    onOpenFamilyMembers: () -> Unit = {},
+    onOpenEmploymentInfo: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -172,6 +176,8 @@ fun HomeScreen(
                     onOpenDeductions = onOpenDeductions,
                     onOpenDeclarationRecords = onOpenDeclarationRecords,
                     onOpenBankCards = onOpenBankCards,
+                    onOpenRefundProgress = onOpenRefundProgress,
+                    onOpenTaxPayment = onOpenTaxPayment,
                     modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 2 -> ServicesTab(
@@ -195,6 +201,8 @@ fun HomeScreen(
                     onOpenSettings = onOpenSettings,
                     onOpenProfileInfo = onOpenProfileInfo,
                     onOpenBankCards = onOpenBankCards,
+                    onOpenFamilyMembers = onOpenFamilyMembers,
+                    onOpenEmploymentInfo = onOpenEmploymentInfo,
                     modifier = Modifier.padding(innerPadding)
                 )
             }

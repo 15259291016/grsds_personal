@@ -26,6 +26,8 @@ internal object AppPreferencesCodec {
     private val deductionSerializer = ListSerializer(DeductionRecord.serializer())
     private val declarationSerializer = ListSerializer(DeclarationRecord.serializer())
     private val bankCardSerializer = ListSerializer(BankCard.serializer())
+    private val familySerializer = ListSerializer(FamilyMember.serializer())
+    private val employmentSerializer = ListSerializer(EmploymentRecord.serializer())
     private val taxRecordIssueSerializer = ListSerializer(TaxRecordIssue.serializer())
 
     fun encodeSession(session: LoginSession): String = json.encodeToString(LoginSession.serializer(), session)
@@ -97,6 +99,34 @@ internal object AppPreferencesCodec {
         }
     }
 
+    fun encodeFamilyMembers(records: List<FamilyMember>): String =
+        json.encodeToString(familySerializer, records)
+
+    fun decodeFamilyMembers(raw: String?): List<FamilyMember> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return try {
+            json.decodeFromString(familySerializer, raw)
+        } catch (e: SerializationException) {
+            emptyList()
+        } catch (e: IllegalArgumentException) {
+            emptyList()
+        }
+    }
+
+    fun encodeEmploymentRecords(records: List<EmploymentRecord>): String =
+        json.encodeToString(employmentSerializer, records)
+
+    fun decodeEmploymentRecords(raw: String?): List<EmploymentRecord> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return try {
+            json.decodeFromString(employmentSerializer, raw)
+        } catch (e: SerializationException) {
+            emptyList()
+        } catch (e: IllegalArgumentException) {
+            emptyList()
+        }
+    }
+
     fun encodeBankCards(cards: List<BankCard>): String =
         json.encodeToString(bankCardSerializer, cards)
 
@@ -124,6 +154,8 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     private val declarationsKey = stringPreferencesKey("declarations_json")
     private val profileKey = stringPreferencesKey("profile_info_json")
     private val bankCardsKey = stringPreferencesKey("bank_cards_json")
+    private val familyKey = stringPreferencesKey("family_members_json")
+    private val employmentKey = stringPreferencesKey("employment_records_json")
     private val taxRecordIssuesKey = stringPreferencesKey("tax_record_issues_json")
 
     val session: Flow<LoginSession?> = dataStore.data
@@ -285,6 +317,66 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
 
     suspend fun clearBankCards() {
         dataStore.edit { preferences -> preferences.remove(bankCardsKey) }
+    }
+
+    // -- 家庭成员 / 任职受雇 ---------------------------------------------------
+
+    val familyMembers: Flow<List<FamilyMember>> = dataStore.data
+        .catch { throwable ->
+            if (throwable is IOException) emit(emptyPreferences()) else throw throwable
+        }
+        .map { preferences -> AppPreferencesCodec.decodeFamilyMembers(preferences[familyKey]) }
+
+    /** 新增或按 id 更新家庭成员。 */
+    suspend fun saveFamilyMember(member: FamilyMember) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeFamilyMembers(preferences[familyKey])
+            preferences[familyKey] = AppPreferencesCodec.encodeFamilyMembers(
+                if (existing.any { it.id == member.id }) {
+                    existing.map { if (it.id == member.id) member else it }
+                } else {
+                    existing + member
+                }
+            )
+        }
+    }
+
+    suspend fun removeFamilyMember(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeFamilyMembers(preferences[familyKey])
+            preferences[familyKey] = AppPreferencesCodec.encodeFamilyMembers(
+                existing.filterNot { it.id == id }
+            )
+        }
+    }
+
+    val employmentRecords: Flow<List<EmploymentRecord>> = dataStore.data
+        .catch { throwable ->
+            if (throwable is IOException) emit(emptyPreferences()) else throw throwable
+        }
+        .map { preferences -> AppPreferencesCodec.decodeEmploymentRecords(preferences[employmentKey]) }
+
+    /** 新增或按 id 更新任职受雇记录。 */
+    suspend fun saveEmployment(record: EmploymentRecord) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeEmploymentRecords(preferences[employmentKey])
+            preferences[employmentKey] = AppPreferencesCodec.encodeEmploymentRecords(
+                if (existing.any { it.id == record.id }) {
+                    existing.map { if (it.id == record.id) record else it }
+                } else {
+                    existing + record
+                }
+            )
+        }
+    }
+
+    suspend fun removeEmployment(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeEmploymentRecords(preferences[employmentKey])
+            preferences[employmentKey] = AppPreferencesCodec.encodeEmploymentRecords(
+                existing.filterNot { it.id == id }
+            )
+        }
     }
 
     // -- 纳税记录开具 ---------------------------------------------------------
