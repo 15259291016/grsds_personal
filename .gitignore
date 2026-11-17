@@ -10,3 +10,9 @@
 .cxx
 local.properties
 /picture
+
+# 发布签名（本机私有，不进仓库）
+/release.jks
+*.jks
+*.keystore
+keystore.properties

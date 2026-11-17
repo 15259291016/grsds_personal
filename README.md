@@ -18,7 +18,7 @@
 # 构建 Debug
 ./gradlew :app:assembleDebug
 
-# 单元测试（19 个：编解码容错、税额计算、申报编号等）
+# 单元测试（25 个：编解码容错、税额计算、办理期边界等）
 ./gradlew :app:testDebugUnitTest
 
 # 构建 Release（R8 + 资源收缩，13M → 约 1.7M）
@@ -94,6 +94,10 @@ GlyphIcon(Glyph.Bell, tint = Color(0xFFFF8A2B), size = 20.dp)
 
 新增图标时在 `Glyph` 枚举里加一项，并在 `drawGlyph` 的 `when` 里补一段路径即可。
 
+选中态用实心变体（`Home` / `HomeFilled`）：门洞这种「挖空」用 `PathFillType.EvenOdd` 抠出来，
+不要靠画一块白矩形假装，否则底栏换背景色就穿帮。也不要用 `﹀` `︿` 这类字符箭头——它们是文字，
+基线、粗细、间距都跟图标对不上，`details_24/25` 就是这么改过来的。
+
 ## 图标与启动封面
 
 `tools/gen_assets.ps1` 用 GDI+ 画出蓝色盾牌 + 「税」字，输出 5 档密度的 `ic_launcher*`（含自适应与单色层）以及 `drawable-nodpi/cover.png`（1080×2400 启动页）。改样式后重跑脚本即可：
@@ -112,14 +116,34 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\gen_assets.ps1
 
 ## 发布
 
-当前 `release` 构建复用 **debug 签名**，只是为了方便直接装机验证。正式发布前：
+`app/build.gradle.kts` 会读仓库根目录的 `keystore.properties`：
 
-1. 生成自己的 keystore：
-   ```bash
-   keytool -genkeypair -v -keystore release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias grsds
-   ```
-2. 在 `app/build.gradle.kts` 里加 `signingConfigs { create("release") { ... } }`，把 `buildTypes.release.signingConfig` 指向它（密钥口令不要写进仓库，用 `local.properties` 或环境变量）。
-3. 每发一版递增 `versionCode`，`versionName` 同步。
+```properties
+storeFile=release.jks
+storePassword=******
+keyAlias=grsds
+keyPassword=******
+```
+
+- 有该文件 → `release` 用其中的 keystore 签名；没有 → 自动回退 debug 签名，保证别人 clone 下来也能构建。
+- `release.jks`、`*.jks`、`keystore.properties` 都在 `.gitignore` 里，**不要提交**。
+
+换机器或换 keystore 时重新生成：
+
+```bash
+keytool -genkeypair -v -keystore release.jks -keyalg RSA -keysize 2048 \
+        -validity 10000 -alias grsds
+```
+
+校验签名：
+
+```bash
+$ANDROID_HOME/build-tools/37.0.0/apksigner verify --print-certs \
+    app/build/outputs/apk/release/app-release.apk
+```
+
+每发一版递增 `versionCode`，`versionName` 同步。注意：签名变更后不能覆盖安装，
+需要先 `adb uninstall com.grsds.personal`（会清掉本机已录入数据）。
 
 ## 已知限制
 
