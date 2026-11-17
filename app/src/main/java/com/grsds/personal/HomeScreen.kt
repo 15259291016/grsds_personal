@@ -98,12 +98,13 @@ private data class ServiceItem(
 )
 
 private val serviceItems = listOf(
-    ServiceItem("annual", Glyph.Chart, Color(0xFF2E7BF6), R.string.home_36, R.string.home_37, R.string.home_38),
-    ServiceItem("income", Glyph.Receipt, Color(0xFF8B5CF6), R.string.home_40, R.string.home_41, R.string.home_42),
-    ServiceItem("issue", Glyph.Printer, Color(0xFF18C7AC), R.string.home_44, R.string.home_45, R.string.home_46),
+    ServiceItem("annual", Glyph.TileForm, Color(0xFF2E7BF6), R.string.home_36, R.string.home_37, R.string.home_38),
+    ServiceItem("income", Glyph.TileWallet, Color(0xFF8B5CF6), R.string.home_40, R.string.home_41, R.string.home_42),
+    ServiceItem("issue", Glyph.TileSeal, Color(0xFF18C7AC), R.string.home_44, R.string.home_45, R.string.home_46),
     ServiceItem("more", Glyph.Grid, Color(0xFF2A9CF2), R.string.home_48, R.string.home_49, R.string.home_50)
 )
 
+/** 官方底栏：未选中线性深炭色，选中实心蓝色。 */
 private val bottomTabs = listOf(
     Glyph.Home to R.string.home_51,
     Glyph.Todo to R.string.home_52,
@@ -111,6 +112,17 @@ private val bottomTabs = listOf(
     Glyph.Message to R.string.home_54,
     Glyph.Smiley to R.string.home_55
 )
+
+/** 底栏 5 个 tab 的选中实心变体。 */
+private val Glyph.filledVariant: Glyph
+    get() = when (this) {
+        Glyph.Home -> Glyph.HomeFilled
+        Glyph.Todo -> Glyph.TodoFilled
+        Glyph.Services -> Glyph.ServicesFilled
+        Glyph.Message -> Glyph.MessageFilled
+        Glyph.Smiley -> Glyph.SmileyFilled
+        else -> this
+    }
 
 @Composable
 fun HomeScreen(
@@ -458,6 +470,14 @@ private fun ScanGlyph() {
         drawLine(Color.White, Offset(edge, bottom), Offset(edge, bottom - arm), stroke, StrokeCap.Round)
         drawLine(Color.White, Offset(right, bottom), Offset(right - arm, bottom), stroke, StrokeCap.Round)
         drawLine(Color.White, Offset(right, bottom), Offset(right, bottom - arm), stroke, StrokeCap.Round)
+        // 官方扫一扫中间还有一条扫描横线
+        drawLine(
+            Color.White,
+            Offset(size.width * 0.34f, size.height * 0.5f),
+            Offset(size.width * 0.66f, size.height * 0.5f),
+            stroke,
+            StrokeCap.Round
+        )
     }
 }
 
@@ -490,7 +510,7 @@ private fun HomeHeader(
                 modifier = Modifier.padding(start = 12.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                GlyphIcon(Glyph.Bell, tint = Color(0xFFFF8A2B), size = 20.dp, strokeWidth = 1.7.dp)
+                GlyphIcon(Glyph.BellFilled, tint = Color(0xFFFF8A2B), size = 19.dp, strokeWidth = 1.6.dp)
                 Spacer(Modifier.width(10.dp))
                 Text(
                     noticeText,
@@ -1112,11 +1132,10 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                             .clickable { onSelected(index) }
                     ) {
                         GlyphIcon(
-                            // 官方选中态用实心图标，未选中是线性
-                            if (selected && item.first == Glyph.Home) Glyph.HomeFilled else item.first,
+                            if (selected) item.first.filledVariant else item.first,
                             tint = tint,
                             size = 24.dp,
-                            strokeWidth = if (selected) 2.0.dp else 1.8.dp
+                            strokeWidth = 1.8.dp
                         )
                         Spacer(Modifier.height(3.dp))
                         Text(
