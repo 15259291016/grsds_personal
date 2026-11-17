@@ -149,6 +149,9 @@
     <string name="home_09">请输入想搜索的功能/服务</string>
     <string name="home_10">汇算清缴预约</string>
     <string name="home_11">2025年度综合所得汇算清缴预约办理的通知</string>
+    <string name="home_76">%1$d 年度汇算有 ¥%2$s 退税待申请，点击去办理</string>
+    <string name="home_77">%1$d 年度汇算需补税 ¥%2$s，点击去缴款</string>
+    <string name="home_78">%1$d 年度退税正在「%2$s」，点击查看进度</string>
     <string name="home_12">税务\n服务</string>
     <string name="home_13">2025综合所得年度汇算</string>
     <string name="home_14">已于6月30日结束，您可进入本专题页查看记录或补办年度汇算</string>
@@ -762,6 +765,17 @@
     <string name="declarations_28">申请退税</string>
     <string name="declarations_29">查看进度</string>
     <string name="declarations_30">去缴款</string>
+
+    <!-- 申报记录状态筛选 -->
+    <string name="declarations_31">全部</string>
+    <string name="declarations_32">待办理</string>
+    <string name="declarations_33">办理中</string>
+    <string name="declarations_34">已办结</string>
+    <string name="declarations_35">该状态下暂无申报记录</string>
+
+    <!-- 扣除填报带入家庭成员 -->
+    <string name="deductions_29">从家庭成员选择</string>
+    <string name="deductions_30">选中成员后自动带入姓名、证件号等信息，可在下方继续修改</string>
 
     <!-- 家庭成员 -->
     <string name="family_00">家庭成员</string>

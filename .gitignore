@@ -16,3 +16,6 @@ local.properties
 *.jks
 *.keystore
 keystore.properties
+
+# 本地工具目录
+.workbuddy/

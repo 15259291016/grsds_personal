@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,11 +71,14 @@ fun DeclarationRecordsScreen(
     val scope = rememberCoroutineScope()
     val declarations by repository.declarations.collectAsState(initial = emptyList())
     var pendingVoid by remember { mutableStateOf<DeclarationRecord?>(null) }
+    var filter by remember { mutableIntStateOf(0) }
     BackHandler(onBack = onBack)
 
     val active = declarations.filter { it.isActive }
     val refundTotal = active.filter { it.isRefund }.sumOf { it.balanceCents }
     val payableTotal = active.filterNot { it.isRefund }.sumOf { abs(it.balanceCents) }
+    val counts = RecordFilter.entries.map { option -> declarations.count { option.matches(it) } }
+    val visible = declarations.filter { RecordFilter.entries[filter].matches(it) }
 
     Column(
         modifier = modifier
@@ -96,17 +100,25 @@ fun DeclarationRecordsScreen(
                     refundTotal = refundTotal,
                     payableTotal = payableTotal
                 )
-                Spacer(Modifier.height(10.dp))
-                declarations.forEach { record ->
-                    DeclarationCard(
-                        record = record,
-                        onCorrect = { onOpenCorrection(record.id) },
-                        onVoid = { pendingVoid = record },
-                        onProcess = {
-                            if (record.isRefund) onOpenRefundProgress(record.id) else onOpenTaxPayment(record.id)
-                        }
-                    )
-                    Spacer(Modifier.height(10.dp))
+                FilterRow(
+                    selected = filter,
+                    counts = counts,
+                    onSelect = { filter = it }
+                )
+                if (visible.isEmpty()) {
+                    EmptyFilteredState()
+                } else {
+                    visible.forEach { record ->
+                        DeclarationCard(
+                            record = record,
+                            onCorrect = { onOpenCorrection(record.id) },
+                            onVoid = { pendingVoid = record },
+                            onProcess = {
+                                if (record.isRefund) onOpenRefundProgress(record.id) else onOpenTaxPayment(record.id)
+                            }
+                        )
+                        Spacer(Modifier.height(10.dp))
+                    }
                 }
             }
             Spacer(Modifier.height(20.dp))
@@ -379,6 +391,77 @@ private fun Metric(label: String, value: String, modifier: Modifier = Modifier) 
         Text(label, color = RecSecondaryText, fontSize = 12.sp)
         Spacer(Modifier.height(3.dp))
         Text(value, color = RecPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+/** 申报记录按办理状态筛选：待办理（还要用户操作）/ 办理中（退税在途）/ 已办结。 */
+private enum class RecordFilter(@StringRes val label: Int) {
+    All(R.string.declarations_31),
+    Todo(R.string.declarations_32),
+    Processing(R.string.declarations_33),
+    Closed(R.string.declarations_34);
+
+    fun matches(record: DeclarationRecord): Boolean {
+        val todo = record.isActive && record.needsAction
+        val processing = record.isActive &&
+            record.hasAppliedRefund &&
+            !com.grsds.personal.data.SettlementProcess.isSettled(record.processStatus)
+        return when (this) {
+            All -> true
+            Todo -> todo
+            Processing -> processing
+            Closed -> !todo && !processing
+        }
+    }
+}
+
+@Composable
+private fun FilterRow(selected: Int, counts: List<Int>, onSelect: (Int) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        RecordFilter.entries.forEachIndexed { index, option ->
+            val active = selected == index
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(if (active) RecBlue else Color.White, RoundedCornerShape(10.dp))
+                    .clickable { onSelect(index) }
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    stringResource(option.label) + " " + counts[index],
+                    color = if (active) Color.White else Color(0xFF3C4654),
+                    fontSize = 13.sp,
+                    fontWeight = if (active) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyFilteredState() {
+    Surface(
+        color = Color.White,
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Text(
+            stringResource(R.string.declarations_35),
+            color = RecSecondaryText,
+            fontSize = 14.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 34.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
     }
 }
 

@@ -38,6 +38,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +72,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.grsds.personal.data.SettlementNoticeKind
+import com.grsds.personal.data.SettlementNotices
+import com.grsds.personal.data.formatYuan
 import com.grsds.personal.ui.Glyph
 import com.grsds.personal.ui.GlyphIcon
 import com.grsds.personal.ui.theme.MyApplicationTheme
@@ -168,7 +172,9 @@ fun HomeScreen(
                     onOpenDeductions = onOpenDeductions,
                     onOpenArticle = onOpenArticle,
                     onOpenArticleList = onOpenArticleList,
-                    onOpenMoreServices = onOpenMoreServices
+                    onOpenMoreServices = onOpenMoreServices,
+                    onOpenRefundProgress = onOpenRefundProgress,
+                    onOpenTaxPayment = onOpenTaxPayment
                 )
                 1 -> TodoTab(
                     onAction = showMessage,
@@ -220,6 +226,8 @@ private fun HomeFeed(
     onOpenArticle: (String) -> Unit,
     onOpenArticleList: (Int) -> Unit,
     onOpenMoreServices: () -> Unit,
+    onOpenRefundProgress: (String) -> Unit,
+    onOpenTaxPayment: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -229,6 +237,30 @@ private fun HomeFeed(
     val searchHintQuery = context.getString(R.string.home_02)
     val scanHint = context.getString(R.string.home_03)
     val promoHint = context.getString(R.string.home_06)
+
+    // 提醒条跟着申报数据走：有待申请退税 / 待缴款 / 退税办理中时显示对应文案
+    val repository = remember { com.grsds.personal.data.AppPreferencesRepository.get(context) }
+    val declarations by repository.declarations.collectAsState(initial = emptyList())
+    val notice = SettlementNotices.top(declarations)
+    val noticeText = notice?.let { current ->
+        when (current.kind) {
+            SettlementNoticeKind.REFUND_TO_APPLY -> stringResource(
+                R.string.home_76,
+                current.record.year,
+                formatYuan(current.record.balanceCents)
+            )
+            SettlementNoticeKind.TAX_TO_PAY -> stringResource(
+                R.string.home_77,
+                current.record.year,
+                formatYuan(kotlin.math.abs(current.record.balanceCents))
+            )
+            SettlementNoticeKind.REFUND_IN_PROGRESS -> stringResource(
+                R.string.home_78,
+                current.record.year,
+                current.record.processStatus
+            )
+        }
+    } ?: stringResource(R.string.home_11)
 
     Column(
         modifier = modifier
@@ -252,7 +284,17 @@ private fun HomeFeed(
         ) {
             item {
                 HomeHeader(
-                    onAction = onAction,
+                    noticeText = noticeText,
+                    onNoticeClick = {
+                        when (notice?.kind) {
+                            SettlementNoticeKind.REFUND_TO_APPLY,
+                            SettlementNoticeKind.REFUND_IN_PROGRESS ->
+                                notice?.let { onOpenRefundProgress(it.declarationId) }
+                            SettlementNoticeKind.TAX_TO_PAY ->
+                                notice?.let { onOpenTaxPayment(it.declarationId) }
+                            null -> onAction(unavailableHint(context, context.getString(R.string.home_10)))
+                        }
+                    },
                     onOpenAnnualReconciliation = onOpenAnnualReconciliation
                 )
             }
@@ -421,10 +463,10 @@ private fun ScanGlyph() {
 
 @Composable
 private fun HomeHeader(
-    onAction: (String) -> Unit,
+    noticeText: String,
+    onNoticeClick: () -> Unit,
     onOpenAnnualReconciliation: () -> Unit
 ) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -442,7 +484,7 @@ private fun HomeHeader(
                 .padding(top = 10.dp)
                 .fillMaxWidth()
                 .height(40.dp)
-                .clickable { onAction(unavailableHint(context, context.getString(R.string.home_10))) }
+                .clickable(onClick = onNoticeClick)
         ) {
             Row(
                 modifier = Modifier.padding(start = 12.dp, end = 12.dp),
@@ -451,7 +493,7 @@ private fun HomeHeader(
                 GlyphIcon(Glyph.Bell, tint = Color(0xFFFF8A2B), size = 20.dp, strokeWidth = 1.7.dp)
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    stringResource(R.string.home_11),
+                    noticeText,
                     color = Color(0xFFA8630B),
                     // 13sp 时这一整句刚好放得下，不会触发跑马灯把首字裁掉
                     fontSize = 13.sp,

@@ -105,7 +105,7 @@ val DEDUCTION_FIELDS: Map<String, List<DeductionField>> = mapOf(
         DeductionField(
             "relation", "与纳税人关系", "请选择",
             DeductionFieldKind.Choice,
-            listOf("本人", "配偶", "未成年子女")
+            listOf("本人", "配偶", "未成年子女", "父母", "其他")
         ),
         DeductionField("total_amount", "医药费用总金额（元）", "医保系统记录的总金额", DeductionFieldKind.Amount),
         DeductionField("self_paid", "医保目录内个人自付（元）", "用于计算可扣除金额", DeductionFieldKind.Amount)

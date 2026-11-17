@@ -55,8 +55,8 @@ private val ArchDivider = Color(0xFFEFF1F5)
 private val ArchGreen = Color(0xFF12A66C)
 private val ArchWarn = Color(0xFFE5484D)
 
-/** 专项附加扣除里常用到的亲属关系。 */
-private val familyRelations = listOf("配偶", "子女", "父母", "祖父母", "外祖父母", "其他")
+/** 专项附加扣除里常用到的亲属关系。父亲/母亲分开列，赡养老人填报时可直接带入关系。 */
+private val familyRelations = listOf("配偶", "子女", "父亲", "母亲", "祖父母", "外祖父母", "其他")
 
 @Composable
 fun FamilyMemberScreen(
@@ -249,13 +249,13 @@ private fun FamilyMemberDialog(
         text = {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    familyRelations.take(3).forEach { item ->
+                    familyRelations.take(4).forEach { item ->
                         RelationChip(item, relation == item) { relation = item; error = null }
                     }
                 }
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    familyRelations.drop(3).forEach { item ->
+                    familyRelations.drop(4).forEach { item ->
                         RelationChip(item, relation == item) { relation = item; error = null }
                     }
                 }

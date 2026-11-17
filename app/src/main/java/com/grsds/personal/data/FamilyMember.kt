@@ -25,6 +25,19 @@ data class FamilyMember(
             idNumber
         }
 
+    /**
+     * 从 18 位身份证号里取出生日期（yyyy-MM-dd）。
+     * 填报子女教育/婴幼儿照护时要填出生日期，没必要让用户再手输一遍。
+     */
+    val birthDateLabel: String
+        get() {
+            if (idNumber.length != 18) return ""
+            val month = idNumber.substring(10, 12).toIntOrNull() ?: return ""
+            val day = idNumber.substring(12, 14).toIntOrNull() ?: return ""
+            if (month !in 1..12 || day !in 1..31) return ""
+            return "${idNumber.substring(6, 10)}-${idNumber.substring(10, 12)}-${idNumber.substring(12, 14)}"
+        }
+
     companion object {
 
         /** 身份证号校验：18 位、前 17 位数字、末位数字或 X。 */

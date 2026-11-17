@@ -58,6 +58,7 @@ import com.grsds.personal.data.DeductionOption
 import com.grsds.personal.data.DeductionFieldKind
 import com.grsds.personal.data.DeductionRecord
 import com.grsds.personal.data.DeductionRules
+import com.grsds.personal.data.FamilyLink
 import com.grsds.personal.data.formatYuan
 import kotlinx.coroutines.launch
 
@@ -364,6 +365,13 @@ private fun DeductionSheet(
     val fields = DEDUCTION_FIELDS[option.type].orEmpty()
     val previewCents = DeductionRules.effectiveAmountOf(option, ratio, details.toMap())
 
+    // 已维护的家庭成员可以直接带入，避免重复录入姓名与证件号
+    val context = LocalContext.current
+    val repository = remember { AppPreferencesRepository.get(context) }
+    val members by repository.familyMembers.collectAsState(initial = emptyList())
+    val candidates = remember(members, option.type) { FamilyLink.candidates(option.type, members) }
+    var pickedMemberId by remember(option.type) { mutableStateOf<String?>(null) }
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -404,6 +412,55 @@ private fun DeductionSheet(
                                 fontSize = 14.sp,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                             )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+
+            if (candidates.isNotEmpty()) {
+                Text(
+                    stringResource(R.string.deductions_29),
+                    color = DeducPrimaryText,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(R.string.deductions_30),
+                    color = DeducSecondaryText,
+                    fontSize = 12.sp
+                )
+                Spacer(Modifier.height(9.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    candidates.take(4).forEach { member ->
+                        val selected = pickedMemberId == member.id
+                        Column(
+                            modifier = Modifier
+                                .background(
+                                    if (selected) Color(0xFFEAF4FF) else DeducPageBackground,
+                                    RoundedCornerShape(10.dp)
+                                )
+                                .clickable {
+                                    pickedMemberId = member.id
+                                    FamilyLink.prefill(option.type, member).forEach { (key, value) ->
+                                        details[key] = value
+                                    }
+                                    error = null
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                member.name,
+                                color = if (selected) DeducBlue else DeducPrimaryText,
+                                fontSize = 14.sp,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(member.relation, color = DeducSecondaryText, fontSize = 11.sp)
                         }
                     }
                 }
