@@ -96,8 +96,9 @@ fun AnnualReconciliationScreen(
     val yearRecords = remember(records, year) { records.filter { it.year == year } }
     val yearDeductions = remember(deductions, year) { deductions.filter { it.year == year } }
 
-    // 是否已申报以落盘记录为准：杀掉进程再进来仍然停在“申报完成”，不会退回向导
-    val declaration = declarations.firstOrNull { it.year == year } ?: justSubmitted
+    // 是否已申报以落盘记录为准：杀掉进程再进来仍然停在“申报完成”，不会退回向导；
+    // 已作废的申报不算数，作废后可以重新走一遍汇算。
+    val declaration = declarations.firstOrNull { it.year == year && it.isActive } ?: justSubmitted
     val submitted = declaration != null
     val displayedDeclaration = declaration ?: DeclarationRecord.from(settlement, 0L)
 
@@ -504,8 +505,9 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
             Text(stringResource(R.string.reconcile_22), color = ReconPrimaryText, fontSize = 17.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(14.dp))
             ReconRow(stringResource(R.string.reconcile_23), settlement.incomeCents)
-            ReconRow(stringResource(R.string.reconcile_24), -settlement.basicDeductionCents)
-            ReconRow(stringResource(R.string.reconcile_19), -settlement.specialDeductionCents)
+            // 扣除额本身就是正数，写成 -60000 会让人以为收入被减成了负数
+            ReconRow(stringResource(R.string.reconcile_24), settlement.basicDeductionCents)
+            ReconRow(stringResource(R.string.reconcile_19), settlement.specialDeductionCents)
             Spacer(Modifier.height(8.dp))
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(8.dp))

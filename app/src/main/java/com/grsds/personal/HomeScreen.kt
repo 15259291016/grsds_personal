@@ -93,14 +93,6 @@ private data class ServiceItem(
     @StringRes val action: Int
 )
 
-private data class ArticleItem(
-    @StringRes val title: Int,
-    val date: String,
-    val glyph: Glyph,
-    val accent: Color,
-    val imageFirst: Boolean = false
-)
-
 private val serviceItems = listOf(
     ServiceItem("annual", Glyph.Chart, Color(0xFF2E7BF6), R.string.home_36, R.string.home_37, R.string.home_38),
     ServiceItem("income", Glyph.Receipt, Color(0xFF8B5CF6), R.string.home_40, R.string.home_41, R.string.home_42),
@@ -116,27 +108,6 @@ private val bottomTabs = listOf(
     Glyph.Smiley to R.string.home_55
 )
 
-private val articleGroups = listOf(
-    listOf(
-        ArticleItem(R.string.home_56, "2025-02-28", Glyph.Card, Color(0xFF8FD3F4)),
-        ArticleItem(R.string.home_58, "2025-02-28", Glyph.Shield, Color(0xFFFFD68D)),
-        ArticleItem(R.string.home_60, "2024-03-15", Glyph.DocCheck, Color(0xFF94E9EB), true),
-        ArticleItem(R.string.home_62, "2024-03-15", Glyph.Stamp, Color(0xFFB9D7FF), true)
-    ),
-    listOf(
-        ArticleItem(R.string.home_64, "2026-02-26", Glyph.Receipt, Color(0xFF81C6FF)),
-        ArticleItem(R.string.home_66, "2026-01-05", Glyph.Calendar, Color(0xFF9CE4D8))
-    ),
-    listOf(
-        ArticleItem(R.string.home_68, "2025-06-12", Glyph.Briefcase, Color(0xFFFFDCA4)),
-        ArticleItem(R.string.home_70, "2025-05-20", Glyph.People, Color(0xFFAED5FF))
-    ),
-    listOf(
-        ArticleItem(R.string.home_72, "2025-03-01", Glyph.Clock, Color(0xFFA6E6DB)),
-        ArticleItem(R.string.home_74, "2025-02-28", Glyph.Check, Color(0xFFC7D7FF))
-    )
-)
-
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -148,7 +119,14 @@ fun HomeScreen(
     onOpenDeductions: () -> Unit = {},
     onOpenDeclarationRecords: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
-    onOpenLogin: () -> Unit = {}
+    onOpenLogin: () -> Unit = {},
+    onOpenCorrection: () -> Unit = {},
+    onOpenProfileInfo: () -> Unit = {},
+    onOpenBankCards: () -> Unit = {},
+    onOpenArticle: (String) -> Unit = {},
+    onOpenArticleList: (Int) -> Unit = {},
+    onOpenMessage: (String) -> Unit = {},
+    onOpenMoreServices: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -183,13 +161,17 @@ fun HomeScreen(
                     onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
                     onOpenTaxRecordIssue = onOpenTaxRecordIssue,
                     onOpenAnnualReconciliation = onOpenAnnualReconciliation,
-                    onOpenDeductions = onOpenDeductions
+                    onOpenDeductions = onOpenDeductions,
+                    onOpenArticle = onOpenArticle,
+                    onOpenArticleList = onOpenArticleList,
+                    onOpenMoreServices = onOpenMoreServices
                 )
                 1 -> TodoTab(
                     onAction = showMessage,
                     onOpenAnnualReconciliation = onOpenAnnualReconciliation,
                     onOpenDeductions = onOpenDeductions,
                     onOpenDeclarationRecords = onOpenDeclarationRecords,
+                    onOpenBankCards = onOpenBankCards,
                     modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 2 -> ServicesTab(
@@ -199,10 +181,11 @@ fun HomeScreen(
                     onOpenAnnualReconciliation = onOpenAnnualReconciliation,
                     onOpenDeductions = onOpenDeductions,
                     onOpenDeclarationRecords = onOpenDeclarationRecords,
+                    onOpenCorrection = onOpenCorrection,
                     modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 3 -> MessagesTab(
-                    onAction = showMessage,
+                    onOpenMessage = onOpenMessage,
                     modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 else -> ProfileTab(
@@ -210,6 +193,8 @@ fun HomeScreen(
                     onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
                     onOpenLogin = onOpenLogin,
                     onOpenSettings = onOpenSettings,
+                    onOpenProfileInfo = onOpenProfileInfo,
+                    onOpenBankCards = onOpenBankCards,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -224,6 +209,9 @@ private fun HomeFeed(
     onOpenTaxRecordIssue: () -> Unit,
     onOpenAnnualReconciliation: () -> Unit,
     onOpenDeductions: () -> Unit,
+    onOpenArticle: (String) -> Unit,
+    onOpenArticleList: (Int) -> Unit,
+    onOpenMoreServices: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -232,9 +220,7 @@ private fun HomeFeed(
     val searchHintBlank = context.getString(R.string.home_01)
     val searchHintQuery = context.getString(R.string.home_02)
     val scanHint = context.getString(R.string.home_03)
-    val policyHint = context.getString(R.string.home_05)
     val promoHint = context.getString(R.string.home_06)
-    val moreHint = context.getString(R.string.home_08)
 
     Column(
         modifier = modifier
@@ -273,7 +259,8 @@ private fun HomeFeed(
             }
             item {
                 DeductionCard(
-                    onPolicyClick = { onAction(unavailableHint(context, policyHint)) },
+                    // 「相关政策」直接进政策解读列表，不再弹“暂不可用”
+                    onPolicyClick = { onOpenArticleList(3) },
                     onFillClick = onOpenDeductions,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
@@ -283,7 +270,8 @@ private fun HomeFeed(
                     onAction = onAction,
                     onOpenIncomeTaxDetails = onOpenIncomeTaxDetails,
                     onOpenTaxRecordIssue = onOpenTaxRecordIssue,
-                    onOpenAnnualReconciliation = onOpenAnnualReconciliation
+                    onOpenAnnualReconciliation = onOpenAnnualReconciliation,
+                    onOpenMoreServices = onOpenMoreServices
                 )
             }
             item {
@@ -298,13 +286,11 @@ private fun HomeFeed(
                     onSelected = { selectedCategory = it }
                 )
             }
-            items(articleGroups[selectedCategory].size) { index ->
+            val articles = ArticleCenter.byCategory(selectedCategory)
+            items(articles.size) { index ->
                 ArticleCard(
-                    article = articleGroups[selectedCategory][index],
-                    onClick = {
-                        val title = context.getString(articleGroups[selectedCategory][index].title)
-                        onAction(unavailableHint(context, title))
-                    },
+                    article = articles[index],
+                    onClick = { onOpenArticle(articles[index].id) },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 7.dp)
                 )
             }
@@ -316,7 +302,7 @@ private fun HomeFeed(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onAction(moreHint) }
+                        .clickable { onOpenArticleList(selectedCategory) }
                         .padding(vertical = 22.dp)
                 )
             }
@@ -732,7 +718,8 @@ private fun ServiceCards(
     onAction: (String) -> Unit,
     onOpenIncomeTaxDetails: () -> Unit,
     onOpenTaxRecordIssue: () -> Unit,
-    onOpenAnnualReconciliation: () -> Unit
+    onOpenAnnualReconciliation: () -> Unit,
+    onOpenMoreServices: () -> Unit
 ) {
     val context = LocalContext.current
     Row(
@@ -750,6 +737,7 @@ private fun ServiceCards(
                         "income" -> onOpenIncomeTaxDetails()
                         "issue" -> onOpenTaxRecordIssue()
                         "annual" -> onOpenAnnualReconciliation()
+                        "more" -> onOpenMoreServices()
                         else -> onAction(unavailableHint(context, context.getString(item.title)))
                     }
                 }
@@ -976,17 +964,22 @@ private fun ArticleCard(
                 ArticleThumbnail(article)
                 Spacer(Modifier.width(12.dp))
             }
-            Column(modifier = Modifier.weight(1f)) {
+            // 标题只有一行时，原来靠 weight 把日期顶到卡底会留下一大片空白，
+            // 改成紧跟标题并在垂直方向居中
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     stringResource(article.title),
                     color = PrimaryText,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     lineHeight = 22.sp,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.height(7.dp))
                 Text("◷  ${article.date}", color = Color(0xFFB4B8BF), fontSize = 13.sp)
             }
             if (!article.imageFirst) {

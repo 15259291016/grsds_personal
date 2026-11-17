@@ -59,24 +59,37 @@ object TaxCalculator {
         records: List<IncomeRecord>,
         deductions: List<DeductionRecord>,
         year: Int
+    ): Settlement = settleWith(
+        year = year,
+        incomeCents = incomeOf(records, year),
+        specialDeductionCents = deductions.filter { it.year == year }.sumOf { it.amountInCents },
+        taxPrepaidCents = prepaidOf(records, year)
+    )
+
+    /**
+     * 用显式金额直接结算：更正申报不重放录入记录，
+     * 而是拿原申报快照 + 用户改动后的收入/已缴税额重算。
+     */
+    fun settleWith(
+        year: Int,
+        incomeCents: Long,
+        specialDeductionCents: Long,
+        taxPrepaidCents: Long
     ): Settlement {
-        val income = incomeOf(records, year)
-        val specialDeduction = deductions.filter { it.year == year }.sumOf { it.amountInCents }
-        val taxable = (income - BASIC_DEDUCTION_CENTS - specialDeduction).coerceAtLeast(0L)
+        val taxable = (incomeCents - BASIC_DEDUCTION_CENTS - specialDeductionCents).coerceAtLeast(0L)
         val bracket = brackets.first { taxable <= it.upperCents }
         val payable = (taxable * bracket.ratePercent / 100 - bracket.quickDeductionCents)
             .coerceAtLeast(0L)
-        val prepaid = prepaidOf(records, year)
         return Settlement(
             year = year,
-            incomeCents = income,
+            incomeCents = incomeCents,
             basicDeductionCents = BASIC_DEDUCTION_CENTS,
-            specialDeductionCents = specialDeduction,
+            specialDeductionCents = specialDeductionCents,
             taxableIncomeCents = taxable,
             taxRatePercent = bracket.ratePercent,
             taxPayableCents = payable,
-            taxPrepaidCents = prepaid,
-            balanceCents = prepaid - payable
+            taxPrepaidCents = taxPrepaidCents,
+            balanceCents = taxPrepaidCents - payable
         )
     }
 }

@@ -64,6 +64,22 @@ fun CoverImage(modifier: Modifier = Modifier) {
         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
     }
 
+    // 消息与「更多功能」里用字符串表示目标页，集中在这里映射成路由，
+    // 避免每个入口各写一套 if-else。
+    fun navigateByTarget(target: String) {
+        when (target) {
+            MessageCenter.TARGET_ANNUAL -> navigate(AppScreen.AnnualReconciliation)
+            MessageCenter.TARGET_DEDUCTIONS -> navigate(AppScreen.Deductions)
+            MessageCenter.TARGET_INCOME -> navigate(AppScreen.TaxDetails)
+            MessageCenter.TARGET_RECORDS -> navigate(AppScreen.DeclarationRecords)
+            MessageCenter.TARGET_SECURITY -> navigate(AppScreen.Settings)
+            "issue" -> navigate(AppScreen.TaxRecordIssue)
+            "correction" -> navigate(AppScreen.Correction())
+            "profile" -> navigate(AppScreen.ProfileInfo)
+            "bankcards" -> navigate(AppScreen.BankCards)
+        }
+    }
+
     LaunchedEffect(view, isInPreview) {
         if (isInPreview) return@LaunchedEffect
 
@@ -106,12 +122,67 @@ fun CoverImage(modifier: Modifier = Modifier) {
                 onOpenDeductions = { navigate(AppScreen.Deductions) },
                 onOpenDeclarationRecords = { navigate(AppScreen.DeclarationRecords) },
                 onOpenSettings = { navigate(AppScreen.Settings) },
-                onOpenLogin = { navigate(AppScreen.Login) }
+                onOpenLogin = { navigate(AppScreen.Login) },
+                onOpenCorrection = { navigate(AppScreen.Correction()) },
+                onOpenProfileInfo = { navigate(AppScreen.ProfileInfo) },
+                onOpenBankCards = { navigate(AppScreen.BankCards) },
+                onOpenMoreServices = { navigate(AppScreen.MoreServices) },
+                onOpenArticle = { id -> navigate(AppScreen.ArticleDetail(id)) },
+                onOpenArticleList = { category -> navigate(AppScreen.ArticleList(category)) },
+                onOpenMessage = { id -> navigate(AppScreen.MessageDetail(id)) }
+            )
+
+            AppScreen.MoreServices -> MoreServicesScreen(
+                onBack = { goBack() },
+                onLaunch = { target -> goBack(); navigateByTarget(target) },
+                modifier = modifier
+            )
+
+            is AppScreen.MessageDetail -> MessageDetailScreen(
+                messageId = current.messageId,
+                onBack = { goBack() },
+                onOpenAction = { target ->
+                    goBack()
+                    navigateByTarget(target)
+                },
+                modifier = modifier
+            )
+
+            is AppScreen.ArticleDetail -> ArticleDetailScreen(
+                articleId = current.articleId,
+                onBack = { goBack() },
+                modifier = modifier
+            )
+
+            is AppScreen.ArticleList -> ArticleListScreen(
+                initialCategory = current.category,
+                onBack = { goBack() },
+                onOpenArticle = { id -> navigate(AppScreen.ArticleDetail(id)) },
+                modifier = modifier
             )
 
             AppScreen.DeclarationRecords -> DeclarationRecordsScreen(
                 onBack = { goBack() },
                 onOpenReconciliation = { navigate(AppScreen.AnnualReconciliation) },
+                onOpenCorrection = { id -> navigate(AppScreen.Correction(id)) },
+                modifier = modifier
+            )
+
+            is AppScreen.Correction -> CorrectionScreen(
+                preselectedId = current.preselectedId,
+                onBack = { goBack() },
+                modifier = modifier
+            )
+
+            AppScreen.ProfileInfo -> ProfileInfoScreen(
+                onBack = { goBack() },
+                onOpenLogin = { navigate(AppScreen.Login) },
+                modifier = modifier
+            )
+
+            AppScreen.BankCards -> BankCardScreen(
+                onBack = { goBack() },
+                onOpenLogin = { navigate(AppScreen.Login) },
                 modifier = modifier
             )
 
@@ -203,6 +274,13 @@ private sealed interface AppScreen {
     data object DeclarationRecords : AppScreen
     data object Settings : AppScreen
     data object Login : AppScreen
+    data object ProfileInfo : AppScreen
+    data object BankCards : AppScreen
+    data object MoreServices : AppScreen
+    data class MessageDetail(val messageId: String?) : AppScreen
+    data class ArticleDetail(val articleId: String?) : AppScreen
+    data class ArticleList(val category: Int) : AppScreen
+    data class Correction(val preselectedId: String? = null) : AppScreen
     data class QueryResult(val year: Int, val incomeTypes: List<String>) : AppScreen
     data class RecordDetail(val recordId: String) : AppScreen
 }

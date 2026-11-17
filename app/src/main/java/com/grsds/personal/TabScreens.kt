@@ -94,9 +94,22 @@ fun TodoTab(
     onOpenAnnualReconciliation: () -> Unit,
     onOpenDeductions: () -> Unit,
     onOpenDeclarationRecords: () -> Unit,
+    onOpenBankCards: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val repository = remember { com.grsds.personal.data.AppPreferencesRepository.get(context) }
+    val declarations by repository.declarations.collectAsState(initial = emptyList())
+    // 已经申报过的年度不该再挂着「去办理」：改成已办结并指向申报记录
+    val annualDeclared = declarations.any { it.isActive }
+    val entries = todoItems.map { item ->
+        if (item.id == "annual" && annualDeclared) {
+            item.copy(done = true, description = R.string.tab_106, time = 0)
+        } else {
+            item
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -117,7 +130,7 @@ fun TodoTab(
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
         )
         // 已结束的排到后面，和真实 APP「先办该办的」一致
-        todoItems
+        entries
             .sortedBy { item ->
                 val expired = item.deadline?.let { TaxCalendar.isPast(it.first, it.second, it.third) } == true
                 when {
@@ -137,6 +150,7 @@ fun TodoTab(
                         item.done -> onOpenDeclarationRecords()
                         item.id == "annual" -> onOpenAnnualReconciliation()
                         item.id == "deductions" -> onOpenDeductions()
+                        item.id == "bank" -> onOpenBankCards()
                         else -> onAction(unavailableHint(context, context.getString(item.title)))
                     }
                 }
@@ -259,6 +273,7 @@ fun ServicesTab(
     onOpenAnnualReconciliation: () -> Unit,
     onOpenDeductions: () -> Unit,
     onOpenDeclarationRecords: () -> Unit,
+    onOpenCorrection: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -275,6 +290,7 @@ fun ServicesTab(
                 "deductions" -> onOpenDeductions()
                 "income" -> onOpenIncomeTaxDetails()
                 "issue" -> onOpenTaxRecordIssue()
+                "correction" -> onOpenCorrection()
                 else -> onAction(unavailableHint(context, context.getString(entry.title)))
             }
         }
@@ -370,29 +386,13 @@ private val messageCategories = listOf(
     R.string.tab_65, R.string.tab_66, R.string.tab_67, R.string.tab_68
 )
 
-private data class MessageItem(
-    @StringRes val category: Int,
-    val glyph: Glyph,
-    val color: Color,
-    @StringRes val title: Int,
-    @StringRes val summary: Int,
-    @StringRes val time: Int
-)
-
-private val messageItems = listOf(
-    MessageItem(R.string.tab_66, Glyph.Bell, Color(0xFF1598F4), R.string.tab_70, R.string.tab_71, R.string.tab_72),
-    MessageItem(R.string.tab_66, Glyph.Message, Color(0xFF8B5CF6), R.string.tab_74, R.string.tab_75, R.string.tab_76),
-    MessageItem(R.string.tab_67, Glyph.Shield, Color(0xFFFF7043), R.string.tab_78, R.string.tab_79, R.string.tab_80),
-    MessageItem(R.string.tab_68, Glyph.Card, Color(0xFF26B4A8), R.string.tab_82, R.string.tab_83, R.string.tab_84),
-    MessageItem(R.string.tab_68, Glyph.DocCheck, Color(0xFF6C7CF0), R.string.tab_86, R.string.tab_87, R.string.tab_88)
-)
+private val messageItems: List<MessageItem> get() = MessageCenter.items
 
 @Composable
 fun MessagesTab(
-    onAction: (String) -> Unit,
+    onOpenMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     var selectedCategory by remember { mutableIntStateOf(0) }
     val readIndexes = remember { mutableStateListOf<Int>() }
     val visible = if (selectedCategory == 0) {
@@ -469,7 +469,7 @@ fun MessagesTab(
                 val unread = globalIndex !in readIndexes
                 MessageCard(item, unread) {
                     if (globalIndex !in readIndexes) readIndexes.add(globalIndex)
-                    onAction(context.getString(R.string.tab_18, context.getString(item.title)))
+                    onOpenMessage(item.id)
                 }
                 Spacer(Modifier.height(10.dp))
             }
@@ -593,6 +593,8 @@ fun ProfileTab(
     onOpenIncomeTaxDetails: () -> Unit,
     onOpenLogin: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenProfileInfo: () -> Unit,
+    onOpenBankCards: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -616,7 +618,7 @@ fun ProfileTab(
                 )
                 .statusBarsPadding()
                 .clickable {
-                    if (session == null) onOpenLogin() else onAction(context.getString(R.string.tab_20))
+                    if (session == null) onOpenLogin() else onOpenProfileInfo()
                 }
                 .padding(horizontal = 18.dp, vertical = 26.dp)
         ) {
@@ -664,10 +666,8 @@ fun ProfileTab(
                                 .fillMaxWidth()
                                 .clickable {
                                     when (entry.id) {
-                                        "profile" -> onAction(
-                                            if (session == null) context.getString(R.string.tab_25)
-                                            else unavailableHint(context, context.getString(R.string.tab_24))
-                                        )
+                                        "profile" -> if (session == null) onOpenLogin() else onOpenProfileInfo()
+                                        "bank" -> if (session == null) onOpenLogin() else onOpenBankCards()
                                         "settings" -> onOpenSettings()
                                         else -> onAction(unavailableHint(context, context.getString(entry.title)))
                                     }

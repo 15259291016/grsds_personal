@@ -95,8 +95,8 @@
     <!-- DeclarationRecordsScreen.kt -->
     <string name="declarations_01">‹ 返回</string>
     <string name="declarations_02">申报记录</string>
-    <string name="declarations_03">已申报年度</string>
-    <string name="declarations_04">%1$s 个</string>
+    <string name="declarations_03">有效申报年度</string>
+    <string name="declarations_04">%1$d 个</string>
     <string name="declarations_05">累计应退税额</string>
     <string name="declarations_06">累计应补税额</string>
     <string name="declarations_07">%1$s 年度综合所得年度汇算</string>
@@ -286,12 +286,9 @@
     <string name="tab_17">全部已读</string>
     <string name="tab_18">正在查看：%1$s</string>
     <string name="tab_19">暂无消息</string>
-    <string name="tab_20">正在查看个人资料</string>
     <string name="tab_21">税</string>
     <string name="tab_22">立即登录 / 注册</string>
     <string name="tab_23">登录后可查询收入纳税明细、办理年度汇算</string>
-    <string name="tab_24">个人信息</string>
-    <string name="tab_25">登录后可查看个人信息</string>
     <string name="tab_26">设置</string>
     <string name="tab_27">退出登录</string>
     <string name="tab_28">个人所得税 APP  v1.0.0</string>
@@ -431,6 +428,7 @@
     <string name="tab_102">关于</string>
     <string name="tab_103">设</string>
     <string name="tab_104">设置</string>
+    <string name="tab_106">已完成本年度综合所得汇算申报，可查看申报记录</string>
     <string name="tab_105">「%1$s」暂不可用，请稍后再试</string>
 
     <!-- 步骤条 / 校验提示 / 弹窗等补充文案 -->
@@ -467,4 +465,189 @@
     <string name="logout_message">退出后需重新验证手机号才能查看个人办税信息，本机已录入的明细不会被删除。</string>
     <string name="logout_confirm">退出</string>
     <string name="logout_cancel">取消</string>
+
+    <!-- ProfileInfoScreen.kt -->
+    <string name="info_01">‹ 返回</string>
+    <string name="info_02">个人信息</string>
+    <string name="info_03">登录后可查看个人信息</string>
+    <string name="info_04">姓名、证件号码等实名要素由税务系统带出，登录后自动展示</string>
+    <string name="info_05">立即登录 / 注册</string>
+    <string name="info_06">身份信息</string>
+    <string name="info_07">已实名认证</string>
+    <string name="info_08">姓名</string>
+    <string name="info_09">证件类型</string>
+    <string name="info_10">证件号码</string>
+    <string name="info_11">隐藏</string>
+    <string name="info_12">显示</string>
+    <string name="info_13">出生日期</string>
+    <string name="info_14">手机号码</string>
+    <string name="info_15">户籍与任职</string>
+    <string name="info_16">户籍所在地</string>
+    <string name="info_17">任职受雇单位</string>
+    <string name="info_18">联系信息</string>
+    <string name="info_19">编辑</string>
+    <string name="info_20">电子邮箱</string>
+    <string name="info_21">联系地址</string>
+    <string name="info_22">重置</string>
+    <string name="info_23">保存</string>
+    <string name="info_24">未填写</string>
+    <string name="info_25">已保存</string>
+
+    <!-- BankCardScreen.kt -->
+    <string name="bank_01">‹ 返回</string>
+    <string name="bank_02">银行卡管理</string>
+    <string name="bank_03">退税税款将退至默认收款账户的银行卡，请确保账户状态正常且为本人实名账户。</string>
+    <string name="bank_04">默认收款账户</string>
+    <string name="bank_05">**** **** **** %1$s</string>
+    <string name="bank_06">持卡人 %1$s · %2$s 绑定</string>
+    <string name="bank_07">默认收款账户</string>
+    <string name="bank_08">设为默认收款账户</string>
+    <string name="bank_09">解绑</string>
+    <string name="bank_10">尚未绑定银行卡</string>
+    <string name="bank_11">绑定本人银行卡后，可用于接收退税税款</string>
+    <string name="bank_12">+ 添加银行卡</string>
+    <string name="bank_13">添加银行卡</string>
+    <string name="bank_14">持卡人：%1$s（须与实名信息一致）</string>
+    <string name="bank_15">卡号（16–19 位数字）</string>
+    <string name="bank_16">请输入正确的银行卡号</string>
+    <string name="bank_17">首张绑定的银行卡将自动设为默认收款账户</string>
+    <string name="bank_18">可绑定多张本人银行卡，随时切换默认收款账户</string>
+    <string name="bank_19">确认绑定</string>
+    <string name="bank_20">解绑银行卡</string>
+    <string name="bank_21">解绑 %1$s 后将无法接收退税至该账户，确定解绑？</string>
+    <string name="bank_22">解绑</string>
+    <string name="bank_23">取消</string>
+    <string name="bank_24">登录后可管理银行卡</string>
+    <string name="bank_25">绑定本人银行卡，用于接收退税税款</string>
+
+    <!-- CorrectionScreen.kt -->
+    <string name="correction_01">‹ 返回</string>
+    <string name="correction_02">更正申报 · %1$d年度</string>
+    <string name="correction_03">更正申报</string>
+    <string name="correction_04">暂无可更正的申报</string>
+    <string name="correction_05">已申报成功且未作废的记录可以更正，可先完成年度汇算申报</string>
+    <string name="correction_06">%1$d年度原申报</string>
+    <string name="correction_07">申报编号：%1$s</string>
+    <string name="correction_08">提交时间：%1$s</string>
+    <string name="correction_09">原收入合计</string>
+    <string name="correction_10">更正申报内容</string>
+    <string name="correction_11">收入合计（元）</string>
+    <string name="correction_12">金额需为大于 0 的数字</string>
+    <string name="correction_13">已缴税额（元）</string>
+    <string name="correction_14">更正后的收入与已缴税额将按现行税率和本年度已填报的专项附加扣除重新计算。</string>
+    <string name="correction_15">原已缴税额</string>
+    <string name="correction_16">更正后应补退</string>
+    <string name="correction_20">提交更正申报</string>
+    <string name="correction_21">确认提交更正申报？</string>
+    <string name="correction_22">提交后原申报（%1$s）将置为“已更正”，以本次更正结果为准。%2$s</string>
+    <string name="correction_23">更正后应退税额 ¥%1$s。</string>
+    <string name="correction_24">更正后应补税额 ¥%1$s。</string>
+    <string name="correction_25">提交</string>
+    <string name="correction_26">取消</string>
+    <string name="correction_27">本年度已填报专项附加扣除合计 ¥%1$s，重算时自动扣除。</string>
+    <string name="correction_28">更正成功</string>
+    <string name="correction_29">%1$d年度更正申报（第 %2$d 次）已受理</string>
+    <string name="correction_30">更正申报编号：%1$s</string>
+    <string name="correction_31">完成</string>
+    <string name="correction_34">提交时间</string>
+    <string name="correction_35">原申报编号</string>
+
+    <!-- 申报记录页：更正 / 作废 -->
+    <string name="declarations_19">更正申报</string>
+    <string name="declarations_20">作废申报</string>
+    <string name="declarations_21">作废后申报（%1$s）将视为未申报，如需继续办理需重新发起年度汇算。确定作废？</string>
+    <string name="declarations_22">作废</string>
+    <string name="declarations_23">取消</string>
+    <string name="declarations_24">更正自 %1$s（第 %2$d 次）</string>
+    <string name="declarations_25">作废</string>
+
+    <!-- MessageDetailScreen.kt -->
+    <string name="msg_01">‹ 返回</string>
+    <string name="msg_02">消息详情</string>
+    <string name="msg_03">消息不存在或已失效</string>
+    <string name="msg_04">本消息由个人所得税APP推送，请勿直接回复。涉及个人信息与税款的内容，以APP内的申报记录为准。</string>
+
+    <!-- 消息正文 -->
+    <string name="msg_annual_1">您2025年度的综合所得汇算清缴已可以办理，办理时间为2026年3月1日至6月30日。</string>
+    <string name="msg_annual_2">请在办理期内登录APP，核对收入与扣除信息后提交申报。需要补税的，请在6月30日前完成缴款；逾期未缴会从滞纳之日起按日加收滞纳金。</string>
+    <string name="msg_annual_3">收入来源单一、扣除信息没有变化的，可以使用简易申报快速办理；有多处收入或需要补充扣除的，走标准申报逐项核对更稳妥。</string>
+    <string name="msg_deduction_1">2026年度的专项附加扣除信息确认期为2025年12月1日至12月31日，请在此期间完成确认。</string>
+    <string name="msg_deduction_2">子女教育、继续教育、住房贷款利息、住房租金、赡养老人、3岁以下婴幼儿照护等项目，信息没有变化的，一键确认即可带入下一年度。</string>
+    <string name="msg_deduction_3">逾期未确认的，次年仍可补填，但可能影响工资薪金的预扣预缴，多缴的税款要到年度汇算时才能退回。</string>
+    <string name="msg_appeal_1">您对某单位申报的收入纳税明细发起的异议申诉已受理，受理编号可在申诉记录中查看。</string>
+    <string name="msg_appeal_2">税务机关将联系扣缴义务人核实情况，预计5个工作日内反馈处理结果；涉及跨区域核查的，处理时间可能延长。</string>
+    <string name="msg_appeal_3">申诉期间该笔收入仍会显示在明细中，请不要重复提交申诉。经核实确属本人收入的，可以撤回申诉。</string>
+    <string name="msg_security_1">您的账号近期在一台新设备上登录。如果是本人操作，可以忽略本消息。</string>
+    <string name="msg_security_2">如非本人操作，请立即在「我的 — 安全中心」修改密码，并检查申报记录、银行卡是否有异常变更。</string>
+    <string name="msg_security_3">建议不要在陌生设备上保存密码，也不要把短信验证码告诉任何人。税务人员不会索要您的密码或验证码。</string>
+    <string name="msg_maintain_1">为提升服务稳定性，个人所得税APP将于每周日23:00至次日2:00进行例行维护。</string>
+    <string name="msg_maintain_2">维护期间申报、缴款、退税等功能可能短时不可用，查询类功能一般不受影响，请合理安排办理时间。</string>
+    <string name="msg_go_annual">去办理年度汇算</string>
+    <string name="msg_go_deductions">去确认扣除信息</string>
+    <string name="msg_go_income">查看收入纳税明细</string>
+    <string name="msg_go_security">前往安全中心</string>
+
+    <!-- ArticleScreens.kt -->
+    <string name="article_01">‹ 返回</string>
+    <string name="article_02">资讯详情</string>
+    <string name="article_03">文章不存在或已下线</string>
+    <string name="article_04">发布时间</string>
+    <string name="article_05">本文内容仅供参考，具体政策口径以税务机关正式文件为准。</string>
+    <string name="article_06">政策资讯</string>
+
+    <!-- 文章正文：警示案例 -->
+    <string name="art_01">年度汇算期间登录人数集中，建议提前确认个税APP的账号与密码可以正常使用，避免临近截止日才发现登不进去。</string>
+    <string name="art_02">遗忘密码可以在登录页选择找回密码，用本人手机号接收验证码重设。连续多次输错密码，账号会被临时锁定，需要等锁定解除或改用其他验证方式。</string>
+    <string name="art_03">不要使用生日、手机号后六位这类容易猜到的密码，也不要在公共设备上勾选记住密码。密码和验证码不要告诉任何人，包括自称税务人员的人。</string>
+    <string name="art_04">申请退税需要绑定本人名下、状态正常的银行卡。退税款只能退至纳税人本人的银行账户，不能退到他人账户。</string>
+    <string name="art_05">绑卡时请核对卡号、开户银行与预留手机号，三者必须与银行记录一致。账户已挂失、注销或长期未使用被限制非柜面交易的，退税会失败并原路退回。</string>
+    <string name="art_06">在银行卡管理里可以把常用的卡设为默认收款账户。退税申请提交后发现卡号有误，需要在退税进度进入国库处理之前作废申报并重新提交。</string>
+    <string name="art_07">某纳税人一个纳税年度内取得两处以上工资薪金，年度汇算时需要补税，经税务机关提示后仍未在法定期限内办理申报。</string>
+    <string name="art_08">依据税收征管法，未在规定期限内办理纳税申报的，由税务机关责令限期改正，可以处二千元以下罚款；逾期仍不改正的可以加重处理，并从滞纳税款之日起按日加收滞纳金。</string>
+    <string name="art_09">需要补税的，请在6月30日前完成申报并缴款。确有困难的，可以在汇算期内申请延期，不要等到被提示后再处理。</string>
+    <string name="art_10">某纳税人在专项附加扣除中填报子女教育扣除，但经核查其子女并未接受全日制学历教育，不符合扣除条件。</string>
+    <string name="art_11">税务机关要求其更正申报、补缴税款并加收滞纳金。虚假填报专项附加扣除还会影响纳税信用记录，情节严重的会被纳入信用管理。</string>
+    <string name="art_12">填报扣除项目要留存备查资料，比如学籍证明、贷款合同、租赁合同等，核查时需要提供。不确定是否符合条件的，可以先不填，避免事后更正。</string>
+
+    <!-- 文章正文：通知公告 -->
+    <string name="art_13">2025年度个人所得税综合所得汇算清缴办理时间为2026年3月1日至6月30日。需要在3月1日至20日办理的，可以在2月21日后通过APP预约。</string>
+    <string name="art_14">需要办理年度汇算的情形：已预缴税额大于年度应纳税额且需要申请退税；2025年度综合所得收入超过12万元且需要补税金额超过400元。</string>
+    <string name="art_15">无需办理的情形：年度汇算需补税但综合所得收入全年不超过12万元；年度汇算需补税金额不超过400元；已预缴税额与年度应纳税额一致，或者不申请退税。</string>
+    <string name="art_16">办理渠道包括个人所得税APP、自然人电子税务局网页端，也可以到办税服务厅办理。建议优先使用APP，申报记录与退税进度都能在线查询。</string>
+    <string name="art_17">为保障系统稳定，个人所得税APP将于每周日23:00至次日2:00进行例行维护。</string>
+    <string name="art_18">维护期间申报、缴款、退税申请等功能可能短时不可用，查询类功能一般不受影响。请合理安排办理时间，避开维护时段。</string>
+
+    <!-- 文章正文：热点问题 -->
+    <string name="art_19">退税申请提交后，可以在「办&amp;查 — 申报信息查询」或首页「申报记录」中查看进度。</string>
+    <string name="art_20">常见状态依次为：提交申请、税务审核中、国库处理中、已退库。审核中发现申报数据需要核实的，状态会显示为税务审核不通过，需要按提示补充资料或更正申报。</string>
+    <string name="art_21">到账时间受银行处理速度影响，一般国库退库后1至3个工作日到账。超过时间仍未到账，先确认银行卡状态是否正常，再联系12366咨询。</string>
+    <string name="art_22">专项附加扣除信息填错或情况发生变化，可以自行修改：进入「办&amp;查 — 专项附加扣除填报」，选择对应年度与扣除项目，找到已填报的记录后修改或作废。</string>
+    <string name="art_23">修改后如果已经完成年度汇算申报，需要回到汇算页面更正申报，扣除金额才会重新计算。只改扣除不更正申报，退补税金额不会变化。</string>
+    <string name="art_24">每年12月需要确认下一年度的扣除信息。没有及时确认的，次年仍可补填，但补填之前已经预缴的税款，要等到汇算时才能退回。</string>
+
+    <!-- 文章正文：政策解读 -->
+    <string name="art_25">综合所得包括工资薪金、劳务报酬、稿酬和特许权使用费四项。年度汇算就是把全年这四项收入合并起来按年计算应纳税额，再与平时预缴的税额比较，多退少补。</string>
+    <string name="art_26">计算公式：应退或应补税额 =〔(综合所得收入额 − 60000元 − 专项扣除 − 专项附加扣除 − 依法确定的其他扣除 − 符合条件的公益慈善捐赠)×适用税率 − 速算扣除数〕− 已预缴税额。</string>
+    <string name="art_27">专项扣除指三险一金的个人缴纳部分；专项附加扣除包括子女教育、继续教育、大病医疗、住房贷款利息、住房租金、赡养老人、3岁以下婴幼儿照护七项。扣除填报越完整，汇算时可退的税款可能越多。</string>
+    <string name="art_28">七项专项附加扣除覆盖不同的人生阶段：养育幼儿、子女上学、自己进修、患病医疗、买房贷款、租房居住、赡养老人。</string>
+    <string name="art_29">扣除标准按现行规定执行，部分项目可以选择由夫妻一方扣除或双方分摊，选定后一个纳税年度内不能变更。分摊方式要如实填写，并留存分摊协议备查。</string>
+    <string name="art_30">填报时按提示逐项填写实体信息，比如子女姓名与证件号、住房贷款合同编号、租赁地址与出租方信息。信息不全的扣除项目无法提交。</string>
+
+    <!-- MoreServicesScreen.kt -->
+    <string name="more_00">更多功能</string>
+    <string name="more_01">年度汇算</string>
+    <string name="more_02">专项附加扣除</string>
+    <string name="more_03">收入纳税明细</string>
+    <string name="more_04">纳税记录开具</string>
+    <string name="more_05">更正申报</string>
+    <string name="more_06">申报记录</string>
+    <string name="more_07">个人信息</string>
+    <string name="more_08">银行卡管理</string>
+    <string name="more_09">家庭成员</string>
+    <string name="more_10">任职受雇信息</string>
+    <string name="more_11">税收完税证明</string>
+    <string name="more_12">智能客服</string>
+    <string name="more_not_ready">功能建设中</string>
+    <string name="more_not_ready_body">「%1$s」需要连接税务系统，本地版暂未开放，其余功能可以正常使用。</string>
+    <string name="more_ok">知道了</string>
 </resources>

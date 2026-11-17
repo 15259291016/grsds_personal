@@ -25,6 +25,7 @@ internal object AppPreferencesCodec {
 
     private val deductionSerializer = ListSerializer(DeductionRecord.serializer())
     private val declarationSerializer = ListSerializer(DeclarationRecord.serializer())
+    private val bankCardSerializer = ListSerializer(BankCard.serializer())
 
     fun encodeSession(session: LoginSession): String = json.encodeToString(LoginSession.serializer(), session)
 
@@ -66,6 +67,34 @@ internal object AppPreferencesCodec {
             emptyList()
         }
     }
+
+    fun encodeProfile(profile: ProfileInfo): String =
+        json.encodeToString(ProfileInfo.serializer(), profile)
+
+    fun decodeProfile(raw: String?): ProfileInfo? {
+        if (raw.isNullOrBlank()) return null
+        return try {
+            json.decodeFromString(ProfileInfo.serializer(), raw)
+        } catch (e: SerializationException) {
+            null
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
+    fun encodeBankCards(cards: List<BankCard>): String =
+        json.encodeToString(bankCardSerializer, cards)
+
+    fun decodeBankCards(raw: String?): List<BankCard> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return try {
+            json.decodeFromString(bankCardSerializer, raw)
+        } catch (e: SerializationException) {
+            emptyList()
+        } catch (e: IllegalArgumentException) {
+            emptyList()
+        }
+    }
 }
 
 private val Context.appPreferencesDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -78,6 +107,8 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     private val sessionKey = stringPreferencesKey("login_session_json")
     private val deductionsKey = stringPreferencesKey("deductions_json")
     private val declarationsKey = stringPreferencesKey("declarations_json")
+    private val profileKey = stringPreferencesKey("profile_info_json")
+    private val bankCardsKey = stringPreferencesKey("bank_cards_json")
 
     val session: Flow<LoginSession?> = dataStore.data
         .catch { throwable ->
@@ -132,14 +163,14 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         }
 
     /**
-     * 提交申报并落盘。同一年度重复提交时保留最早那条，直接返回已有记录，
-     * 避免用户来回点“提交申报”刷出多条重复申报。
+     * 提交申报并落盘。同年份已有生效记录（未作废、未更正）时直接返回已有记录，
+     * 避免用户来回点“提交申报”刷出多条重复申报；已作废或已被更正的不阻塞。
      */
     suspend fun submitDeclaration(record: DeclarationRecord): DeclarationRecord {
         var saved = record
         dataStore.edit { preferences ->
             val existing = AppPreferencesCodec.decodeDeclarations(preferences[declarationsKey])
-            val sameYear = existing.firstOrNull { it.year == record.year }
+            val sameYear = existing.firstOrNull { it.year == record.year && it.isActive }
             if (sameYear != null) {
                 saved = sameYear
             } else {
@@ -153,6 +184,120 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     /** 清空申报记录（设置页“清空演示数据”用）。 */
     suspend fun clearDeclarations() {
         dataStore.edit { preferences -> preferences.remove(declarationsKey) }
+    }
+
+    // -- 个人信息 -----------------------------------------------------------
+
+    /**
+     * 个人信息：登录后按手机号生成演示档案；未登录时为 null。
+     * 首次登录时生成一次，之后只更新可编辑字段，与官方“实名要素只读”一致。
+     */
+    val profile: Flow<ProfileInfo?> = dataStore.data
+        .catch { throwable ->
+            if (throwable is IOException) emit(emptyPreferences()) else throw throwable
+        }
+        .map { preferences ->
+            val session = AppPreferencesCodec.decodeSession(preferences[sessionKey])
+            val stored = AppPreferencesCodec.decodeProfile(preferences[profileKey])
+            when {
+                session == null -> null
+                stored != null && stored.phone == session.phone -> stored
+                else -> ProfileInfo.fromPhone(session.phone)
+            }
+        }
+
+    /** 保存联系信息（邮箱、地址）；写入前先保证档案存在，避免未登录时落脏数据。 */
+    suspend fun saveContactInfo(phone: String, email: String, address: String) {
+        dataStore.edit { preferences ->
+            val stored = AppPreferencesCodec.decodeProfile(preferences[profileKey])
+            val base = (stored?.takeIf { it.phone == phone }) ?: ProfileInfo.fromPhone(phone)
+            preferences[profileKey] =
+                AppPreferencesCodec.encodeProfile(base.copy(email = email, address = address))
+        }
+    }
+
+    suspend fun clearProfile() {
+        dataStore.edit { preferences -> preferences.remove(profileKey) }
+    }
+
+    // -- 银行卡 -------------------------------------------------------------
+
+    val bankCards: Flow<List<BankCard>> = dataStore.data
+        .catch { throwable ->
+            if (throwable is IOException) emit(emptyPreferences()) else throw throwable
+        }
+        .map { preferences -> AppPreferencesCodec.decodeBankCards(preferences[bankCardsKey]) }
+
+    /**
+     * 绑定一张卡。首张卡自动成为默认退税收款账户，
+     * 后续绑卡保持现有默认卡不动（与官方行为一致）。
+     */
+    suspend fun addBankCard(card: BankCard) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeBankCards(preferences[bankCardsKey])
+            val withDefault = if (existing.isEmpty()) card.copy(isDefault = true) else card
+            preferences[bankCardsKey] =
+                AppPreferencesCodec.encodeBankCards(existing + withDefault)
+        }
+    }
+
+    /** 解绑：若是默认卡，默认顺延给剩余卡中最早绑定的一张。 */
+    suspend fun removeBankCard(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeBankCards(preferences[bankCardsKey])
+            val remaining = existing.filterNot { it.id == id }
+            val promoted = if (existing.firstOrNull { it.id == id }?.isDefault == true) {
+                val target = remaining.minByOrNull { it.boundAt }
+                if (target != null) remaining.map { if (it.id == target.id) it.copy(isDefault = true) else it }
+                else remaining
+            } else {
+                remaining
+            }
+            preferences[bankCardsKey] = AppPreferencesCodec.encodeBankCards(promoted)
+        }
+    }
+
+    /** 设为默认退税收款账户：同一时刻只保留一张默认卡。 */
+    suspend fun setDefaultBankCard(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeBankCards(preferences[bankCardsKey])
+            preferences[bankCardsKey] = AppPreferencesCodec.encodeBankCards(
+                existing.map { it.copy(isDefault = it.id == id) }
+            )
+        }
+    }
+
+    suspend fun clearBankCards() {
+        dataStore.edit { preferences -> preferences.remove(bankCardsKey) }
+    }
+
+    // -- 更正 / 作废 ----------------------------------------------------------
+
+    /**
+     * 提交更正：原申报置为“已更正”，追加新的“更正申报”记录。
+     * 逐条打标而不是按年度打标，保证多次更正能串成链。
+     */
+    suspend fun correctDeclaration(originalId: String, record: DeclarationRecord) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeDeclarations(preferences[declarationsKey])
+            val marked = existing.map {
+                if (it.id == originalId) it.copy(status = "已更正") else it
+            }
+            preferences[declarationsKey] =
+                AppPreferencesCodec.encodeDeclarations(marked + record)
+        }
+    }
+
+    /** 作废申报：状态置为“已作废”，不再参与统计，也不可再次更正。 */
+    suspend fun voidDeclaration(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeDeclarations(preferences[declarationsKey])
+            preferences[declarationsKey] = AppPreferencesCodec.encodeDeclarations(
+                existing.map {
+                    if (it.id == id) it.copy(status = "已作废") else it
+                }
+            )
+        }
     }
 
     /** 清空全部年度的扣除填报。 */

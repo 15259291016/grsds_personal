@@ -21,9 +21,17 @@ data class DeclarationRecord(
     val taxPayableCents: Long,
     val taxPrepaidCents: Long,
     val balanceCents: Long,
-    val status: String = "已申报"
+    /** 已申报 / 更正申报 / 已更正 / 已作废。 */
+    val status: String = "已申报",
+    /** 被更正的原始申报编号；为空表示首次申报。 */
+    val correctionOf: String? = null,
+    /** 第几次更正，0 表示首次申报。 */
+    val correctionSeq: Int = 0
 ) {
     val isRefund: Boolean get() = balanceCents >= 0
+
+    /** 可发起更正/作废的记录：生效中的申报。 */
+    val isActive: Boolean get() = status == "已申报" || status == "更正申报"
 
     val submittedAtLabel: String
         get() = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA).format(Date(submittedAt))

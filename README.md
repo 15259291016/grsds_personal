@@ -18,7 +18,7 @@
 # 构建 Debug
 ./gradlew :app:assembleDebug
 
-# 单元测试（25 个：编解码容错、税额计算、办理期边界等）
+# 单元测试（40 个：编解码容错、税额计算、办理期边界、脱敏与卡号校验等）
 ./gradlew :app:testDebugUnitTest
 
 # 构建 Release（R8 + 资源收缩，13M → 约 1.7M）
@@ -38,7 +38,15 @@ app/src/main/java/com/grsds/personal/
 ├── BatchCreateScreen.kt            # 批量录入（藏在 设置 → 数据管理）
 ├── AnnualReconciliationScreen.kt   # 年度汇算四步向导
 ├── DeductionsScreen.kt             # 专项附加扣除填报
-├── DeclarationRecordsScreen.kt     # 申报记录查询
+├── DeclarationRecordsScreen.kt     # 申报记录查询 + 更正/作废
+├── CorrectionScreen.kt             # 更正申报（预填原申报，实时重算）
+├── ProfileInfoScreen.kt            # 个人信息（只读实名要素 + 可编辑联系信息）
+├── BankCardScreen.kt               # 银行卡管理（添加/解绑/设为默认收款账户）
+├── MessageCenter.kt                # 消息数据（含正文与办理入口）
+├── MessageDetailScreen.kt          # 消息详情
+├── ArticleCenter.kt                # 政策资讯数据（含正文）
+├── ArticleScreens.kt               # 资讯列表 / 资讯详情
+├── MoreServicesScreen.kt           # 更多功能宫格
 ├── TaxRecordIssueScreen.kt         # 纳税记录开具
 ├── LoginScreen.kt / SettingsScreen.kt
 ├── data/                           # 记录模型、DataStore 仓库、税额计算、TaxCalendar 办理期判定
