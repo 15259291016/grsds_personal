@@ -26,10 +26,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,46 +39,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.Random
+import com.grsds.personal.data.AppPreferencesRepository
+import com.grsds.personal.data.TaxRecordIssue
+import kotlinx.coroutines.launch
 
 private val IssuePageBackground = Color(0xFFF5F7FB)
 private val IssuePrimaryText = Color(0xFF171B22)
 private val IssueSecondaryText = Color(0xFF7D8490)
 private val IssueBlue = Color(0xFF168AF4)
 
-private data class IssuedRecord(
-    val year: Int,
-    val issuedAt: String,
-    val verifyCode: String
-)
-
 private val issuedYears = 2020..2026
-
-/** 生成 8 位验真码，模拟真实纳税记录的二维码验真参数。 */
-private fun generateVerifyCode(): String {
-    val chars = "0123456789ABCDEF"
-    return buildString {
-        val random = Random()
-        repeat(8) { append(chars[random.nextInt(chars.length)]) }
-    }
-}
 
 @Composable
 fun TaxRecordIssueScreen(
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenRecord: (year: Int, issuedAt: Long, verifyCode: String) -> Unit = { _, _, _ -> }
 ) {
     var selectedYear by remember { mutableIntStateOf(2025) }
     BackHandler(onBack = onBack)
-    val issuedRecords = remember {
-        mutableStateListOf(
-            IssuedRecord(2024, "2025-04-12 10:23", "8C4A2F91"),
-            IssuedRecord(2023, "2024-06-01 09:45", "D3E70B25")
-        )
-    }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val repository = remember(context) { AppPreferencesRepository.get(context) }
+    val scope = rememberCoroutineScope()
+    val issuedRecords by repository.taxRecordIssues.collectAsState(initial = emptyList())
 
     Column(
         modifier = modifier
@@ -162,8 +146,9 @@ fun TaxRecordIssueScreen(
                     Spacer(Modifier.height(4.dp))
                     Button(
                         onClick = {
-                            val issuedAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA).format(Date())
-                            issuedRecords.add(0, IssuedRecord(selectedYear, issuedAt, generateVerifyCode()))
+                            scope.launch {
+                                repository.issueTaxRecord(selectedYear, System.currentTimeMillis())
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = IssueBlue),
                         shape = RoundedCornerShape(24.dp),
@@ -197,8 +182,41 @@ fun TaxRecordIssueScreen(
             }
             Spacer(Modifier.height(10.dp))
 
+            if (issuedRecords.isEmpty()) {
+                Surface(
+                    color = Color.White,
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 28.dp, horizontal = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            stringResource(R.string.issue_16),
+                            color = IssuePrimaryText,
+                            fontSize = 15.sp
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            stringResource(R.string.issue_17),
+                            color = IssueSecondaryText,
+                            fontSize = 13.sp,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            lineHeight = 20.sp
+                        )
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+            }
             issuedRecords.forEach { record ->
-                IssuedRecordCard(record)
+                IssuedRecordCard(record) {
+                    onOpenRecord(record.year, record.issuedAt, record.verifyCode)
+                }
                 Spacer(Modifier.height(10.dp))
             }
             Spacer(Modifier.height(16.dp))
@@ -238,7 +256,7 @@ private fun IssueTopBar(onBack: () -> Unit) {
 }
 
 @Composable
-private fun IssuedRecordCard(record: IssuedRecord) {
+private fun IssuedRecordCard(record: TaxRecordIssue, onClick: () -> Unit) {
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(14.dp),
@@ -257,7 +275,7 @@ private fun IssuedRecordCard(record: IssuedRecord) {
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
-                        stringResource(R.string.issue_12, record.issuedAt),
+                        stringResource(R.string.issue_12, record.issuedAtLabel),
                         color = IssueSecondaryText,
                         fontSize = 13.sp
                     )
@@ -284,7 +302,10 @@ private fun IssuedRecordCard(record: IssuedRecord) {
                     stringResource(R.string.issue_15),
                     color = IssueBlue,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clickable(onClick = onClick)
+                        .padding(start = 8.dp, top = 4.dp, bottom = 4.dp)
                 )
             }
         }

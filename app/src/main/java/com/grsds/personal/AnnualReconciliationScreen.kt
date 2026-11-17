@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,13 +67,17 @@ private val stepTitles = listOf(
     R.string.reconcile_39, R.string.reconcile_40, R.string.reconcile_41, R.string.reconcile_42
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnnualReconciliationScreen(
     onBack: () -> Unit,
     onOpenDeductions: () -> Unit,
     step: Int,
     onStepChange: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenBankCards: () -> Unit = {},
+    onOpenRefundProgress: (String) -> Unit = {},
+    onOpenPayment: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val recordRepository = remember { IncomeRecordRepository.get(context) }
@@ -79,7 +85,12 @@ fun AnnualReconciliationScreen(
     val records by recordRepository.records.collectAsState(initial = emptyList())
     val deductions by prefsRepository.deductions.collectAsState(initial = emptyList())
     val declarations by prefsRepository.declarations.collectAsState(initial = emptyList())
+    val bankCards by prefsRepository.bankCards.collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
+
+    // 退税申请弹层
+    var refundSheet by remember { mutableStateOf(false) }
+    var selectedCardId by remember { mutableStateOf<String?>(null) }
 
     // 默认选中本地记录里最近的年度，没有记录时回到上一个汇算年度。
     val defaultYear = remember(records) {
@@ -120,7 +131,16 @@ fun AnnualReconciliationScreen(
             Spacer(Modifier.height(12.dp))
 
             when {
-                submitted -> SubmitResultCard(declaration = displayedDeclaration)
+                submitted -> SubmitResultCard(
+                    declaration = displayedDeclaration,
+                    onApplyRefund = {
+                        selectedCardId = bankCards.firstOrNull { it.isDefault }?.id
+                            ?: bankCards.firstOrNull()?.id
+                        refundSheet = true
+                    },
+                    onOpenRefundProgress = { onOpenRefundProgress(displayedDeclaration.id) },
+                    onOpenPayment = { onOpenPayment(displayedDeclaration.id) }
+                )
                 step == 0 -> IncomeStep(
                     year = year,
                     records = yearRecords,
@@ -192,6 +212,109 @@ fun AnnualReconciliationScreen(
                         fontSize = 17.sp
                     )
                 }
+            }
+        }
+    }
+
+    // 退税收款账户选择：沿用银行卡管理里的数据，未绑卡时引导去绑卡
+    if (refundSheet) {
+        ModalBottomSheet(onDismissRequest = { refundSheet = false }) {
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
+                Text(
+                    stringResource(R.string.refund_01),
+                    color = ReconPrimaryText,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(R.string.refund_02, formatYuan(kotlin.math.abs(displayedDeclaration.balanceCents))),
+                    color = ReconSecondaryText,
+                    fontSize = 14.sp,
+                    lineHeight = 21.sp
+                )
+                Spacer(Modifier.height(16.dp))
+
+                if (bankCards.isEmpty()) {
+                    Text(
+                        stringResource(R.string.refund_03),
+                        color = ReconWarn,
+                        fontSize = 14.sp,
+                        lineHeight = 21.sp
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    Button(
+                        onClick = {
+                            refundSheet = false
+                            onOpenBankCards()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = ReconBlue),
+                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                    ) {
+                        Text(stringResource(R.string.refund_04), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                    }
+                } else {
+                    bankCards.forEach { card ->
+                        val selected = card.id == selectedCardId
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp)
+                                .background(
+                                    if (selected) Color(0xFFEAF4FF) else Color(0xFFF7F9FC),
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .clickable { selectedCardId = card.id }
+                                .padding(horizontal = 14.dp, vertical = 13.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "${card.bankName} ${card.maskedNumber}",
+                                    color = ReconPrimaryText,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.height(3.dp))
+                                Text(
+                                    stringResource(R.string.refund_05, card.holderName),
+                                    color = ReconSecondaryText,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            if (selected) {
+                                Text("✓", color = ReconBlue, fontSize = 17.sp, fontWeight = FontWeight.Black)
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            val card = bankCards.firstOrNull { it.id == selectedCardId } ?: return@Button
+                            scope.launch {
+                                prefsRepository.applyRefund(
+                                    id = displayedDeclaration.id,
+                                    cardId = card.id,
+                                    cardLabel = "${card.bankName} ${card.maskedNumber}",
+                                    at = System.currentTimeMillis()
+                                )
+                                refundSheet = false
+                            }
+                        },
+                        enabled = selectedCardId != null,
+                        colors = ButtonDefaults.buttonColors(containerColor = ReconBlue),
+                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                    ) {
+                        Text(stringResource(R.string.refund_06), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                    }
+                }
+                Spacer(Modifier.height(18.dp))
             }
         }
     }
@@ -462,7 +585,11 @@ private fun DeductionStep(
                         modifier = Modifier.padding(top = 6.dp)
                     ) {
                         Text(
-                            "· ${record.type}（${record.ratioPercent}%）",
+                            if (record.type == "大病医疗") {
+                                "· ${record.type}（据实扣除）"
+                            } else {
+                                "· ${record.type}（${record.ratioPercent}%）"
+                            },
                             color = ReconSecondaryText,
                             fontSize = 13.sp,
                             modifier = Modifier.weight(1f)
@@ -577,7 +704,12 @@ private fun ReconRow(
 }
 
 @Composable
-private fun SubmitResultCard(declaration: DeclarationRecord) {
+private fun SubmitResultCard(
+    declaration: DeclarationRecord,
+    onApplyRefund: () -> Unit,
+    onOpenRefundProgress: () -> Unit,
+    onOpenPayment: () -> Unit
+) {
     val e = declaration
     Surface(
         color = Color.White,
@@ -655,6 +787,105 @@ private fun SubmitResultCard(declaration: DeclarationRecord) {
                     Text("¥${formatYuan(e.taxPrepaidCents)}", color = ReconPrimaryText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider(color = ReconDivider)
+            Spacer(Modifier.height(14.dp))
+            SettlementActionBlock(
+                declaration = e,
+                onApplyRefund = onApplyRefund,
+                onOpenRefundProgress = onOpenRefundProgress,
+                onOpenPayment = onOpenPayment
+            )
         }
+    }
+}
+
+/** 申报完成后的税款办理入口：退税申请 / 退税进度 / 补税缴款。 */
+@Composable
+private fun SettlementActionBlock(
+    declaration: DeclarationRecord,
+    onApplyRefund: () -> Unit,
+    onOpenRefundProgress: () -> Unit,
+    onOpenPayment: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        when {
+            declaration.balanceCents == 0L -> Text(
+                stringResource(R.string.refund_07),
+                color = ReconSecondaryText,
+                fontSize = 14.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
+            declaration.isPaid -> {
+                Text(
+                    stringResource(R.string.refund_08, declaration.paymentNo),
+                    color = ReconGreen,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(R.string.refund_09, declaration.processedAtLabel),
+                    color = ReconSecondaryText,
+                    fontSize = 12.sp
+                )
+            }
+
+            declaration.hasAppliedRefund -> {
+                Text(
+                    stringResource(R.string.refund_10, declaration.processStatus),
+                    color = ReconPrimaryText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(R.string.refund_11, declaration.bankCardLabel),
+                    color = ReconSecondaryText,
+                    fontSize = 12.sp
+                )
+                Spacer(Modifier.height(12.dp))
+                SettlementButton(
+                    text = stringResource(R.string.refund_12),
+                    onClick = onOpenRefundProgress
+                )
+            }
+
+            declaration.isRefund -> SettlementButton(
+                text = stringResource(R.string.refund_13),
+                onClick = onApplyRefund
+            )
+
+            else -> {
+                Text(
+                    stringResource(R.string.refund_14),
+                    color = ReconSecondaryText,
+                    fontSize = 12.sp,
+                    lineHeight = 19.sp
+                )
+                Spacer(Modifier.height(12.dp))
+                SettlementButton(
+                    text = stringResource(R.string.refund_15),
+                    onClick = onOpenPayment
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettlementButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = ReconBlue),
+        shape = RoundedCornerShape(24.dp),
+        contentPadding = PaddingValues(vertical = 12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(46.dp)
+    ) {
+        Text(text, fontWeight = FontWeight.Bold, fontSize = 16.sp)
     }
 }

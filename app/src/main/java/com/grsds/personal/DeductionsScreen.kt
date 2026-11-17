@@ -12,19 +12,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,12 +48,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.grsds.personal.data.AppPreferencesRepository
+import com.grsds.personal.data.DEDUCTION_FIELDS
 import com.grsds.personal.data.DEDUCTION_OPTIONS
 import com.grsds.personal.data.DeductionOption
+import com.grsds.personal.data.DeductionFieldKind
 import com.grsds.personal.data.DeductionRecord
+import com.grsds.personal.data.DeductionRules
 import com.grsds.personal.data.formatYuan
 import kotlinx.coroutines.launch
 
@@ -57,6 +67,7 @@ private val DeducPrimaryText = Color(0xFF171B22)
 private val DeducSecondaryText = Color(0xFF7D8490)
 private val DeducDivider = Color(0xFFEFF1F5)
 private val DeducGreen = Color(0xFF12A66C)
+private val DeducWarn = Color(0xFFE5484D)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -180,21 +191,23 @@ fun DeductionsScreen(
     }
 
     val currentOption = sheetOption
-    if (currentOption != null) {        val existing = yearRecords.firstOrNull { it.type == currentOption.type }
+    if (currentOption != null) {
+        val existing = yearRecords.firstOrNull { it.type == currentOption.type }
         DeductionSheet(
             option = currentOption,
             year = year,
             existing = existing,
             onDismiss = { sheetOption = null },
-            onSave = { ratio ->
+            onSave = { ratio, details ->
                 scope.launch {
                     repository.saveDeduction(
                         DeductionRecord(
                             type = currentOption.type,
                             year = year,
                             ratioPercent = ratio,
-                            amountInCents = currentOption.yearlyStandardInCents * ratio / 100,
-                            updatedAt = System.currentTimeMillis()
+                            amountInCents = DeductionRules.effectiveAmountOf(currentOption, ratio, details),
+                            updatedAt = System.currentTimeMillis(),
+                            details = details
                         )
                     )
                     sheetOption = null
@@ -292,13 +305,25 @@ private fun DeductionRow(
             Spacer(Modifier.height(4.dp))
             Text(
                 if (record != null) {
-                    stringResource(R.string.deductions_12, record.ratioPercent, formatYuan(record.amountInCents))
+                    if (option.actualBased) {
+                        stringResource(R.string.deductions_25, formatYuan(record.amountInCents))
+                    } else {
+                        stringResource(R.string.deductions_12, record.ratioPercent, formatYuan(record.amountInCents))
+                    }
                 } else {
                     stringResource(R.string.deductions_13, formatYuan(option.yearlyStandardInCents))
                 },
                 color = if (record != null) DeducGreen else DeducSecondaryText,
                 fontSize = 13.sp
             )
+            if (record != null && record.filledDetailCount > 0) {
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    stringResource(R.string.deductions_24, record.filledDetailCount),
+                    color = DeducSecondaryText,
+                    fontSize = 12.sp
+                )
+            }
         }
         Text(
             if (record != null) stringResource(R.string.deductions_14) else stringResource(R.string.deductions_15),
@@ -319,18 +344,46 @@ private fun DeductionSheet(
     year: Int,
     existing: DeductionRecord?,
     onDismiss: () -> Unit,
-    onSave: (Int) -> Unit,
+    onSave: (Int, Map<String, String>) -> Unit,
     onDelete: () -> Unit
 ) {
     var ratio by remember { mutableIntStateOf(existing?.ratioPercent ?: 100) }
+    // 已填过的信息回填；选择型字段默认落到第一项，减少一次点击
+    val details = remember(option.type, existing) {
+        mutableStateMapOf<String, String>().apply {
+            existing?.details?.forEach { (key, value) -> if (value.isNotBlank()) put(key, value) }
+            DEDUCTION_FIELDS[option.type].orEmpty()
+                .filter { it.kind == DeductionFieldKind.Choice }
+                .forEach { field ->
+                    if (this[field.key].isNullOrBlank()) put(field.key, field.options.first())
+                }
+        }
+    }
+    var error by remember { mutableStateOf<String?>(null) }
+    var expandedChoice by remember { mutableStateOf<String?>(null) }
+    val fields = DEDUCTION_FIELDS[option.type].orEmpty()
+    val previewCents = DeductionRules.effectiveAmountOf(option, ratio, details.toMap())
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
+        Column(
+            modifier = Modifier
+                .heightIn(max = 600.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 4.dp)
+        ) {
             Text(option.type, color = DeducPrimaryText, fontSize = 20.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(5.dp))
-            Text(stringResource(R.string.deductions_16, year, formatYuan(option.yearlyStandardInCents)), color = DeducSecondaryText, fontSize = 14.sp)
-            Spacer(Modifier.height(18.dp))
+            Text(
+                option.ruleHint.ifBlank {
+                    stringResource(R.string.deductions_16, year, formatYuan(option.yearlyStandardInCents))
+                },
+                color = DeducSecondaryText,
+                fontSize = 13.sp,
+                lineHeight = 20.sp
+            )
+            Spacer(Modifier.height(16.dp))
 
-            if (option.supportsHalf) {
+            if (!option.actualBased && option.supportsHalf) {
                 Text(stringResource(R.string.deductions_17), color = DeducPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(9.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -343,7 +396,7 @@ private fun DeductionSheet(
                                     RoundedCornerShape(10.dp)
                                 )
                                 .clickable { ratio = value }
-                                .padding(horizontal = 20.dp, vertical = 9.dp)
+                                .padding(horizontal = 18.dp, vertical = 9.dp)
                         ) {
                             Text(
                                 if (value == 100) stringResource(R.string.deductions_18) else stringResource(R.string.deductions_19),
@@ -354,21 +407,142 @@ private fun DeductionSheet(
                         }
                     }
                 }
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(16.dp))
             }
 
-            Text(stringResource(R.string.deductions_20), color = DeducPrimaryText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(6.dp))
             Text(
-                "¥${formatYuan(option.yearlyStandardInCents * ratio / 100)}",
-                color = DeducBlue,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Black
+                stringResource(R.string.deductions_26),
+                color = DeducPrimaryText,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.deductions_27),
+                color = DeducSecondaryText,
+                fontSize = 12.sp
+            )
+            Spacer(Modifier.height(10.dp))
 
+            fields.forEach { field ->
+                when (field.kind) {
+                    DeductionFieldKind.Choice -> {
+                        Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                            Text(field.label, color = DeducSecondaryText, fontSize = 13.sp)
+                            Spacer(Modifier.height(5.dp))
+                            Box {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(DeducPageBackground, RoundedCornerShape(10.dp))
+                                        .clickable { expandedChoice = field.key }
+                                        .padding(horizontal = 14.dp, vertical = 13.dp)
+                                ) {
+                                    Text(
+                                        details[field.key].orEmpty(),
+                                        color = DeducPrimaryText,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text("▾", color = DeducSecondaryText, fontSize = 14.sp)
+                                }
+                                DropdownMenu(
+                                    expanded = expandedChoice == field.key,
+                                    onDismissRequest = { expandedChoice = null }
+                                ) {
+                                    field.options.forEach { item ->
+                                        DropdownMenuItem(
+                                            text = { Text(item, fontSize = 15.sp) },
+                                            onClick = {
+                                                details[field.key] = item
+                                                expandedChoice = null
+                                                error = null
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else -> {
+                        OutlinedTextField(
+                            value = details[field.key].orEmpty(),
+                            onValueChange = { input ->
+                                details[field.key] = if (field.kind == DeductionFieldKind.Date) {
+                                    input.filter { it.isDigit() || it == '-' }.take(10)
+                                } else {
+                                    input.take(40)
+                                }
+                                error = null
+                            },
+                            label = { Text(field.label) },
+                            placeholder = { Text(field.placeholder, fontSize = 14.sp) },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = if (field.kind == DeductionFieldKind.Amount) {
+                                    KeyboardType.Number
+                                } else {
+                                    KeyboardType.Text
+                                }
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 10.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(6.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFF2F8FF), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 14.dp, vertical = 12.dp)
+            ) {
+                Text(
+                    stringResource(R.string.deductions_20),
+                    color = DeducSecondaryText,
+                    fontSize = 13.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    "¥${formatYuan(previewCents)}",
+                    color = DeducBlue,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Black
+                )
+            }
+            if (option.type == "大病医疗") {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(
+                        R.string.deductions_28,
+                        formatYuan(DeductionRules.MEDICAL_THRESHOLD_CENTS),
+                        formatYuan(DeductionRules.MEDICAL_CAP_CENTS)
+                    ),
+                    color = DeducSecondaryText,
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp
+                )
+            }
+            error?.let { message ->
+                Spacer(Modifier.height(10.dp))
+                Text(message, color = DeducWarn, fontSize = 13.sp)
+            }
+
+            Spacer(Modifier.height(18.dp))
             Button(
-                onClick = { onSave(ratio) },
+                onClick = {
+                    val invalid = DeductionRules.validate(option, details.toMap())
+                    if (invalid != null) {
+                        error = invalid
+                    } else {
+                        onSave(ratio, details.toMap())
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = DeducBlue),
                 shape = RoundedCornerShape(24.dp),
                 contentPadding = PaddingValues(vertical = 12.dp),
@@ -376,7 +550,11 @@ private fun DeductionSheet(
                     .fillMaxWidth()
                     .height(46.dp)
             ) {
-                Text(if (existing != null) stringResource(R.string.deductions_21) else stringResource(R.string.deductions_22), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text(
+                    if (existing != null) stringResource(R.string.deductions_21) else stringResource(R.string.deductions_22),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp
+                )
             }
             if (existing != null) {
                 Spacer(Modifier.height(8.dp))

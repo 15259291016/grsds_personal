@@ -243,7 +243,11 @@ private fun InfoCard(record: IncomeRecord) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
             InfoRow(stringResource(R.string.record_detail_15), record.withholdingAgent)
             HorizontalDivider(color = DetailDivider)
+            InfoRow(stringResource(R.string.record_detail_29), record.displayAgentTaxNo.ifBlank { "—" })
+            HorizontalDivider(color = DetailDivider)
             InfoRow(stringResource(R.string.record_detail_16), record.incomeType)
+            HorizontalDivider(color = DetailDivider)
+            InfoRow(stringResource(R.string.record_detail_30), "¥${formatYuan(record.paidTaxCents)}")
             HorizontalDivider(color = DetailDivider)
             InfoRow(stringResource(R.string.record_detail_17), formatter.format(Date(record.createdAt)))
             HorizontalDivider(color = DetailDivider)

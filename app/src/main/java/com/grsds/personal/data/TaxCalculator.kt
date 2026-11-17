@@ -48,12 +48,9 @@ object TaxCalculator {
             }
         }
 
-    /** 已预缴税额：工资薪金按 3% 预扣，其余综合所得按 20% 预扣（演示口径）。 */
+    /** 已预缴税额：取每笔明细的实缴税额（未填时按类型默认口径推算）。 */
     fun prepaidOf(records: List<IncomeRecord>, year: Int): Long =
-        records.filter { it.year == year }.sumOf { record ->
-            if (record.incomeType == "工资薪金") record.amountInCents * 3 / 100
-            else record.amountInCents * 20 / 100
-        }
+        records.filter { it.year == year }.sumOf { it.paidTaxCents }
 
     fun settle(
         records: List<IncomeRecord>,

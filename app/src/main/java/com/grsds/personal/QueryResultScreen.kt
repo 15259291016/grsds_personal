@@ -379,6 +379,12 @@ private fun ResultRecordRow(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    stringResource(R.string.query_21, formatYuan(record.paidTaxCents)),
+                    color = ResultSecondaryText,
+                    fontSize = 12.sp
+                )
             }
             Text(
                 "¥${record.amountLabel}",

@@ -15,10 +15,45 @@ data class IncomeRecord(
     val amountInCents: Long,
     val withholdingAgent: String,
     val createdAt: Long,
-    val disputed: Boolean = false
+    val disputed: Boolean = false,
+    /** 扣缴义务人统一社会信用代码（18 位），旧记录为空时按单位名生成。 */
+    val agentTaxNo: String = "",
+    /** 该笔所得已预缴的个人所得税（分）；为空表示按类型默认口径推算。 */
+    val taxPaidCents: Long? = null
 ) {
     val amountLabel: String
         get() = formatYuan(amountInCents)
+
+    /**
+     * 已预缴税额：优先取录入时填写的实际值，缺省时按类型推算
+     * （工资薪金 3%、其余综合所得 20%）。汇算与明细展示共用这一口径。
+     */
+    val paidTaxCents: Long
+        get() = taxPaidCents ?: defaultPrepaidOf(incomeType, amountInCents)
+
+    /** 明细行/详情页展示用的识别号，老记录没有落盘值时按单位名稳定生成。 */
+    val displayAgentTaxNo: String
+        get() = agentTaxNo.ifBlank { generateAgentTaxNo(withholdingAgent) }
+
+    companion object {
+        /** 演示口径：工资薪金按 3% 预扣，劳务报酬等按 20% 预扣。 */
+        fun defaultPrepaidOf(incomeType: String, amountInCents: Long): Long =
+            if (incomeType == "工资薪金") amountInCents * 3 / 100 else amountInCents * 20 / 100
+
+        /**
+         * 按单位名生成稳定的 18 位统一社会信用代码形态的字符串。
+         * 只用于展示，保证同名的扣缴义务人每次算出来一致。
+         */
+        fun generateAgentTaxNo(agent: String): String {
+            if (agent.isBlank()) return ""
+            var seed = 7L
+            agent.forEach { ch -> seed = (seed * 131 + ch.code) and 0x7FFFFFFFFFFFFFFFL }
+            // 18 位 = 登记管理部门(2) + 主体标识(15) + 校验码(1)
+            val body = seed.toString().padStart(15, '0').takeLast(15)
+            val check = "0123456789ABCDEFGHJKLMNPQRTUWXY"[(seed % 30).toInt()]
+            return "91" + body + check
+        }
+    }
 }
 
 /**

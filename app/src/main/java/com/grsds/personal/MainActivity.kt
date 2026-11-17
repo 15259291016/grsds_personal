@@ -194,6 +194,17 @@ fun CoverImage(modifier: Modifier = Modifier) {
 
             AppScreen.TaxRecordIssue -> TaxRecordIssueScreen(
                 onBack = { goBack() },
+                modifier = modifier,
+                onOpenRecord = { year, issuedAt, code ->
+                    navigate(AppScreen.TaxRecordDetail(year, issuedAt, code))
+                }
+            )
+
+            is AppScreen.TaxRecordDetail -> TaxRecordDetailScreen(
+                year = current.year,
+                issuedAt = current.issuedAt,
+                verifyCode = current.verifyCode,
+                onBack = { goBack() },
                 modifier = modifier
             )
 
@@ -202,6 +213,21 @@ fun CoverImage(modifier: Modifier = Modifier) {
                 onOpenDeductions = { navigate(AppScreen.Deductions) },
                 step = reconcileStep,
                 onStepChange = { reconcileStep = it },
+                modifier = modifier,
+                onOpenBankCards = { navigate(AppScreen.BankCards) },
+                onOpenRefundProgress = { id -> navigate(AppScreen.RefundProgress(id)) },
+                onOpenPayment = { id -> navigate(AppScreen.TaxPayment(id)) }
+            )
+
+            is AppScreen.RefundProgress -> RefundProgressScreen(
+                declarationId = current.declarationId,
+                onBack = { goBack() },
+                modifier = modifier
+            )
+
+            is AppScreen.TaxPayment -> TaxPaymentScreen(
+                declarationId = current.declarationId,
+                onBack = { goBack() },
                 modifier = modifier
             )
 
@@ -281,6 +307,9 @@ private sealed interface AppScreen {
     data class ArticleDetail(val articleId: String?) : AppScreen
     data class ArticleList(val category: Int) : AppScreen
     data class Correction(val preselectedId: String? = null) : AppScreen
+    data class TaxRecordDetail(val year: Int, val issuedAt: Long, val verifyCode: String) : AppScreen
+    data class RefundProgress(val declarationId: String) : AppScreen
+    data class TaxPayment(val declarationId: String) : AppScreen
     data class QueryResult(val year: Int, val incomeTypes: List<String>) : AppScreen
     data class RecordDetail(val recordId: String) : AppScreen
 }

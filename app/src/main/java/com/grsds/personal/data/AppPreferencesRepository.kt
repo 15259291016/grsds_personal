@@ -26,6 +26,7 @@ internal object AppPreferencesCodec {
     private val deductionSerializer = ListSerializer(DeductionRecord.serializer())
     private val declarationSerializer = ListSerializer(DeclarationRecord.serializer())
     private val bankCardSerializer = ListSerializer(BankCard.serializer())
+    private val taxRecordIssueSerializer = ListSerializer(TaxRecordIssue.serializer())
 
     fun encodeSession(session: LoginSession): String = json.encodeToString(LoginSession.serializer(), session)
 
@@ -82,6 +83,20 @@ internal object AppPreferencesCodec {
         }
     }
 
+    fun encodeTaxRecordIssues(records: List<TaxRecordIssue>): String =
+        json.encodeToString(taxRecordIssueSerializer, records)
+
+    fun decodeTaxRecordIssues(raw: String?): List<TaxRecordIssue> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return try {
+            json.decodeFromString(taxRecordIssueSerializer, raw)
+        } catch (e: SerializationException) {
+            emptyList()
+        } catch (e: IllegalArgumentException) {
+            emptyList()
+        }
+    }
+
     fun encodeBankCards(cards: List<BankCard>): String =
         json.encodeToString(bankCardSerializer, cards)
 
@@ -109,6 +124,7 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     private val declarationsKey = stringPreferencesKey("declarations_json")
     private val profileKey = stringPreferencesKey("profile_info_json")
     private val bankCardsKey = stringPreferencesKey("bank_cards_json")
+    private val taxRecordIssuesKey = stringPreferencesKey("tax_record_issues_json")
 
     val session: Flow<LoginSession?> = dataStore.data
         .catch { throwable ->
@@ -271,6 +287,33 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { preferences -> preferences.remove(bankCardsKey) }
     }
 
+    // -- 纳税记录开具 ---------------------------------------------------------
+
+    /** 已开具的纳税记录，按开具时间倒序。 */
+    val taxRecordIssues: Flow<List<TaxRecordIssue>> = dataStore.data
+        .catch { throwable ->
+            if (throwable is IOException) emit(emptyPreferences()) else throw throwable
+        }
+        .map { preferences ->
+            AppPreferencesCodec.decodeTaxRecordIssues(preferences[taxRecordIssuesKey])
+                .sortedByDescending { it.issuedAt }
+        }
+
+    /** 开具一条年度纳税记录并落盘。 */
+    suspend fun issueTaxRecord(year: Int, now: Long): TaxRecordIssue {
+        val created = TaxRecordIssue.create(year, now)
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeTaxRecordIssues(preferences[taxRecordIssuesKey])
+            preferences[taxRecordIssuesKey] =
+                AppPreferencesCodec.encodeTaxRecordIssues(listOf(created) + existing)
+        }
+        return created
+    }
+
+    suspend fun clearTaxRecordIssues() {
+        dataStore.edit { preferences -> preferences.remove(taxRecordIssuesKey) }
+    }
+
     // -- 更正 / 作废 ----------------------------------------------------------
 
     /**
@@ -295,6 +338,62 @@ class AppPreferencesRepository(private val dataStore: DataStore<Preferences>) {
             preferences[declarationsKey] = AppPreferencesCodec.encodeDeclarations(
                 existing.map {
                     if (it.id == id) it.copy(status = "已作废") else it
+                }
+            )
+        }
+    }
+
+    // -- 退税 / 补税办理 ------------------------------------------------------
+
+    /** 提交退税申请：记录收款账户，状态从空白进入“已申请退税”。 */
+    suspend fun applyRefund(id: String, cardId: String, cardLabel: String, at: Long) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeDeclarations(preferences[declarationsKey])
+            preferences[declarationsKey] = AppPreferencesCodec.encodeDeclarations(
+                existing.map {
+                    if (it.id == id && !it.hasAppliedRefund) {
+                        it.copy(
+                            processStatus = SettlementProcess.REFUND_APPLIED,
+                            bankCardId = cardId,
+                            bankCardLabel = cardLabel,
+                            processedAt = at
+                        )
+                    } else {
+                        it
+                    }
+                }
+            )
+        }
+    }
+
+    /** 推进退税进度：已申请 → 审核 → 国库 → 退库。已完结时保持不变。 */
+    suspend fun advanceRefund(id: String) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeDeclarations(preferences[declarationsKey])
+            preferences[declarationsKey] = AppPreferencesCodec.encodeDeclarations(
+                existing.map {
+                    if (it.id == id && it.hasAppliedRefund) {
+                        val next = SettlementProcess.next(it.processStatus)
+                        if (next == it.processStatus) it else it.copy(processStatus = next)
+                    } else {
+                        it
+                    }
+                }
+            )
+        }
+    }
+
+    /** 补税缴款完成：写入缴款凭证号与时间。 */
+    suspend fun markPaid(id: String, paymentNo: String, at: Long) {
+        dataStore.edit { preferences ->
+            val existing = AppPreferencesCodec.decodeDeclarations(preferences[declarationsKey])
+            preferences[declarationsKey] = AppPreferencesCodec.encodeDeclarations(
+                existing.map {
+                    if (it.id == id) {
+                        it.copy(processStatus = SettlementProcess.PAID, paymentNo = paymentNo, processedAt = at)
+                    } else {
+                        it
+                    }
                 }
             )
         }
