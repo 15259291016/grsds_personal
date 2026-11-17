@@ -79,7 +79,7 @@ private data class TabEntry(
 
 private val todoItems = listOf(
     TabEntry("annual", Glyph.Chart, Color(0xFF1598F4), R.string.tab_30, R.string.tab_31, R.string.tab_32, deadline = Triple(2026, 6, 30)),
-    TabEntry("deductions", Glyph.Shield, Color(0xFF8B5CF6), R.string.tab_34, R.string.tab_35, R.string.tab_36, deadline = Triple(2026, 1, 31)),
+    TabEntry("deductions", Glyph.Shield, Color(0xFF8B5CF6), R.string.tab_34, R.string.tab_35, R.string.tab_36, deadline = Triple(2025, 12, 31)),
     TabEntry("bank", Glyph.Card, Color(0xFF15CDB1), R.string.tab_38, R.string.tab_39, R.string.tab_40),
     TabEntry("done", Glyph.Check, Color(0xFF9AB0C4), R.string.tab_42, R.string.tab_43, R.string.tab_44, done = true)
 )
@@ -582,7 +582,7 @@ private val profileGroups = listOf(
         listOf(
             TabEntry("help", Glyph.Headset, Color(0xFF6C7CF0), R.string.tab_100),
             TabEntry("about", Glyph.DocCheck, Color(0xFF26B4A8), R.string.tab_102),
-            TabEntry("settings", Glyph.Grid, Color(0xFF9AB0C4), R.string.tab_104)
+            TabEntry("settings", Glyph.Gear, Color(0xFF9AB0C4), R.string.tab_104)
         )
     )
 )

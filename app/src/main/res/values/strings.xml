@@ -148,7 +148,7 @@
     <string name="home_08">已展示全部内容</string>
     <string name="home_09">请输入想搜索的功能/服务</string>
     <string name="home_10">汇算清缴预约</string>
-    <string name="home_11">关于2025年度个人所得税综合所得汇算清缴预约办理的通知</string>
+    <string name="home_11">2025年度综合所得汇算清缴预约办理的通知</string>
     <string name="home_12">税务\n服务</string>
     <string name="home_13">2025综合所得年度汇算</string>
     <string name="home_14">已于6月30日结束，您可进入本专题页查看记录或补办年度汇算</string>
@@ -361,8 +361,8 @@
     <string name="tab_32">2026-06-30 截止</string>
     <string name="tab_33">扣</string>
     <string name="tab_34">2026年度专项附加扣除确认</string>
-    <string name="tab_35">一键带入上年度扣除信息，确认后2026年度可继续享受</string>
-    <string name="tab_36">2026-01-31 截止</string>
+    <string name="tab_35">确认期为2025年12月1日至12月31日，确认后2026年度可继续享受</string>
+    <string name="tab_36">2025-12-31 截止</string>
     <string name="tab_37">卡</string>
     <string name="tab_38">银行卡信息核实</string>
     <string name="tab_39">退税款项将退至您绑定的银行卡，请核实卡片状态</string>
@@ -442,8 +442,8 @@
     <string name="batch_29">金额需为大于 0 的数字</string>
     <string name="details_22">请选择纳税年度</string>
     <string name="details_23">请选择所得类型</string>
-    <string name="details_24">收起 ︿</string>
-    <string name="details_25">其他类型 ﹀</string>
+    <string name="details_24">收起</string>
+    <string name="details_25">其他类型</string>
     <string name="details_26">请至少选择一种所得类型</string>
     <string name="details_27">查询</string>
     <string name="details_28">我录入的纳税明细</string>

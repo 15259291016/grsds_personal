@@ -113,7 +113,7 @@ private val bottomTabs = listOf(
     Glyph.Todo to R.string.home_52,
     Glyph.Services to R.string.home_53,
     Glyph.Message to R.string.home_54,
-    Glyph.Profile to R.string.home_55
+    Glyph.Smiley to R.string.home_55
 )
 
 private val articleGroups = listOf(
@@ -459,7 +459,8 @@ private fun HomeHeader(
                 Text(
                     stringResource(R.string.home_11),
                     color = Color(0xFFA8630B),
-                    fontSize = 14.sp,
+                    // 13sp 时这一整句刚好放得下，不会触发跑马灯把首字裁掉
+                    fontSize = 13.sp,
                     maxLines = 1,
                     softWrap = false,
                     modifier = Modifier
@@ -758,8 +759,9 @@ private fun ServiceCards(
 }
 
 /**
- * 官方服务卡：103×132dp 的白色圆角卡，图标是一个从卡面左上角凸出来 16dp 的彩色圆角方块，
- * 底部是淡色底的同色胶囊按钮。四张之后还会露出下一张的边，提示可以横向滑动。
+ * 官方服务卡：108×142dp 的白色圆角卡，图标是一个从卡面左上角凸出来 16dp 的彩色圆角方块，
+ * 右下角压着一块淡色操作区（约卡片宽的 52%、高 22dp，左上圆角，右下角顺着卡面圆角），
+ * 四张之后还会露出下一张的边，提示可以横向滑动。
  */
 @Composable
 private fun ServiceCard(item: ServiceItem, onClick: () -> Unit) {
@@ -776,37 +778,46 @@ private fun ServiceCard(item: ServiceItem, onClick: () -> Unit) {
                 .fillMaxSize()
                 .padding(top = 16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(start = 10.dp, top = 31.dp, end = 8.dp, bottom = 8.dp)
-            ) {
-                Text(
-                    stringResource(item.title),
-                    color = PrimaryText,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    stringResource(item.description),
-                    color = Color(0xFF9AA0A8),
-                    fontSize = 11.sp,
-                    lineHeight = 14.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.weight(1f))
-                Text(
-                    stringResource(item.action),
-                    color = item.color,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 11.sp,
+            Box(Modifier.fillMaxSize()) {
+                Column(
+                    // 底部留出操作块的高度（22dp）+ 2dp 间隙，描述不再被压成一行省略
+                    modifier = Modifier.padding(start = 10.dp, top = 31.dp, end = 8.dp, bottom = 24.dp)
+                ) {
+                    Text(
+                        stringResource(item.title),
+                        color = PrimaryText,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        lineHeight = 17.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        stringResource(item.description),
+                        color = Color(0xFF9AA0A8),
+                        fontSize = 11.sp,
+                        lineHeight = 14.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                // 操作区贴在右下角，右下圆角由父级 Surface 的裁剪负责
+                Box(
                     modifier = Modifier
-                        .background(item.color.copy(alpha = 0.10f), RoundedCornerShape(7.dp))
-                        .padding(horizontal = 7.dp, vertical = 2.dp)
-                )
+                        .align(Alignment.BottomEnd)
+                        .width(56.dp)
+                        .height(22.dp)
+                        .background(item.color.copy(alpha = 0.22f), RoundedCornerShape(topStart = 12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        stringResource(item.action),
+                        color = item.color,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                }
             }
         }
 
@@ -1058,7 +1069,8 @@ private fun HomeBottomNavigation(selectedTab: Int, onSelected: (Int) -> Unit) {
                             .clickable { onSelected(index) }
                     ) {
                         GlyphIcon(
-                            item.first,
+                            // 官方选中态用实心图标，未选中是线性
+                            if (selected && item.first == Glyph.Home) Glyph.HomeFilled else item.first,
                             tint = tint,
                             size = 24.dp,
                             strokeWidth = if (selected) 2.0.dp else 1.8.dp

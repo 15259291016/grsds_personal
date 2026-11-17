@@ -9,11 +9,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -25,10 +27,10 @@ import androidx.compose.ui.unit.dp
  * 一放大就和系统字体绑死，观感和原生图标差得很远。
  */
 enum class Glyph {
-    Home, Todo, Services, Message, Profile,
+    Home, HomeFilled, Todo, Services, Message, Profile, Smiley,
     Bell, Flame, Chart, Receipt, Printer,
     Card, DocCheck, Stamp, IdCard, People,
-    Briefcase, Pencil, Headset, Grid,
+    Briefcase, Pencil, Headset, Grid, Gear,
     Check, ChevronRight, ChevronDown, Search, Scan,
     Calendar, Close, Clock, Shield
 }
@@ -93,11 +95,30 @@ fun DrawScope.drawGlyph(kind: Glyph, color: Color, strokeWidth: Float) {
             }
         }
 
+        /** 选中态：实心房子，门洞用奇偶填充抠掉，透出底栏的白底。 */
+        Glyph.HomeFilled -> solid {
+            fillType = PathFillType.EvenOdd
+            moveTo(12f * u, 2.8f * u)
+            lineTo(21.4f * u, 10.6f * u)
+            lineTo(21.4f * u, 20.6f * u)
+            lineTo(2.6f * u, 20.6f * u)
+            lineTo(2.6f * u, 10.6f * u)
+            close()
+            moveTo(9.7f * u, 20.6f * u)
+            lineTo(9.7f * u, 14.4f * u)
+            lineTo(14.3f * u, 14.4f * u)
+            lineTo(14.3f * u, 20.6f * u)
+            close()
+        }
+
+        /** 官方「待办」是一本带对勾的日历，不是写字板。 */
         Glyph.Todo -> {
-            rect(4.4f, 4.6f, 15.2f, 16.4f, 2.6f)
-            rect(9f, 2.6f, 6f, 4.2f, 1.4f, solidShape = true)
+            rect(3.6f, 5f, 16.8f, 15.6f, 2.6f)
+            ln(3.8f, 9.4f, 20.2f, 9.4f)
+            ln(8.2f, 3f, 8.2f, 6.4f)
+            ln(15.8f, 3f, 15.8f, 6.4f)
             outline {
-                moveTo(8.4f * u, 12.6f * u); lineTo(10.8f * u, 15f * u); lineTo(15.6f * u, 9.6f * u)
+                moveTo(8.4f * u, 14.6f * u); lineTo(10.8f * u, 17f * u); lineTo(15.6f * u, 11.8f * u)
             }
         }
 
@@ -123,6 +144,18 @@ fun DrawScope.drawGlyph(kind: Glyph, color: Color, strokeWidth: Float) {
                 moveTo(4.8f * u, 20.6f * u)
                 cubicTo(4.8f * u, 16.2f * u, 7.9f * u, 13.6f * u, 12f * u, 13.6f * u)
                 cubicTo(16.1f * u, 13.6f * u, 19.2f * u, 16.2f * u, 19.2f * u, 20.6f * u)
+            }
+        }
+
+        /** 官方底栏「我的」是一个笑脸，不是人像。 */
+        Glyph.Smiley -> {
+            drawCircle(color, 8.4f * u, p(12f, 12f), style = Stroke(strokeWidth))
+            dot(9.1f, 9.9f, 1.05f)
+            dot(14.9f, 9.9f, 1.05f)
+            outline {
+                moveTo(8.3f * u, 13.9f * u)
+                cubicTo(9.2f * u, 16.1f * u, 10.5f * u, 16.9f * u, 12f * u, 16.9f * u)
+                cubicTo(13.5f * u, 16.9f * u, 14.8f * u, 16.1f * u, 15.7f * u, 13.9f * u)
             }
         }
 
@@ -250,6 +283,22 @@ fun DrawScope.drawGlyph(kind: Glyph, color: Color, strokeWidth: Float) {
             rect(13.2f, 3.8f, 7f, 7f, 2f)
             rect(3.8f, 13.2f, 7f, 7f, 2f)
             rect(13.2f, 13.2f, 7f, 7f, 2f)
+        }
+
+        /** 设置用齿轮：细圆环 + 8 个外凸短齿，齿只长在环外，小尺寸下才不会糊成太阳。 */
+        Glyph.Gear -> {
+            drawCircle(color, 5.4f * u, p(12f, 12f), style = Stroke(strokeWidth * 0.9f))
+            drawCircle(color, 2.2f * u, p(12f, 12f), style = Stroke(strokeWidth * 0.9f))
+            for (i in 0 until 8) {
+                rotate(degrees = i * 45f, pivot = p(12f, 12f)) {
+                    drawRoundRect(
+                        color = color,
+                        topLeft = p(10.7f, 3.8f),
+                        size = Size(2.6f * u, 3.2f * u),
+                        cornerRadius = CornerRadius(0.9f * u, 0.9f * u)
+                    )
+                }
+            }
         }
 
         Glyph.Check -> outline {

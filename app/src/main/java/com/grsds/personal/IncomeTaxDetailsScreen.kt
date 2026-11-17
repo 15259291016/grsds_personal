@@ -50,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -171,16 +172,41 @@ fun IncomeTaxDetailsScreen(
                         )
                     }
 
-                    Text(
-                        text = if (otherTypesExpanded) stringResource(R.string.details_24) else stringResource(R.string.details_25),
-                        color = Color(0xFF2488E8),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
+                    // 「其他类型」也是列表的一行：白底 + 顶部分隔线，比浮在灰底上更像原生列表
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(48.dp)
+                            .background(Color.White)
                             .clickable { otherTypesExpanded = !otherTypesExpanded }
-                            .padding(vertical = 17.dp)
-                    )
+                    ) {
+                        HorizontalDivider(
+                            color = DetailsDivider,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                                .padding(start = 54.dp)
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (otherTypesExpanded) stringResource(R.string.details_24) else stringResource(R.string.details_25),
+                                color = Color(0xFF2488E8),
+                                fontSize = 16.sp
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            GlyphIcon(
+                                Glyph.ChevronDown,
+                                tint = Color(0xFF2488E8),
+                                size = 13.dp,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.rotate(if (otherTypesExpanded) 180f else 0f)
+                            )
+                        }
+                    }
 
                     Box(
                         modifier = Modifier
