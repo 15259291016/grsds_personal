@@ -51,6 +51,9 @@ fun CoverImage(modifier: Modifier = Modifier) {
     val isInPreview = LocalInspectionMode.current
     var showHome by remember { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    // 汇算向导的步骤放在这里：从「专项附加扣除」返回时页面会离开组合，
+    // 状态留在页面内部会退回第 1 步，用户得重新点一遍。
+    var reconcileStep by rememberSaveable { mutableIntStateOf(0) }
     val backStack = remember { mutableStateListOf<AppScreen>(AppScreen.Home) }
 
     fun navigate(screen: AppScreen) {
@@ -124,8 +127,10 @@ fun CoverImage(modifier: Modifier = Modifier) {
             )
 
             AppScreen.AnnualReconciliation -> AnnualReconciliationScreen(
-                onBack = { goBack() },
+                onBack = { reconcileStep = 0; goBack() },
                 onOpenDeductions = { navigate(AppScreen.Deductions) },
+                step = reconcileStep,
+                onStepChange = { reconcileStep = it },
                 modifier = modifier
             )
 

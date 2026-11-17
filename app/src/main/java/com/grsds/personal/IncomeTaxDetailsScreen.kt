@@ -80,9 +80,9 @@ private val incomeTypes = INCOME_TYPE_OPTIONS
 @Composable
 fun IncomeTaxDetailsScreen(
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     onOpenBatchCreate: () -> Unit = {},
-    onQuery: (year: Int, incomeTypes: List<String>) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier
+    onQuery: (year: Int, incomeTypes: List<String>) -> Unit = { _, _ -> }
 ) {
     BackHandler(onBack = onBack)
 
@@ -91,9 +91,9 @@ fun IncomeTaxDetailsScreen(
     val allRecords by repository.records.collectAsState(initial = emptyList())
 
     var selectedYear by remember {
-        mutableStateOf(Calendar.getInstance().get(Calendar.YEAR))
+        mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR))
     }
-    var pendingYear by remember { mutableStateOf(selectedYear) }
+    var pendingYear by remember { mutableIntStateOf(selectedYear) }
     var otherTypesExpanded by remember { mutableStateOf(false) }
     var showYearPicker by remember { mutableStateOf(false) }
     val checkedTypes = remember {
@@ -117,10 +117,10 @@ fun IncomeTaxDetailsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(DetailsBackground)
     ) {
         Scaffold(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             containerColor = DetailsBackground,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -352,8 +352,9 @@ private fun DetailsTopBar(onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
             .background(Color.White)
+            .statusBarsPadding()
+            .height(50.dp)
     ) {
         Text(
             stringResource(R.string.details_01),

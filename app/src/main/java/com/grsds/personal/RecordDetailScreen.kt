@@ -82,10 +82,10 @@ fun RecordDetailScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(DetailPageBackground)
     ) {
         Scaffold(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             containerColor = DetailPageBackground,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -163,8 +163,9 @@ private fun DetailTopBar(onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
             .background(Color.White)
+            .statusBarsPadding()
+            .height(50.dp)
     ) {
         Text(
             stringResource(R.string.record_detail_07),

@@ -64,9 +64,9 @@
     <string name="reconcile_38">已预缴</string>
 
     <!-- BatchCreateScreen.kt -->
-    <string name="batch_01">第 %1$s 行：%2$s</string>
+    <string name="batch_01">第 %1$d 行：%2$s</string>
     <string name="batch_02">未填写扣缴义务人</string>
-    <string name="batch_03">已保存 %1$s 条 %2$s 年度记录</string>
+    <string name="batch_03">已保存 %1$d 条 %2$d 年度记录</string>
     <string name="batch_04">一次可录入多行，提交后统一写入本地</string>
     <string name="batch_05">‹ 返回</string>
     <string name="batch_06">批量添加纳税明细</string>
@@ -447,7 +447,7 @@
     <string name="details_26">请至少选择一种所得类型</string>
     <string name="details_27">查询</string>
     <string name="details_28">我录入的纳税明细</string>
-    <string name="details_29">已删除 %1$s 月 %2$s ¥%3$s</string>
+    <string name="details_29">已删除 %1$d 月 %2$s ¥%3$s</string>
     <string name="details_30">撤销</string>
     <string name="details_31">已恢复该条明细</string>
     <string name="details_32">删除这条纳税明细？</string>

@@ -76,10 +76,10 @@ fun QueryResultScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(ResultPageBackground)
     ) {
         Scaffold(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             containerColor = ResultPageBackground,
             contentWindowInsets = WindowInsets(0, 0, 0, 0)
         ) { innerPadding ->
@@ -164,8 +164,9 @@ private fun ResultTopBar(title: String, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
             .background(Color.White)
+            .statusBarsPadding()
+            .height(50.dp)
     ) {
         Text(
             stringResource(R.string.query_01),

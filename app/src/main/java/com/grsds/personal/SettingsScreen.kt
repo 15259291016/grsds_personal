@@ -71,9 +71,9 @@ fun SettingsScreen(
     val clearedToast = stringResource(R.string.settings_15)
     BackHandler(onBack = onBack)
 
-    Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
+    Box(modifier = modifier.fillMaxSize().background(SetPageBackground)) {
         Scaffold(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             containerColor = SetPageBackground,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -189,8 +189,9 @@ private fun SetTopBar(onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
             .background(Color.White)
+            .statusBarsPadding()
+            .height(50.dp)
     ) {
         Text(
             stringResource(R.string.settings_18),

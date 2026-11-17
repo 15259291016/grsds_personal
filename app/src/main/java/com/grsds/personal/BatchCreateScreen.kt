@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -151,10 +152,10 @@ fun BatchCreateScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(BatchPageBackground)
     ) {
         Scaffold(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             containerColor = BatchPageBackground,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -236,8 +237,9 @@ private fun BatchTopBar(onBack: () -> Unit, onClear: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
             .background(Color.White)
+            .statusBarsPadding()
+            .height(50.dp)
     ) {
         Text(
             stringResource(R.string.batch_05),
@@ -581,7 +583,8 @@ private fun BatchActionBar(
     onAddRow: () -> Unit,
     onSubmit: () -> Unit
 ) {
-    Surface(color = Color.White, shadowElevation = 8.dp) {
+    // 键盘弹出时把操作栏顶到键盘上方，否则「提交」被输入法盖住，用户只能先收键盘
+    Surface(color = Color.White, shadowElevation = 8.dp, modifier = Modifier.imePadding()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

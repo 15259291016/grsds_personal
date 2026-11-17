@@ -68,6 +68,8 @@ private val stepTitles = listOf(
 fun AnnualReconciliationScreen(
     onBack: () -> Unit,
     onOpenDeductions: () -> Unit,
+    step: Int,
+    onStepChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -83,7 +85,6 @@ fun AnnualReconciliationScreen(
         records.maxOfOrNull { it.year } ?: 2025
     }
     var year by remember(defaultYear) { mutableIntStateOf(defaultYear) }
-    var step by remember { mutableIntStateOf(0) }
     // 本次刚提交的记录：让结果页在 Flow 回流之前就能展示
     var justSubmitted by remember(year) { mutableStateOf<DeclarationRecord?>(null) }
     BackHandler(onBack = onBack)
@@ -122,7 +123,7 @@ fun AnnualReconciliationScreen(
                     year = year,
                     records = yearRecords,
                     settlement = settlement,
-                    onSelectYear = { year = it; step = 0 }
+                    onSelectYear = { year = it; onStepChange(0) }
                 )
                 step == 1 -> DeductionStep(
                     settlement = settlement,
@@ -148,7 +149,7 @@ fun AnnualReconciliationScreen(
                         color = ReconSecondaryText,
                         fontSize = 16.sp,
                         modifier = Modifier
-                            .clickable { step -= 1 }
+                            .clickable { onStepChange(step - 1) }
                             .padding(end = 20.dp, top = 10.dp, bottom = 10.dp)
                     )
                 }
@@ -156,7 +157,7 @@ fun AnnualReconciliationScreen(
                     onClick = {
                         when {
                             submitted -> onBack()
-                            step < 2 -> step += 1
+                            step < 2 -> onStepChange(step + 1)
                             else -> scope.launch {
                                 justSubmitted = prefsRepository.submitDeclaration(
                                     DeclarationRecord.from(settlement, System.currentTimeMillis())
@@ -164,6 +165,8 @@ fun AnnualReconciliationScreen(
                             }
                         }
                     },
+                    // 没有任何收入时不允许往下走，否则会提交一张 0 元的申报
+                    enabled = submitted || step > 0 || settlement.incomeCents > 0,
                     colors = ButtonDefaults.buttonColors(containerColor = ReconBlue),
                     shape = RoundedCornerShape(24.dp),
                     contentPadding = PaddingValues(vertical = 12.dp),
@@ -493,7 +496,12 @@ private fun TaxStep(settlement: TaxCalculator.Settlement) {
             HorizontalDivider(color = ReconDivider)
             Spacer(Modifier.height(8.dp))
             ReconRow(stringResource(R.string.reconcile_25), settlement.taxableIncomeCents, bold = true)
-            ReconRow(stringResource(R.string.reconcile_26), null, text = "${settlement.taxRatePercent}%")
+            // 应纳税所得额为 0 时没有适用税率可言，写着 3% 会让人以为还要缴税
+            ReconRow(
+                stringResource(R.string.reconcile_26),
+                null,
+                text = if (settlement.taxableIncomeCents > 0) "${settlement.taxRatePercent}%" else "—"
+            )
             ReconRow(stringResource(R.string.reconcile_27), settlement.taxPayableCents, bold = true)
             ReconRow(stringResource(R.string.reconcile_28), settlement.taxPrepaidCents)
 

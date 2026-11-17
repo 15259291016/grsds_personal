@@ -150,10 +150,10 @@ fun HomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(PageBackground)
     ) {
         Scaffold(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             containerColor = PageBackground,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -178,7 +178,7 @@ fun HomeScreen(
                     onOpenAnnualReconciliation = onOpenAnnualReconciliation,
                     onOpenDeductions = onOpenDeductions,
                     onOpenDeclarationRecords = onOpenDeclarationRecords,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 2 -> ServicesTab(
                     onAction = showMessage,
@@ -187,11 +187,11 @@ fun HomeScreen(
                     onOpenAnnualReconciliation = onOpenAnnualReconciliation,
                     onOpenDeductions = onOpenDeductions,
                     onOpenDeclarationRecords = onOpenDeclarationRecords,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 3 -> MessagesTab(
                     onAction = showMessage,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding).statusBarsPadding()
                 )
                 else -> ProfileTab(
                     onAction = showMessage,
@@ -323,6 +323,7 @@ private fun PersistentSearchBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(DeepBlue)
+            .statusBarsPadding()
             .padding(horizontal = 12.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
